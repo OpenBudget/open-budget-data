@@ -8,7 +8,7 @@ import gzip
 
 if __name__=="__main__":
     explanations = {}
-    for row in csv.reader(file("../change_explanation/explanations.csv")):
+    for row in csv.reader(gzip.GzipFile("../change_explanation/explanations.csv.gz")):
         year,req_pri,req_sec,date,explanation = row
         key = "%s/%s/%s" % (year,req_pri,req_sec)
         explanations[key] = (date,explanation)
