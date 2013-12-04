@@ -5,6 +5,7 @@ import sys
 import csv
 import glob
 import gzip
+import json
 
 if __name__=="__main__":
     explanations = {}
@@ -13,7 +14,7 @@ if __name__=="__main__":
         key = "%s/%s/%s" % (year,req_pri,req_sec)
         explanations[key] = (date,explanation)
 
-    def rows():
+    def rows(use_json):
         for changes_file in glob.glob("*.csv"):
             for row in csv.reader(file(changes_file)):
                 year, leading_item, req_code, req_title, change_code, change_title, change_type_id, change_type_name, committee_id, budget_code, budget_title, net_expense_diff, gross_expense_diff, allocated_income_diff, commitment_limit_diff, personnel_max_diff = row[:16]
@@ -41,6 +42,12 @@ if __name__=="__main__":
                 date,explanation = explanations.get(explanation_key,(None,""))
                 
                 row = [ year, leading_item, req_code, req_title, change_code, change_title, change_type_id, change_type_name, committee_id, budget_code, budget_title, net_expense_diff, gross_expense_diff, allocated_income_diff, commitment_limit_diff, personnel_max_diff, date, explanation ]
-                yield row
+                if use_json:
+                    fields = [ "year", "leading_item", "req_code", "req_title", "change_code", "change_title", "change_type_id", "change_type_name", "committee_id", "budget_code", "budget_title", "net_expense_diff", "gross_expense_diff", "allocated_income_diff", "commitment_limit_diff", "personnel_max_diff", "date", "explanation" ]
+                    jsonrow = json.dumps(dict(zip(fields,row)))+'\n'
+                    yield jsonrow
+                else:
+                    yield row
 
-    csv.writer(gzip.GzipFile('changes_total.csv.gz','w')).writerows(rows())
+    csv.writer(gzip.GzipFile('changes_total.csv.gz','w')).writerows(rows(False))
+    gzip.GzipFile("changes_total.json.gz","w").write(''.join(rows(True)))
