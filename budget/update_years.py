@@ -7,16 +7,12 @@ import sys
 
 def do_write(data,i):
     u="BAD"
-    for _ in range(10):
-        try:
-            u = urllib2.urlopen('http://the.open-budget.org.il/api/update/bl', data).read()
-            break
-        except:
-            pass
+    #u = urllib2.urlopen('http://the.open-budget.org.il/api/update/bl', data).read()
+    u = urllib2.urlopen('http://localhost:8080/api/update/bl', data).read()
     print u,i
 
 if __name__=="__main__":
-    pool = Pool(20)
+    pool = Pool(4)
     lines = []
     years = [ int(x) for x in sys.argv[1:] ]
     i = 0
