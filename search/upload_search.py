@@ -16,11 +16,17 @@ if __name__=="__main__":
     lines = []
     years = [ int(x) for x in sys.argv[1:] ]
     i = 0
+    skip = 0
+    try:
+        skip = int(sys.argv[1])
+    except:
+        pass
     for line in file("search.json"):
-        lines.append(line.strip())
-        if len(lines) == 100:
-            pool.spawn(do_write, "\n".join(lines),i)
-            lines = []
+        if i >= skip:
+            lines.append(line.strip())
+            if len(lines) == 100:
+                pool.spawn(do_write, "\n".join(lines),i)
+                lines = []
         i+=1
     if len(lines)>0:
         do_write("\n".join(lines),i)

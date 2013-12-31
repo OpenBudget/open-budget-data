@@ -11,11 +11,17 @@ theIndex = {}
 def index(name,kind,year,value):
     splits = WORDS.findall(name)
     subsplits = [ x[1:] for x in splits if x[0] in [u'ה', u'ב', u'ו', u'מ', u'ב', u'כ', u'ל'] and len(x) > 3 ]
-    for split in splits + subsplits:
-#        prefixes = [ split[:l] for l in range(1,len(split)+1) ]
-#        for prefix in prefixes:
-        key = kind+":"+split+":"+value
-        theIndex.setdefault(key,{'kind':kind,'prefix':split,'value':value,'year':set()})['year'].add(year)
+    splits.extend(subsplits)
+    tokens = set()
+    for split in splits:
+        tokens.update(set([ split[:l] for l in range(1,len(split)+1) ]))
+    key = kind+":"+value+":"+name
+    priority = 9999999999
+    try:
+        priority = int("1"+value)
+    except:
+        pass
+    theIndex.setdefault(key,{'kind':kind,'tokens':list(tokens),'value':value,'year':set(),"priority":priority})['year'].add(year)
 
 def processBudgets():
     with open(BUDGET_FN) as budgetsFile:
