@@ -1,0 +1,21 @@
+rules:
+    - processor: combine_budget_jsons
+      input:
+          - financial_report/2000-2008/out.json
+          - history_neto/history.json
+          - queries/out.json
+          - data/budgets.jsons
+          - full_titles/out.json
+      output: budgets.jsons
+    - processor: dump_to_db
+      input: budgets.jsons
+      output: budget.sqlite
+      params:
+          key_fields:
+              - year
+              - code
+    - processor: upload
+      input: budget.sqlite
+      output: budget.upload
+      params:
+          kind: bl

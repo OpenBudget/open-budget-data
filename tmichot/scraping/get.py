@@ -19,7 +19,7 @@ CodesURL = "http://tmichot.gov.il/ibi_apps/WFServlet?IBIF_ex=runtrig&TRIGGER0=1&
 CodesRE = re.compile('set1\("([0-9]+)',re.M)
 
 def do_stuff(year):
-    out = csv.writer(file("tmichot%d.csv" % year,"w"))
+    out = csv.writer(file("data/tmichot%d.csv" % year,"w"))
     for hcode, title in codes:
 
         fmt = {'year':year,'hcode':hcode }
@@ -32,7 +32,7 @@ def do_stuff(year):
             fmt['code'] = item_code
 
             print year,hcode,title.encode('utf8'),item_code
-            
+
             for i in range(3):
                 try:
                    frame = urllib2.urlopen(DataURL % fmt).read()
@@ -55,8 +55,6 @@ def do_stuff(year):
                     print _row
 
 g = []
-for year in range(2013,2015):
+for year in range(2013,2014):
     g.append(gevent.spawn(do_stuff,year))
 gevent.joinall(g)
-
-

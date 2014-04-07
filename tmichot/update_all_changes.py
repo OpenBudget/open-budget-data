@@ -28,7 +28,6 @@ if __name__=="__main__":
         lines.append(line.strip()+"\n")
         if len(lines) == 25:
             pool.spawn(do_write, "".join(lines),i)
-            #do_write("".join(lines),i)
             lines = []
             print "."
         i+=1

@@ -1,1 +1,5 @@
 *.xlsx
+changes-with-dates.jsons
+changes.jsons
+changes.sqlite
+changes.upload

@@ -1,3 +1,9 @@
 tmp.txt
 *.doc
 *~
+explanations-2*.jsons.gz
+explanations-pending.jsons.gz
+explanations-pending.zip
+explanations.jsons
+explanations.sqlite
+explanations.upload

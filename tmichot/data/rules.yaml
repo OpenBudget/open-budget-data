@@ -1,0 +1,51 @@
+rules:
+    - processor: csv_to_jsons
+      input: tmichot20*.csv
+      output: /.csv/.jsons/
+      params:
+          has_header: false
+          field_definition:
+              - field_name: year
+                convertor: integer
+              - field_name: _
+              - field_name: subject
+              - field_name: code
+              - field_name: recipient
+              - field_name: kind
+              - field_name: title
+              - field_name: num_used
+                convertor: integer
+              - field_name: amount_allocated
+                convertor: integer
+              - field_name: amount_supported
+                convertor: integer
+    - processor: aggregate_jsons_by_key
+      input: tmichot20*.jsons
+      output: /.jsons/.aggregated-jsons/
+      params:
+          key_fields:
+              - year
+              - subject
+              - code
+              - recipient
+              - kind
+              - title
+    - processor: concat
+      input: tmichot20*.aggregated-jsons
+      output: tmichot.jsons
+    - processor: dump_to_db
+      input: tmichot.jsons
+      output: tmichot.sqlite
+      params:
+          key_fields:
+              - year
+              - subject
+              - code
+              - recipient
+              - kind
+              - title
+    - processor: upload
+      input: tmichot.sqlite
+      output: tmichot.upload
+      params:
+          kind: sl

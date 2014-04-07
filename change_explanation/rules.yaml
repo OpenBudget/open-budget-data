@@ -1,0 +1,22 @@
+rules:
+    - processor: extract_txt_from_docs
+      input: explanations-*.zip
+      output: /.zip/.jsons.gz/
+    - processor: concat
+      input: explanations-*.jsons.gz
+      output: explanations.jsons
+      params:
+          input_gzipped: true
+    - processor: dump_to_db
+      input: explanations.jsons
+      output: explanations.sqlite
+      params:
+          key_fields:
+              - year
+              - leading_item
+              - req_code
+    - processor: upload
+      input: explanations.sqlite
+      output: explanations.upload
+      params:
+          kind: ex

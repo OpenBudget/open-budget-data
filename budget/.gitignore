@@ -5,3 +5,6 @@ budgets.json
 budgets.csv
 master.json
 *.numbers
+budget.sqlite
+budget.upload
+budgets.jsons

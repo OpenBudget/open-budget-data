@@ -1,0 +1,7 @@
+rules:
+  - processor: new_budget_csv
+    input: new*.csv
+    output: /.csv/.jsons/
+  - processor: concat
+    input: new*.jsons
+    output: budgets.jsons

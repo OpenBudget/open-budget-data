@@ -1,0 +1,29 @@
+rules:
+    - processor: aggregate_jsons_by_key
+      input:
+          - nlp-data/nlp-dates.jsons
+          - mof-data/changes.jsons
+      output: changes.jsons
+      params:
+          key_fields:
+              - year
+              - leading_item
+              - req_code
+              - budget_code
+    - processor: consolidate_change_dates
+      input: changes.jsons
+      output: changes-with-dates.jsons
+    - processor: dump_to_db
+      input: changes-with-dates.jsons
+      output: changes.sqlite
+      params:
+          key_fields:
+              - year
+              - leading_item
+              - req_code
+              - budget_code
+    - processor: upload
+      input: changes.sqlite
+      output: changes.upload
+      params:
+          kind: cl

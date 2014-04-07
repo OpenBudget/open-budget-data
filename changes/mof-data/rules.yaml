@@ -1,0 +1,60 @@
+rules:
+    - processor: csv_to_jsons
+      input: changes-*.csv
+      output: /.csv/.jsons/
+      params:
+          has_header: true
+          field_definition:
+            - field_name: year
+              field_title: שנה
+              convertor: integer
+            - field_name: leading_item
+              field_title: סעיף מוביל
+              convertor: integer
+            - field_name: req_code
+              field_title: מספר בקשה
+              convertor: integer
+            - field_name: req_title
+              field_title: תיאור בקשה
+            - field_name: change_code
+              field_title: קוד שינוי
+              convertor: integer
+            - field_name: change_title
+              field_title: שם שינוי
+            - field_name: change_type_id
+              field_title: קוד סוג בקשה
+              convertor: integer
+            - field_name: change_type_name
+              field_title: שם סוג בקשה
+            - field_name: committee_id
+              field_title: מספר וועדה
+              convertor: integer
+            - field_name: budget_code
+              field_title: קוד תוכנית
+              convertor: canonize_budget_code
+            - field_name: budget_title
+              field_title: שם תוכנית
+            - field_name: net_expense_diff
+              field_title: הוצאות נטו
+              convertor: canonize_integer
+            - field_name: gross_expense_diff
+              field_title: הוצאה מותנית בהכנסה
+              convertor: canonize_integer
+            - field_name: allocated_income_diff
+              field_title: הכנסה מיועדת
+              convertor: canonize_integer
+            - field_name: commitment_limit_diff
+              field_title: הרשאה להתחייב
+              convertor: canonize_integer
+            - field_name: personnel_max_diff
+              field_title: שיא כא
+              convertor: canonize_float
+            - field_name: date/approval
+              field_title: תאריך אישור
+              convertor: canonize_date
+            - field_name: date/pending
+              field_title: תאריך משלוח לוועדה
+              convertor: canonize_date
+    - processor: concat
+      input: changes-*.jsons
+      output: changes.jsons
