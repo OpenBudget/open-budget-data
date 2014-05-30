@@ -22,7 +22,7 @@ def extract(data):
         if 'הנדון' in line: start = i
     explanation = None
     if start < end:
-        explanation = "".join( txt[start+1:end] ).decode('utf8')
+        explanation = "\n".join( txt[start+1:end] ).decode('utf8')
     return explanation
 
 

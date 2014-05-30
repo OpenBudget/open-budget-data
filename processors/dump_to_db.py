@@ -5,6 +5,7 @@ import time
 import os
 import sys
 import hashlib
+import gzip
 
 if __name__ == "__main__":
     key_fields = sys.argv[1]
@@ -25,7 +26,11 @@ class dump_to_db(object):
 
         to_insert = []
         to_update = []
-        for line in file(input):
+        if input.endswith('.gz'):
+            infile = gzip.GzipFile(input)
+        else:
+            infile = file(input)
+        for line in infile:
             line = line.strip()
             data = json.loads(line)
             key = "/".join("%s:%s" % (field,data[field]) for field in key_fields)

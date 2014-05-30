@@ -10,6 +10,7 @@ rules:
               - field_name: _
               - field_name: subject
               - field_name: code
+                convertor: canonize_budget_code
               - field_name: recipient
               - field_name: kind
               - field_name: title
@@ -44,6 +45,16 @@ rules:
               - recipient
               - kind
               - title
+    - processor: join
+      input: ../../companies/company-records.sqlite
+      output: companies.jsons
+      params:
+          dst_file: tmichot/data/tmichot.sqlite
+          src_field: recipient
+          join_field: name_heb
+          dst_field: registration_id
+          dst_field_name: company_id
+          max_len: 35
     - processor: upload
       input: tmichot.sqlite
       output: tmichot.upload

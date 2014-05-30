@@ -18,12 +18,16 @@ def do_write(kind,APIKEY,data,i):
         req = urllib2.Request('http://the.open-budget.org.il/api/update/%s?apikey=%s' % (kind,APIKEY), data, headers={'Content-type': 'application/x-binary'})
         u = urllib2.urlopen(req).read()
     except Exception,e:
-        print e
+        raise
     print u,i
 
 class upload(object):
     def process(self,input,output,kind,APIKEY):
         pool = Pool(10)
+
+        if APIKEY is None:
+            print "no API key"
+            return
 
         conn = sqlite3.connect(input)
         c = conn.cursor()
@@ -45,5 +49,9 @@ class upload(object):
         pool.join()
         if i > 0:
             dirtys = c.execute("""UPDATE data SET dirty=0 WHERE dirty=1""")
-            gevent.sleep(1)
-            file(output,"w").write("OK")
+
+        conn.commit()
+        conn.close()
+
+        gevent.sleep(1)
+        file(output,"w").write("OK")

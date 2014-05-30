@@ -1,4 +1,7 @@
 rules:
+    - processor: rar_to_zip
+      input: "*.rar"
+      output: /.rar/.zip/
     - processor: extract_txt_from_docs
       input: explanations-*.zip
       output: /.zip/.jsons.gz/

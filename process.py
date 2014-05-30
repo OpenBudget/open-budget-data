@@ -4,6 +4,20 @@ import glob
 import yaml
 import logging
 
+processor_order = ['new_budget_csv',
+                   'rar_to_zip',
+                   'combine_budget_jsons',
+                   'csv_to_jsons',
+                   'aggregate_jsons_by_key',
+                   'extract_txt_from_docs',
+                   'concat',
+                   'consolidate_change_dates',
+                   'rss',
+                   'dump_to_db',
+                   'join',
+                   'upload', ]
+processor_order = dict( (e,i) for i,e in enumerate(processor_order) )
+
 def collect_processors():
     current_path = "." # os.path.abspath(".")
     for dirpath, dirnames, filenames in os.walk(current_path):
@@ -18,6 +32,7 @@ def collect_processors():
 
 def is_relevant_processor(processor):
     basepath = processor['_basepath']
+
     input = processor['input']
     if type(input) == str:
         input = os.path.join(basepath,input)
@@ -42,7 +57,7 @@ def is_relevant_processor(processor):
         ret = all([os.path.exists(i) for i in list_input])
         modified_times = [ os.path.getmtime(i) for i in list_input if os.path.exists(i) ]
         output = os.path.join(basepath,output)
-        ret = ret and ((not os.path.exists(output)) or (len(modified_times)>0 and max(modified_times) > os.path.getmtime(output)))
+        ret = ret and ((not os.path.exists(output)) or (len(modified_times)>0 and max(modified_times) >  os.path.getmtime(output)))
         tuples = [ (input, output) ]
     #logging.info("PROCESSOR %sRELEVANT%r" % ("" if ret else "NOT ", p))
     processor['_tuples'] = tuples
@@ -83,10 +98,12 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         APIKEY = sys.argv[1]
     setup_logging()
+    priorities = list
     processors = list( collect_processors() )
     while True:
         relevant = [ p for p in processors if is_relevant_processor(p) ]
+        relevant.sort( key=lambda p: processor_order[p['processor']] )
+        print [ r['processor'] for r in relevant ]
         if len(relevant) == 0:
             break
-        for p in relevant:
-            run_processor(p,APIKEY)
+        run_processor(relevant[0],APIKEY)

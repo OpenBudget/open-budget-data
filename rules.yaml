@@ -1,0 +1,12 @@
+rules:
+    - processor: dump_to_db
+      input: changes/rss-properties.jsons
+      output: properties.sqlite
+      params:
+          key_fields:
+              - key
+    - processor: upload
+      input: properties.sqlite
+      output: properties.upload
+      params:
+          kind: sp

@@ -27,3 +27,7 @@ rules:
       output: changes.upload
       params:
           kind: cl
+    - processor: rss
+      input: changes.upload
+      output: rss-properties.jsons
+      

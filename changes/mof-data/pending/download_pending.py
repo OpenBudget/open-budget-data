@@ -53,3 +53,11 @@ if __name__ == "__main__":
                 else:
                     filename = '../../../change_explanation/explanations-%s.zip' % YEAR
                 file(filename,'w').write(zipdata)
+            if href.endswith('rar'):
+                print 'downloading', href
+                rardata = urllib2.urlopen(datagov(href)).read()
+                if pending:
+                    filename = '../../../change_explanation/explanations-pending.rar'
+                else:
+                    filename = '../../../change_explanation/explanations-%s.rar' % YEAR
+                file(filename,'w').write(rardata)
