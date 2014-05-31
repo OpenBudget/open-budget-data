@@ -7,8 +7,17 @@ rules:
           - data/budgets.jsons
           - full_titles/out.json
       output: budgets.jsons
+    - processor: aggregate_jsons_by_key
+      input:
+          - budgets.jsons
+          - ../changes/budget_changes.jsons
+      output: budgets.aggregated-jsons
+      params:
+          key_fields:
+              - year
+              - code
     - processor: dump_to_db
-      input: budgets.jsons
+      input: budgets.aggregated-jsons
       output: budget.sqlite
       params:
           key_fields:

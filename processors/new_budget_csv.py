@@ -34,7 +34,7 @@ def add_to_sums(key,sums,amount,field):
 
 class new_budget_csv(object):
 
-    def process(self,input,output):
+    def process(self,input,output,new_years=[]):
         sums = {}
         budgets=csv.reader(file(input))
         for row in budgets:
@@ -47,11 +47,12 @@ class new_budget_csv(object):
                 if len(code) != col+3:
                     print code, row
                     assert(False)
+                new_year = year in new_years and len(code) < 10
                 title = row[col+1].decode('utf8')
                 net_allocated = get_from(row,11)
                 gross_allocated = get_from(row,12,net_allocated)
-                net_revised = get_from(row,18)
-                gross_revised = get_from(row,19,net_revised)
+                net_revised = get_from(row,18) if not new_year else net_allocated
+                gross_revised = get_from(row,19,net_revised) if not new_year else gross_allocated
                 net_used = get_from(row,25)
 
                 key = "%s/%s" % (year,code)

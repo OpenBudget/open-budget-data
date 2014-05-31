@@ -7,6 +7,7 @@ import logging
 processor_order = ['new_budget_csv',
                    'rar_to_zip',
                    'combine_budget_jsons',
+                   'prepare_budget_changes',
                    'csv_to_jsons',
                    'aggregate_jsons_by_key',
                    'extract_txt_from_docs',

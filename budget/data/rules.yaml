@@ -2,6 +2,10 @@ rules:
   - processor: new_budget_csv
     input: new*.csv
     output: /.csv/.jsons/
+    params:
+        new_years:
+            - 2013
+            - 2014
   - processor: concat
     input: new*.jsons
     output: budgets.jsons

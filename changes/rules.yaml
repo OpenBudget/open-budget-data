@@ -10,6 +10,13 @@ rules:
               - leading_item
               - req_code
               - budget_code
+    - processor: prepare_budget_changes
+      input: changes.jsons
+      output: budget_changes.jsons
+      params:
+          new_years:
+              - 2013
+              - 2014
     - processor: consolidate_change_dates
       input: changes.jsons
       output: changes-with-dates.jsons
@@ -30,4 +37,3 @@ rules:
     - processor: rss
       input: changes.upload
       output: rss-properties.jsons
-      

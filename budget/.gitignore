@@ -8,3 +8,4 @@ master.json
 budget.sqlite
 budget.upload
 budgets.jsons
+*.aggregated-jsons
