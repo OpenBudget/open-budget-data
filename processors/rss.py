@@ -145,7 +145,7 @@ def format_title(template,value,titles):
     return u"%s %s %s" % (template,title,value)
 
 def prepare_rss(output_filename):
-    pending_changes = get_url("changes/pending/committee")
+    pending_changes = get_url("changes/pending/all")
     groups = get_groups(pending_changes[:])
     pending_by = {}
     for ch in pending_changes:

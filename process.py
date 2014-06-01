@@ -15,10 +15,11 @@ processor_order = ['download_pending_changes',
                    'extract_txt_from_docs',
                    'concat',
                    'consolidate_change_dates',
-                   'rss',
+                   'extract_change_groups',
                    'dump_to_db',
                    'join',
-                   'upload', ]
+                   'upload',
+		           'rss' ]
 processor_order = dict( (e,i) for i,e in enumerate(processor_order) )
 
 def collect_processors():
@@ -89,7 +90,8 @@ def run_processor(processor,apikey):
         except Exception,e:
             logging.error("%s(%s) %s, deleting %s" % (processor_classname,
                                              ", ".join("%s=%s" % i for i in params.iteritems()), e, output))
-            os.unlink(output)
+            if os.path.exists(output):
+                os.unlink(output)
             raise
 
 def setup_logging():
