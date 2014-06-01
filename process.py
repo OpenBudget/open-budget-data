@@ -3,8 +3,10 @@ import os
 import glob
 import yaml
 import logging
+import time
 
-processor_order = ['new_budget_csv',
+processor_order = ['download_pending_changes',
+                   'new_budget_csv',
                    'rar_to_zip',
                    'combine_budget_jsons',
                    'prepare_budget_changes',
@@ -34,21 +36,24 @@ def collect_processors():
 def is_relevant_processor(processor):
     basepath = processor['_basepath']
 
-    input = processor['input']
+    input = processor.get('input')
     if type(input) == str:
         input = os.path.join(basepath,input)
         if '*' in input:
             input = glob.glob(input)
     elif type(input) == list:
         input = [ os.path.join(basepath,x) for x in input ]
+    elif input is None:
+        input = []
     output = processor['output']
+    delay = processor.get('delay',0)
     if output.startswith("/"):
         src,dst = output.split('/')[1:3]
         output = [ x.replace(src,dst) for x in input ]
         tuples = zip(input,output)
         tuples = [ (i,o) for i,o in tuples if
                     os.path.exists(i) and
-                    ((os.path.exists(o) and os.path.getmtime(i) > os.path.getmtime(o)) or
+                    ((os.path.exists(o) and os.path.getmtime(i) > (delay+os.path.getmtime(o))) or
                     (not os.path.exists(o))) ]
         ret = len(tuples)>0
     else:
@@ -56,9 +61,12 @@ def is_relevant_processor(processor):
         if type(input) != list:
             list_input = [ list_input ]
         ret = all([os.path.exists(i) for i in list_input])
-        modified_times = [ os.path.getmtime(i) for i in list_input if os.path.exists(i) ]
+        if len(input) > 0:
+            modified_times = [ os.path.getmtime(i) for i in list_input if os.path.exists(i) ]
+        else:
+            modified_times = [ time.time() ]
         output = os.path.join(basepath,output)
-        ret = ret and ((not os.path.exists(output)) or (len(modified_times)>0 and max(modified_times) >  os.path.getmtime(output)))
+        ret = ret and ((not os.path.exists(output)) or (len(modified_times)>0 and max(modified_times) >  (delay+os.path.getmtime(output))))
         tuples = [ (input, output) ]
     #logging.info("PROCESSOR %sRELEVANT%r" % ("" if ret else "NOT ", p))
     processor['_tuples'] = tuples

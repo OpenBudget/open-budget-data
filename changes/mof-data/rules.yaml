@@ -1,4 +1,10 @@
 rules:
+    - processor: download_pending_changes
+      output: pending.downloaded
+      delay: 3600
+      params:
+          changes_basepath: changes/
+          change_expl_basepath: change_explanation/
     - processor: csv_to_jsons
       input: changes-*.csv
       output: /.csv/.jsons/

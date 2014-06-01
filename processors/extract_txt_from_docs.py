@@ -4,6 +4,7 @@ import zipfile
 import os
 import gzip
 import json
+import tempfile
 
 if __name__ == "__main__":
     input = sys.argv[1:-1]
@@ -28,7 +29,8 @@ def extract(data):
 
 class extract_txt_from_docs(object):
     def process(self,input,output):
-        out = gzip.GzipFile(output,"w")
+        tmp_outfile = tempfile.mktemp()
+        out = gzip.GzipFile(tmp_outfile,"w")
         inp = zipfile.ZipFile(file(input))
         names = inp.namelist()
         for filename in names:
@@ -42,3 +44,6 @@ class extract_txt_from_docs(object):
             row = {'year':year,'leading_item':leading_item,'req_code':req_code,'explanation':explanation}
             if explanation is None: print filename, row
             out.write(json.dumps(row)+"\n")
+
+        out.close()
+        os.rename(tmp_outfile,output)

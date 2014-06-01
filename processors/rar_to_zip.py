@@ -14,7 +14,10 @@ class rar_to_zip(object):
         p.communicate()
         p = subprocess.Popen(['ls','-la',"*.doc"],cwd=outdir,shell=True,stdout=subprocess.PIPE)
         (o,e) = p.communicate()
-        os.unlink(output)
+        try:
+            os.unlink(output)
+        except Exception,e:
+            pass
         cmd = ['zip',os.path.abspath(output)]
         cmd.extend(o.split())
         p = subprocess.Popen(cmd,cwd=outdir)
