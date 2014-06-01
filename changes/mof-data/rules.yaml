@@ -1,7 +1,7 @@
 rules:
     - processor: download_pending_changes
       output: pending.downloaded
-      delay: 3600
+      delay: 1800
       params:
           changes_basepath: changes/
           change_expl_basepath: change_explanation/
