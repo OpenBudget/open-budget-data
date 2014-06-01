@@ -5,6 +5,7 @@ import sys
 import urllib2
 from pyquery import PyQuery as pq
 import logging
+import hashlib
 
 YEAR = 2014
 
@@ -13,6 +14,18 @@ def datagov(x):
     return 'http://data.gov.il%s' % x
   else:
     return x
+
+def write_if_changed(filename,data):
+    try:
+        current = hashlib.md5(file(filename).read()).hexdigest()
+    except:
+        current = None
+    new = hashlib.md5(data).hexdigest()
+    if current != new:
+        logging.debug('>> %s wrote %d bytes' % (filename,len(data)))
+        file(filename,"w").write(data)
+    else:
+        logging.debug('>> %s unchanged' % filename)
 
 if __name__ == "__main__":
     inputs = sys.argv[1]
@@ -49,8 +62,7 @@ class download_pending_changes(object):
                         pending = True
                     if 'תאריך אישור' in csvdata:
                         filename = os.path.join(changes_basepath,'changes-%s.csv' % YEAR)
-                    logging.debug('>> %s' % filename)
-                    file(filename,'w').write(csvdata)
+                    write_if_changed(filename,csvdata)
             for _f in files:
                 f = pq(_f)
                 href = f.attr('href')
@@ -62,7 +74,7 @@ class download_pending_changes(object):
                     else:
                         filename = os.path.join(change_expl_basepath,'explanations-%s.zip' % YEAR)
                     logging.debug('>> %s' % filename)
-                    file(filename,'w').write(zipdata)
+                    write_if_changed(filename,zipdata)
                 if href.endswith('rar'):
                     logging.debug('downloading %s' % href)
                     rardata = urllib2.urlopen(datagov(href)).read()
@@ -71,6 +83,6 @@ class download_pending_changes(object):
                     else:
                         filename = os.path.join(change_expl_basepath,'explanations-%s.rar' % YEAR)
                     logging.debug('>> %s' % filename)
-                    file(filename,'w').write(rardata)
+                    write_if_changed(filename,rardata)
 
         file(output,"w").write("OK")
