@@ -289,8 +289,7 @@ def prepare_rss(output_filename):
     else:
         feed_title = "%d/%d - %d/%d" % (start.day,start.month,end.day,end.month)
 
-    to_write = {'rss_update_time':now.isoformat(),
-                'rss_items':final_transfers,
+    to_write = {'rss_items':final_transfers,
                 'rss_title':feed_title}
     for k,v in to_write.iteritems():
         output.write(json.dumps({'key':k,'value':v})+'\n')
