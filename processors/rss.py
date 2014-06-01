@@ -191,8 +191,8 @@ def prepare_rss(output_filename):
             tr['commitment_limit_diff'] = sum(map(lambda x:x['commitment_limit_diff'],tr['filt_items']))
             budget_codes = [x['budget_code'] for x in tr['filt_items']]
             closest_parent = common_prefix(budget_codes)
-            tr['common_parent_budget_item'] = get_url('budget/%s/%d' % (closest_parent,tr['year']))
-            tr['breadcrumbs'] = [get_url('budget/%s/%d' % (closest_parent[:x],tr['year']))['title'] for x in range(4,len(closest_parent)+1,2)]
+            #tr['common_parent_budget_item'] = get_url('budget/%s/%d' % (closest_parent,tr['year']))
+            #tr['breadcrumbs'] = [get_url('budget/%s/%d' % (closest_parent[:x],tr['year']))['title'] for x in range(4,len(closest_parent)+1,2)]
             budget_item_history = get_url('budget/%s' % (closest_parent,))
             history_filt = [x for x in budget_item_history if x['net_allocated'] > 0 and x['net_revised'] > 0]
             performance_history = 1
