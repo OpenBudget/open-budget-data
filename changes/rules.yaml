@@ -36,3 +36,15 @@ rules:
     - processor: rss
       input: changes.upload
       output: rss-properties.jsons
+    - processor: dump_to_db
+      input: changes/changegroups.jsons
+      output: changegroups.sqlite
+      params:
+          key_fields:
+              - year
+              - group_id
+    - processor: upload
+      input: changegroups.sqlite
+      output: changegroups.upload
+      params:
+          kind: cg

@@ -1,0 +1,401 @@
+#encoding: utf8
+
+import pystache
+import json
+import urllib2
+import itertools
+import pprint
+import shelve
+import math
+import jinja2
+import datetime
+from numpy import array
+from itertools import chain
+
+if __name__ == "__main__":
+    input = sys.argv[1]
+    output = sys.argv[2]
+    processor = extract_change_groups().process(input,output)
+
+fields = ['net_expense_diff',
+          'gross_expense_diff',
+          'allocated_income_diff',
+          'commitment_limit_diff',
+          'personnel_max_diff']
+
+def change_to_vec(change):
+    return array([change[x] for x in fields])
+
+def transfer_code(change):
+    return "%d/%02d-%03d" % (change['year'],change['leading_item'],change['req_code'])
+
+def powerset(iterable):
+    s = list(iterable)
+    return chain.from_iterable(combinations(s, r) for r in range(2,min(len(s)+1,6)))
+
+def subsets(s):
+    return map(set, powerset(s))
+
+def combinations(iterable, r):
+    # combinations('ABCD', 2) --> AB AC AD BC BD CD
+    # combinations(range(4), 3) --> 012 013 023 123
+    def get_next(next_of,i):
+        ret = nexts.get(next_of,next_of+1)
+        if ret > i + n - r:
+            ret = i + n - r
+        return ret
+
+    pool = tuple(iterable)
+    n = len(pool)
+    if r > n:
+        return
+    nexts = dict(zip(range(n-1),range(1,n)))
+    indices = range(r)
+    yield tuple(pool[i] for i in indices)
+    while True:
+        for i in reversed(range(r)):
+            if indices[i] != i + n - r:
+                break
+        else:
+            return
+        indices[i] = get_next(indices[i],i)
+        for j in range(i+1, r):
+            indices[j] = get_next(indices[j-1],j)
+        found = (yield tuple(pool[i] for i in indices))
+        if found:
+            for i in indices:
+                target = nexts.get(i)
+                sources = (k for k,v in nexts.iteritems() if v==i)
+                if target is not None:
+                    for src in sources:
+                        nexts[src] = target
+                else:
+                    for src in list(sources):
+                        del nexts[src]
+            indices[0] = get_next(indices[0],0)
+            for j in range(1,r):
+                indices[j] = get_next(indices[j-1],j)
+            #print "nexts",len(set(nexts.values()))
+
+def get_groups(changes):
+    for change in changes:
+        change['trcode'] = transfer_code(change)
+        for k,v in change.iteritems():
+            if k.startswith('date'):
+                change['date'] = v
+                break
+        if change.get('date') is None:
+            print change
+    get_date = lambda x:x['date']
+    changes.sort(key=get_date)
+    groups = []
+    selected_transfer_codes = set()
+    for date, date_changes in itertools.groupby(changes, get_date):
+        print 'reserve date:',date
+        date_reserve = [c for c in date_changes if c['budget_code'].startswith('0047')
+                        if sum(c[field]*c[field] for field in fields) > 0]
+        #print 'len(date_reserve)=',len(date_reserve)
+        for comb_size in range(2,min(len(date_reserve),6)):
+            done = False
+            #print "comb_size", comb_size
+            while not done:
+                not_selected = list(x for x in date_reserve if x['trcode'] not in selected_transfer_codes)
+                #print 'len(not_selected)=',len(not_selected)
+                date_groups = combinations(not_selected,comb_size)
+                found = None
+                done = True
+                try:
+                    while True:
+                        group = date_groups.send(found)
+                        found = False
+                        vecs = list(change_to_vec(c) for c in group)
+                        sumvec = sum(vecs)
+                        if len(sumvec)>1:
+                            sumvec = sum(sumvec)
+                        if sumvec == 0:
+                            transfer_codes = set(x['trcode'] for x in group)
+                            if len(selected_transfer_codes & transfer_codes) > 0:
+                                continue
+                            selected_transfer_codes.update(transfer_codes)
+                            transfer_codes = list(transfer_codes)
+                            transfer_codes.sort()
+                            to_append = { 'transfer_ids': transfer_codes,
+                                          'date': date}
+                            print to_append
+                            groups.append(to_append)
+                            found = True
+                except StopIteration:
+                    pass
+                #print "considered %d combinations" % i
+    all_transfer_codes = set((x['trcode'],x['date']) for x in changes)
+    for trcode,date in all_transfer_codes:
+        if not trcode in selected_transfer_codes:
+            groups.append({'transfer_ids': [trcode],
+                            'date': date})
+    for group in groups:
+        trcodes = set(group['transfer_ids'])
+        years = list(set(int(x.split('/')[0]) for x in trcodes))
+        assert(len(years)==1)
+        group['year'] = years[0]
+        group['transfer_ids'] = list(set(x.split('/')[1] for x in trcodes))
+        transfer_changes = list(filter(lambda x:x['trcode'] in trcodes,changes))
+        #group['changes'] = transfer_changes
+        group['budget_codes'] = list(set(x['budget_code'] for x in transfer_changes))
+        group['prefixes'] = list(set(chain.from_iterable([code[:l] for l in range(2,8,2)] for code in group['budget_codes'])))
+        group['group_id'] = group['transfer_ids'][0]
+
+    return groups
+
+# def avg(l):
+#     l = list(l)
+#     return 1.0*sum(l)/len(l)
+#
+# def get_url(url):
+#     if not cache.has_key(url):
+#         try:
+#             print url
+#             data = json.loads(urllib2.urlopen("http://the.open-budget.org.il/api/"+url+"?limit=1000").read())
+#         except:
+#             print "Failed to get data for %s" % url
+#             raise
+#         cache[url] = data
+#         #cache.sync()
+#     else:
+#         data = cache[url]
+#     return data
+#
+# def common_prefix(items):
+#     prefix = None
+#     for item in items:
+#         if prefix is None:
+#             prefix = item
+#         else:
+#             for i in range(len(prefix),-1,-2):
+#                 if item.startswith(prefix[:i]):
+#                     prefix = prefix[:i]
+#                     break
+#     return prefix
+#
+# def process_title(title):
+#     if type(title) == unicode:
+#         return title.replace(u'המשרד ל','').replace(u'משרד ה','').replace(u'משרד ל','')
+#     elif type(title) == list:
+#         return ", ".join(map(process_title,title))
+#     else:
+#         print repr(title)
+#         assert(False)
+#
+# def format_value(value):
+#     if value < 1000:
+#         unit = ''
+#     else:
+#         value = value / 1000.0
+#         if value < 1000:
+#             unit = u'אלף '
+#         else:
+#             value = value / 1000.0
+#             if value < 1000:
+#                 unit = u'מיליון '
+#             else:
+#                 value = value / 1000.0
+#                 unit = u'מיליארד '
+#     num = u"%f" % value
+#     num = num[:4]
+#     if num[3] == ".":
+#         num = num[:-1]
+#     if num.endswith(".0"):
+#         num = num[:-2]
+#     return u"%s %s\u20aa" % (num,unit)
+#
+# def format_title(template,value,titles):
+#     value = format_value(value*1000)
+#     titles = map(process_title,titles)
+#     if template == 'enlargement-allocation':
+#         return u"תוספת של %s ל%s" % (value,titles[0])
+#     if template == 'cutbacks-allocation':
+#         return u"קיצוץ בסך %s ב%s" % (value,titles[0])
+#     if template == 'commitment-allocation':
+#         return u"%s כהרשאה להתחייב לטובת %s" % (value,titles[0])
+#     if template == 'internal-change':
+#         return u"שינוי פנימי של %s בתקציב %s" % (value,titles[0])
+#     if template == 'transfer':
+#         return u"העברת %s מ%s ל%s" % (value,titles[0],titles[1])
+#
+#     return u"%s %s %s" % (template,title,value)
+#
+# def prepare_rss(output_filename):
+#     pending_changes = get_url("changes/pending/committee")
+#     groups = get_groups(pending_changes[:])
+#     pending_by = {}
+#     for ch in pending_changes:
+#         key = json.dumps(transfer_code(ch))
+#         pending_by.setdefault(key,[]).append(ch)
+#     print pending_by.keys()
+#     pending_by = pending_by.iteritems()
+#     transfer_dict = {}
+#     for key,v in pending_by:
+#         k = json.loads(key)
+#         transfer_dict[key] = { 'explanation': get_url("change_expl/%02d-%03d/%d" % (k[1],k[2],k[0]))[0],
+#                              'year': k[0], 'req_code': k[2], 'leading_item': k[1],
+#                              'items': v }
+#     final_transfers = []
+#     for group in groups:
+#         transfers = []
+#         for k in group:
+#             key = json.dumps(k)
+#             tr = transfer_dict[key]
+#             main_codes = set(item['budget_code'][:4] for item in tr['items'])
+#             main_codes.discard('0047')
+#             if len(main_codes)<1:
+#                 del transfer_dict[key]
+#                 continue
+#             main_codes = list(main_codes)
+#             tr['main_code'] = main_codes[0]
+#             assert(len(main_codes)==1)
+#             transfers.append(tr)
+#         if len(transfers) == 0:
+#             continue
+#         group_transfers = { 'transfers': transfers,
+#                             'group': list(group),
+#                             'items': list(chain.from_iterable(tr['items'] for tr in transfers)) }
+#         for tr in transfers:
+#             main_code = tr['main_code']
+#             tr['explanation'] = tr['explanation']['explanation'].replace("\n","<br/>")
+#             tr['main_budget_item'] = get_url('budget/%s/%d' % (main_code,tr['year']))
+#             tr['filt_items'] = filter(lambda x: x['budget_code'].startswith(main_code),tr['items'])
+#             tr['net_expense_diff'] = sum(map(lambda x:x['net_expense_diff'],tr['filt_items']))
+#             tr['gross_expense_diff'] = sum(map(lambda x:x['gross_expense_diff'],tr['filt_items']))
+#             tr['allocated_income_diff'] = sum(map(lambda x:x['allocated_income_diff'],tr['filt_items']))
+#             tr['personnel_max_diff'] = sum(map(lambda x:x['personnel_max_diff'],tr['filt_items']))
+#             tr['commitment_limit_diff'] = sum(map(lambda x:x['commitment_limit_diff'],tr['filt_items']))
+#             budget_codes = [x['budget_code'] for x in tr['filt_items']]
+#             closest_parent = common_prefix(budget_codes)
+#             tr['common_parent_budget_item'] = get_url('budget/%s/%d' % (closest_parent,tr['year']))
+#             tr['breadcrumbs'] = [get_url('budget/%s/%d' % (closest_parent[:x],tr['year']))['title'] for x in range(4,len(closest_parent)+1,2)]
+#             budget_item_history = get_url('budget/%s' % (closest_parent,))
+#             history_filt = [x for x in budget_item_history if x['net_allocated'] > 0 and x['net_revised'] > 0]
+#             performance_history = 1
+#             if len(history_filt)>0:
+#                 performance_history = sum(1.0*x['net_revised']/x['net_allocated'] for x in history_filt)
+#                 tr['performance_history'] = performance_history / len(history_filt)
+#                 if performance_history < 1.0:
+#                     if performance_history != 0:
+#                         performance_history = 1.0/performance_history
+#                     else:
+#                         performance_history = 100
+#             tr['performance_score'] = performance_history
+#             changes = [ (code,get_url("changes/%s/%d" % (code,tr['year']))) for code in budget_codes ]
+#             tr['changes_score'] = max(len(x[1]) for x in changes)
+#
+#         group_transfers['filt_items'] = list(chain.from_iterable(x['filt_items'] for x in transfers))
+#         budget_codes = set(x['budget_code'] for x in group_transfers['filt_items'])
+#         supports = chain.from_iterable(get_url('supports/%s' % budget_code[2:]) for budget_code in budget_codes)
+#         recipients = {}
+#         for sup in supports:
+#             recipient = sup['recipient']
+#             recipients.setdefault(recipient,0)
+#             recipients[recipient] += sup['amount_supported']
+#         recipients = list(recipients.iteritems())
+#         recipients.sort(key = lambda x:-x[1])
+#         group_transfers['supports'] = [(x[0],format_value(x[1])) for x in recipients[:5]]
+#
+#         template = None
+#         value = None
+#         req_title = None
+#         explanation = None
+#         if len(group) == 1:
+#             tr = transfers[0]
+#             if tr['net_expense_diff']+tr['gross_expense_diff'] > 0:
+#                 template = 'enlargement-allocation'
+#                 value = tr['net_expense_diff']+tr['gross_expense_diff']
+#             elif tr['net_expense_diff']+tr['gross_expense_diff'] < 0:
+#                 template = 'cutbacks-allocation'
+#                 value = - (tr['net_expense_diff']+tr['gross_expense_diff'])
+#             elif tr['commitment_limit_diff'] > 0:
+#                 template = 'commitment-allocation'
+#                 value = tr['commitment_limit_diff']
+#             elif tr['net_expense_diff'] == 0 and max(x['net_expense_diff'] for x in tr['items']) > 0:
+#                 template = 'internal-change'
+#                 value = sum(x['net_expense_diff'] for x in tr['items'] if x['net_expense_diff']>0)
+#             elif tr['gross_expense_diff'] == 0 and max(x['gross_expense_diff'] for x in tr['items']) > 0:
+#                 template = 'internal-change'
+#                 value = sum(x['gross_expense_diff'] for x in tr['items'] if x['gross_expense_diff']>0)
+#             else:
+#                 template = 'other'
+#                 value = None
+#                 pprint.pprint(it)
+#             group_transfers['template'] = template
+#             group_transfers['value'] = value
+#             group_transfers['titles'] = [tr['main_budget_item']['title']]
+#             req_title = tr['items'][0]['req_title']
+#             explanation = tr['explanation']
+#         else:
+#             filt = lambda x:x['net_expense_diff']+x['gross_expense_diff']+x['allocated_income_diff']
+#             minus_transfers = filter(lambda x:filt(x)<0,transfers)
+#             plus_transfers = filter(lambda x:filt(x)>0,transfers)
+#             value = sum(map(filt,plus_transfers))
+#             print group
+#             assert(sum(map(filt,minus_transfers))+value==0)
+#             template = 'transfer'
+#             group_transfers['template'] = 'transfer'
+#             group_transfers['value'] = value
+#             title = lambda x:x['main_budget_item']['title']
+#             group_transfers['titles'] = [map(title,minus_transfers),map(title,plus_transfers)]
+#             req_title = " / ".join(set(tr['items'][0]['req_title'] for tr in transfers))
+#             explanation = "<hr/>".join(tr['explanation'] for tr in transfers)
+#
+#         score = None
+#         if template is not None:
+#             score = value * avg(tr['performance_score'] for tr in transfers) * avg(tr['changes_score'] for tr in transfers)
+#             group_transfers['score'] = score
+#             group_transfers['req_title'] = req_title
+#             group_transfers['explanation'] = explanation
+#             group_transfers['title'] = format_title(group_transfers['template'],group_transfers['value'],group_transfers['titles'])
+#             final_transfers.append(group_transfers)
+#         else:
+#             print "XXXXX!!!!",group,template,score
+#     final_transfers.sort(key=lambda x:-x['score'])
+#     for tr in final_transfers:
+#         print "SCORE",tr['score'], tr['group'],"value:%s" % tr['value'],repr([x['performance_score'] for x in tr['transfers']]),repr([x['changes_score'] for x in tr['transfers']])
+#
+#     output = file(output_filename,"w")
+#     now = datetime.datetime.now()
+#     delta = datetime.timedelta(days=7-now.weekday())
+#     start = (now+delta).date()
+#     end = (start+datetime.timedelta(days=2))
+#     if start.month == end.month:
+#         feed_title = "%d / %d-%d" % (start.month,start.day,end.day)
+#     else:
+#         feed_title = "%d/%d - %d/%d" % (start.day,start.month,end.day,end.month)
+#
+#     to_write = {'rss_items':final_transfers,
+#                 'rss_title':feed_title}
+#     for k,v in to_write.iteritems():
+#         output.write(json.dumps({'key':k,'value':v})+'\n')
+#
+#     # rendered = []
+#     # item_template = file('email_item_template.jinja.html').read().decode('utf8')
+#     # item_template = jinja2.Template(item_template)
+#     # for tr in final_transfers:
+#     #     #print tr['template'], tr['main_budget_item']['code'], tr['main_budget_item']['title'], tr['value'], "/".join(tr['breadcrumbs']), tr["score"]
+#     #
+#     #     rendered.append( {'title': format_title(tr['template'],tr['value'],tr['titles']),
+#     #                       'subtitle': "",
+#     #                       'description': item_template.render(tr),
+#     #                       'link': 'YYY',
+#     #                       'index': len(rendered)+1 } )
+#     #     #pprint.pprint(tr)
+#     # email_data = { 'feed': { 'title': u'6 / 21-27' }, 'items': rendered }
+#     # email_template = file('email_template.mustache.html').read().decode('utf8')
+#     # out = pystache.render(email_template, email_data)
+#     # file('email.html','w').write(out.encode('utf8'))
+#
+#     # cache.close()
+
+class extract_change_groups(object):
+    def process(self,input,output):
+        changes = [json.loads(line.strip()) for line in file(input)]
+        groups = get_groups(changes)
+        out = file(output,'w')
+        for group in groups:
+            out.write(json.dumps(group,sort_keys=True)+'\n')

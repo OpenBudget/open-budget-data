@@ -64,3 +64,9 @@ rules:
     - processor: concat
       input: changes-*.jsons
       output: changes.jsons
+    - processor: extract_change_groups
+      input: changes-*.jsons
+      output: /changes-/changegroups-/
+    - processor: concat
+      input: changegroups-*.jsons
+      output: changegroups.jsons
