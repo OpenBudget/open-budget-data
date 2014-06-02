@@ -290,8 +290,8 @@ def prepare_rss(output_filename):
     else:
         feed_title = "%d/%d - %d/%d" % (start.day,start.month,end.day,end.month)
 
-    to_write = {'rss_title':feed_title}
-    to_write = {'rss_items':len(final_transfers)}
+    to_write = {'rss_title':feed_title,
+                'rss_items':len(final_transfers)}
     for i,e in enumerate(final_transfers):
         to_write['rss_items[%d]' % i] = e
     for k,v in to_write.iteritems():
