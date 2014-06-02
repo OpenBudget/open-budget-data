@@ -1,7 +1,6 @@
 rules:
     - processor: aggregate_jsons_by_key
       input:
-          - nlp-data/nlp-dates.jsons
           - mof-data/changes.jsons
       output: changes.jsons
       params:
