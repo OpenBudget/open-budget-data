@@ -1,5 +1,5 @@
 import re
-import urllib 
+import urllib
 import httplib
 import json
 import threading
@@ -38,18 +38,18 @@ def parse_data(data,code,year):
         line['title'] = r[1].strip()
         lines.append(line)
     return lines
-        
+
 def download_one(year,code):
-    
+
     fn = 'results/result-%s-%s.html' % (year,code)
-    
+
     try:
         data = file(fn).read()
         ret = parse_data(data,code,year)
-        
+
     except Exception,e:
-	print "downloading ",year,code        
-        params = { 
+        print "downloading ",year,code        
+        params = {
             'APPNAME':'budget',
             'PRGNAME':'doc1',
             'ARGUMENTS':'BudgetCombo,PraNumber,PraName,DataView,ReportType',
@@ -58,14 +58,14 @@ def download_one(year,code):
             'DataView':'1',
             'ReportType':'1'
         }
-    
+
         host = "religinfoserv.gov.il"
         uri = "/Magic94Scripts/mgrqispi94.dll"
-        
+
         params = urllib.urlencode(params)
         headers =  {"Content-type": "application/x-www-form-urlencoded",
                     "Accept": "text/html"}
-        
+
         conn = httplib.HTTPConnection(host)
         conn.request("POST", uri, params, headers)
         response = conn.getresponse()
@@ -77,32 +77,32 @@ def download_one(year,code):
                 data += r
                 print '.'
             file(fn,'w').write(data)
-            
+
             print 'success downloading for %s,%s' % ( year, code )
-            
+
             ret = parse_data(data,code,year)
-        
+
         else:
             print 'ERROR downloading for %s,%s' % ( year, code )
             ret = []
 
-        
+
         conn.close()
 
         time.sleep(5)
-    
+
     return ret
 
 def download_all():
     data = []
-    
+
     class Downloader(threading.Thread):
-        
+
         def __init__(self,year):
             super(Downloader,self).__init__(name='year-%d' % year)
             self.year = year
             self.data = []
-            
+
         def run(self):
             for code in range(100):
                 success = False
@@ -120,13 +120,13 @@ def download_all():
         t = Downloader(year)
         t.start()
         ts.append(t)
-        
+
     out = file('out.json','w')
 
     for t in ts:
         t.join()
         for d in t.data:
-            out.write(json.dumps(d)+'\n')           
-        
+            out.write(json.dumps(d)+'\n')
+
 if __name__ == "__main__":
     download_all()
