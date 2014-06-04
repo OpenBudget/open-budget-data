@@ -145,8 +145,8 @@ def format_title(template,value,titles):
     return u"%s %s %s" % (template,title,value)
 
 def join_explanations(explanations):
-    print repr(explanations)
-    explanations = [ x.split('\n\n') for x in explanations ]
+    #print repr(explanations)
+    explanations = [ x.split('\n') for x in explanations ]
     explanations = [ enumerate([y.strip() for y in x if y.strip() != '']) for x in explanations ]
     sorter = {}
     for i,expl in enumerate(explanations):
@@ -155,8 +155,7 @@ def join_explanations(explanations):
     sorter = list(sorter.iteritems())
     for i in range(len(explanations)):
         sorter.sort(key=lambda x:x[1].get(i),cmp=lambda x,y: 0 if x is None or y is None else x-y)
-    ret = "\n\n".join(x[0] for x in sorter)
-    print ret
+    ret = "\n".join(x[0] for x in sorter)
     return ret
 
 def prepare_rss(output_filename):
@@ -265,7 +264,7 @@ def prepare_rss(output_filename):
             group_transfers['value'] = value
             group_transfers['titles'] = [tr['main_budget_item']['title']]
             req_title = tr['items'][0]['req_title']
-            explanation = tr['explanation']
+            explanation = tr['explanation'].replace("\n","<br/>")
         else:
             filt = lambda x:x['net_expense_diff']+x['gross_expense_diff']+x['allocated_income_diff']
             minus_transfers = filter(lambda x:filt(x)<0,transfers)

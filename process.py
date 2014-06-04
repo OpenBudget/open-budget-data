@@ -33,7 +33,7 @@ def collect_processors():
             for p in parsed:
                 p['_basepath'] = dirpath
                 p['_filename'] = processor
-                p['_modtime'] = os.path.getmtime(processor)
+                p['_modtime'] = max(os.path.join(dirpath,processor), os.path.join('processors',p['processor'])+'.py')
                 #logging.info("PROCESSOR %r" % p)
                 yield p
 
