@@ -19,8 +19,13 @@ rules:
     - processor: consolidate_change_dates
       input: changes.jsons
       output: changes-with-dates.jsons
+    - processor: fix_changeline_budget_titles
+      input:
+          - changes-with-dates.jsons
+          - ../budget/budgets.jsons
+      output: changes-fixed-titles.jsons
     - processor: dump_to_db
-      input: changes-with-dates.jsons
+      input: changes-fixed-titles.jsons
       output: changes.sqlite
       params:
           key_fields:

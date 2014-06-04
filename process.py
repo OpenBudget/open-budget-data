@@ -15,6 +15,7 @@ processor_order = ['download_pending_changes',
                    'extract_txt_from_docs',
                    'concat',
                    'consolidate_change_dates',
+                   'fix_changeline_budget_titles',
                    'extract_change_groups',
                    'dump_to_db',
                    'join',
@@ -27,15 +28,18 @@ def collect_processors():
     for dirpath, dirnames, filenames in os.walk(current_path):
         processors = [ f for f in filenames if f.endswith("yaml") ]
         for processor in processors:
-            parsed = yaml.load(file(os.path.join(dirpath,processor)).read())['rules']
+            processor_fname = os.path.join(dirpath,processor)
+            parsed = yaml.load(file(processor_fname).read())['rules']
             for p in parsed:
                 p['_basepath'] = dirpath
                 p['_filename'] = processor
+                p['_modtime'] = os.path.getmtime(processor)
                 #logging.info("PROCESSOR %r" % p)
                 yield p
 
 def is_relevant_processor(processor):
     basepath = processor['_basepath']
+    modtime = processor['_modtime']
 
     input = processor.get('input')
     if type(input) == str:
@@ -54,7 +58,7 @@ def is_relevant_processor(processor):
         tuples = zip(input,output)
         tuples = [ (i,o) for i,o in tuples if
                     os.path.exists(i) and
-                    ((os.path.exists(o) and os.path.getmtime(i) > (delay+os.path.getmtime(o))) or
+                    ((os.path.exists(o) and max(modtime,os.path.getmtime(i)) > (delay+os.path.getmtime(o))) or
                     (not os.path.exists(o))) ]
         ret = len(tuples)>0
     else:
@@ -64,6 +68,7 @@ def is_relevant_processor(processor):
         ret = all([os.path.exists(i) for i in list_input])
         if len(input) > 0:
             modified_times = [ os.path.getmtime(i) for i in list_input if os.path.exists(i) ]
+            modified_times.append(modtime)
         else:
             modified_times = [ time.time() ]
         output = os.path.join(basepath,output)

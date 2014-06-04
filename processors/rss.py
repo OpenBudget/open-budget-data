@@ -144,6 +144,20 @@ def format_title(template,value,titles):
 
     return u"%s %s %s" % (template,title,value)
 
+def join_explanations(explanations):
+    explanations = [ x.split('\n\n') for x in explanations ]
+    explanations = [ enumerate(x) for x in explanations ]
+    sorter = {}
+    for i,expl in enumerate(explanations):
+        for j,part in expl:
+            sorter.setdefault(part,{})[i]=j
+    sorter = list(sorter.iteritems())
+    for i in range(len(explanations)):
+        sorter.sort(key=lambda x:x[1].get(i,99))
+    ret = "\n\n".join(x[0] for x in sorter)
+    print ret
+    return ret
+
 def prepare_rss(output_filename):
     pending_changes = get_url("changes/pending/all")
     groups = get_groups(pending_changes[:])
@@ -181,7 +195,7 @@ def prepare_rss(output_filename):
                             'items': list(chain.from_iterable(tr['items'] for tr in transfers)) }
         for tr in transfers:
             main_code = tr['main_code']
-            tr['explanation'] = tr['explanation']['explanation'].replace("\n","<br/>")
+            tr['explanation'] = tr['explanation']['explanation']
             tr['main_budget_item'] = get_url('budget/%s/%d' % (main_code,tr['year']))
             tr['filt_items'] = filter(lambda x: x['budget_code'].startswith(main_code),tr['items'])
             tr['net_expense_diff'] = sum(map(lambda x:x['net_expense_diff'],tr['filt_items']))
@@ -264,7 +278,7 @@ def prepare_rss(output_filename):
             title = lambda x:x['main_budget_item']['title']
             group_transfers['titles'] = [map(title,minus_transfers),map(title,plus_transfers)]
             req_title = " / ".join(set(tr['items'][0]['req_title'] for tr in transfers))
-            explanation = "<hr/>".join(tr['explanation'] for tr in transfers)
+            explanation = join_explanations([tr['explanation'] for tr in transfers]).replace("\n","<br/>")
 
         score = None
         if template is not None:
