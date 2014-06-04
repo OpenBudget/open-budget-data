@@ -145,15 +145,16 @@ def format_title(template,value,titles):
     return u"%s %s %s" % (template,title,value)
 
 def join_explanations(explanations):
+    print repr(explanations)
     explanations = [ x.split('\n\n') for x in explanations ]
-    explanations = [ enumerate(x) for x in explanations ]
+    explanations = [ enumerate([y.strip() for y in x if y.strip() != '']) for x in explanations ]
     sorter = {}
     for i,expl in enumerate(explanations):
         for j,part in expl:
             sorter.setdefault(part,{})[i]=j
     sorter = list(sorter.iteritems())
     for i in range(len(explanations)):
-        sorter.sort(key=lambda x:x[1].get(i,99))
+        sorter.sort(key=lambda x:x[1].get(i),cmp=lambda x,y: 0 if x is None or y is None else x-y)
     ret = "\n\n".join(x[0] for x in sorter)
     print ret
     return ret
