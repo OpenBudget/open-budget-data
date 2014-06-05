@@ -9,13 +9,9 @@ import shelve
 import math
 import jinja2
 import datetime
+import sys
 from numpy import array
-from itertools import chain, combinations
-
-if __name__ == "__main__":
-    input = sys.argv[1]
-    output = sys.argv[2]
-    processor = rss().process(input,output)
+from itertools import chain, combinations, groupby
 
 cache = {}#shelve.open('api.cache',writeback=True)
 
@@ -80,7 +76,10 @@ def get_url(url):
             print "Failed to get data for %s" % url
             raise
         cache[url] = data
-        #cache.sync()
+        try:
+            cache.sync()
+        except:
+            pass
     else:
         data = cache[url]
     return data
@@ -144,6 +143,10 @@ def format_title(template,value,titles):
 
     return u"%s %s %s" % (template,title,value)
 
+def enhance_item(item):
+    item['value'] = sum(item.get(x,0) for x in ['net_expense_diff','gross_expense_diff','allocated_income_diff','commitment_limit_diff'])
+    return item
+
 def join_explanations(explanations):
     #print repr(explanations)
     explanations = [ x.split('\n') for x in explanations ]
@@ -172,7 +175,7 @@ def prepare_rss(output_filename):
         k = json.loads(key)
         transfer_dict[key] = { 'explanation': get_url("change_expl/%02d-%03d/%d" % (k[1],k[2],k[0]))[0],
                              'year': k[0], 'req_code': k[2], 'leading_item': k[1],
-                             'items': v }
+                             'items': [enhance_item(i) for i in v] }
     final_transfers = []
     for group in groups:
         transfers = []
@@ -221,7 +224,24 @@ def prepare_rss(output_filename):
             tr['performance_score'] = performance_history
             changes = [ (code,get_url("changes/%s/%d" % (code,tr['year']))) for code in budget_codes ]
             tr['changes_score'] = max(len(x[1]) for x in changes)
+            tr['filt_items'].sort(key=lambda x:x['budget_code'])
+            grp_items = groupby(tr['filt_items'],lambda x:x['budget_code'][:6])
+            grp_items = [ (k,list(v)) for k,v in grp_items ]
+            grp_items.sort(key=lambda x:x[0])
+            grp_items = [ ("%(code)s: %(title)s" % get_url('budget/%s/%s' % (k,tr['year'])), list(v)) for k,v in grp_items]
+            grp_items = [ {'group':k,'items':v,'value':sum(x['value'] for x in v)} for k,v in grp_items]
+            for gi in grp_items:
+                gi['value_str'] = format_value(gi['value'])
+            tr['plus_items'] = filter(lambda x:x['value']>0,grp_items)
+            tr['minus_items'] = filter(lambda x:x['value']<0,grp_items)
+            #print 'PPP', tr['plus_items']
+            #print 'MMM', tr['minus_items']
+            #print '---'
 
+        group_transfers['plus_items'] = list(chain.from_iterable(x['plus_items'] for x in transfers))
+        group_transfers['plus_items'].sort(key=lambda x:x['value'],reverse=True)
+        group_transfers['minus_items'] = list(chain.from_iterable(x['minus_items'] for x in transfers))
+        group_transfers['minus_items'].sort(key=lambda x:x['value'])
         group_transfers['filt_items'] = list(chain.from_iterable(x['filt_items'] for x in transfers))
         budget_codes = set(x['budget_code'] for x in group_transfers['filt_items'])
         group_transfers['filt_items'] = [{'budget_code':x['budget_code'],'budget_title':x['budget_title']} for x in group_transfers['filt_items']]
@@ -328,8 +348,16 @@ def prepare_rss(output_filename):
     # out = pystache.render(email_template, email_data)
     # file('email.html','w').write(out.encode('utf8'))
 
-    #cache.close()
+    try:
+        cache.close()
+    except:
+        pass
 
 class rss(object):
     def process(self,input,output):
         prepare_rss(output)
+
+if __name__ == "__main__":
+    input = sys.argv[1]
+    output = sys.argv[2]
+    processor = rss().process(input,output)

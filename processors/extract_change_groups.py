@@ -83,7 +83,9 @@ def get_groups(changes):
         for k,v in change.iteritems():
             if k.startswith('date'):
                 change['date'] = v
-                change['date_kind'] = k[5:]+"/"+v
+                kind = k[5:]
+                change['pending'] = kind == 'pending'
+                change['date_kind'] = kind+"/"+v
                 break
         if change.get('date') is None:
             print change
@@ -94,7 +96,8 @@ def get_groups(changes):
     for date_kind, date_changes in itertools.groupby(changes, get_date):
         date_changes = list(date_changes)
         date = date_changes[0]['date']
-        print 'reserve date:',date_kind
+        pending = date_changes[0]['pending']
+        print 'reserve date:',date_kind, pending
         date_reserve = [c for c in date_changes if c['budget_code'].startswith('0047')
                         if sum(c[field]*c[field] for field in fields) > 0]
         #print 'len(date_reserve)=',len(date_reserve)
@@ -123,7 +126,8 @@ def get_groups(changes):
                             transfer_codes = list(transfer_codes)
                             transfer_codes.sort()
                             to_append = { 'transfer_ids': transfer_codes,
-                                          'date': date}
+                                          'date': date,
+                                          'pending': pending}
                             print to_append
                             groups.append(to_append)
                             found = True
