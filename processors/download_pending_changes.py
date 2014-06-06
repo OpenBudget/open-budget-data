@@ -58,18 +58,6 @@ class download_pending_changes(object):
                 if 'תאריך אישור' in csvdata:
                     filename = os.path.join(changes_basepath,'changes-%s.csv' % YEAR)
                 write_if_changed(filename,csvdata)
-            if href.endswith('zip'):
-                logging.debug('downloading %s' % href)
-                try:
-                    zipdata = urllib2.urlopen(mofgov(href)).read()
-                    if pending:
-                        filename = os.path.join(change_expl_basepath,'explanations-pending.zip')
-                    else:
-                        filename = os.path.join(change_expl_basepath,'explanations-%s.zip' % YEAR)
-                    logging.debug('>> %s' % filename)
-                    write_if_changed(filename,zipdata)
-                except urllib2.HTTPError:
-                    logging.error('Failed to download %s' % href)
             if href.endswith('rar'):
                 logging.debug('downloading %s' % href)
                 try:
@@ -80,6 +68,19 @@ class download_pending_changes(object):
                         filename = os.path.join(change_expl_basepath,'explanations-%s.rar' % YEAR)
                     logging.debug('>> %s' % filename)
                     write_if_changed(filename,rardata)
+                except urllib2.HTTPError:
+                    logging.error('Failed to download %s' % href)
+                    href = href.replace('.rar','.zip')
+            if href.endswith('zip'):
+                logging.debug('downloading %s' % href)
+                try:
+                    zipdata = urllib2.urlopen(mofgov(href)).read()
+                    if pending:
+                        filename = os.path.join(change_expl_basepath,'explanations-pending.zip')
+                    else:
+                        filename = os.path.join(change_expl_basepath,'explanations-%s.zip' % YEAR)
+                    logging.debug('>> %s' % filename)
+                    write_if_changed(filename,zipdata)
                 except urllib2.HTTPError:
                     logging.error('Failed to download %s' % href)
 
