@@ -106,6 +106,11 @@ def process_title(title):
         assert(False)
 
 def format_value(value):
+    if value < 0:
+        sign = '-'
+        value = -value
+    else:
+        sign = ''
     if value < 1000:
         unit = ''
     else:
@@ -125,7 +130,7 @@ def format_value(value):
         num = num[:-1]
     if num.endswith(".0"):
         num = num[:-2]
-    return u"%s %s\u20aa" % (num,unit)
+    return u"%s%s %s\u20aa" % (sign,num,unit)
 
 def format_title(template,value,titles):
     value = format_value(value*1000)
@@ -229,9 +234,9 @@ def prepare_rss(output_filename):
             grp_items = [ (k,list(v)) for k,v in grp_items ]
             grp_items.sort(key=lambda x:x[0])
             grp_items = [ ("%(code)s: %(title)s" % get_url('budget/%s/%s' % (k,tr['year'])), list(v)) for k,v in grp_items]
-            grp_items = [ {'group':k,'items':v,'value':sum(x['value'] for x in v)} for k,v in grp_items]
+            grp_items = [ {'group':k,'changes':v,'value':sum(x['value'] for x in v)} for k,v in grp_items]
             for gi in grp_items:
-                gi['value_str'] = format_value(gi['value'])
+                gi['value_str'] = format_value(1000*gi['value'])
             tr['plus_items'] = filter(lambda x:x['value']>0,grp_items)
             tr['minus_items'] = filter(lambda x:x['value']<0,grp_items)
             #print 'PPP', tr['plus_items']
