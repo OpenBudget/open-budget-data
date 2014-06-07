@@ -3,7 +3,7 @@ rules:
       output: pending.downloaded
       delay: 1800
       params:
-          changes_basepath: changes/
+          changes_basepath: changes/mof-data/
           change_expl_basepath: change_explanation/
     - processor: csv_to_jsons
       input: changes-*.csv

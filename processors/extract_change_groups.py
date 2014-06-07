@@ -51,16 +51,7 @@ def combinations(iterable, r):
         return
     nexts = dict(zip(range(n-1),range(1,n)))
     indices = range(r)
-    yield tuple(pool[i] for i in indices)
     while True:
-        for i in reversed(range(r)):
-            if indices[i] != i + n - r:
-                break
-        else:
-            return
-        indices[i] = get_next(indices[i],i)
-        for j in range(i+1, r):
-            indices[j] = get_next(indices[j-1],j)
         found = (yield tuple(pool[i] for i in indices))
         if found:
             for i in indices:
@@ -76,10 +67,19 @@ def combinations(iterable, r):
             for j in range(1,r):
                 indices[j] = get_next(indices[j-1],j)
             #print "nexts",len(set(nexts.values()))
+        for i in reversed(range(r)):
+            if indices[i] != i + n - r:
+                break
+        else:
+            return
+        indices[i] = get_next(indices[i],i)
+        for j in range(i+1, r):
+            indices[j] = get_next(indices[j-1],j)
 
 def get_groups(changes):
     for change in changes:
         change['trcode'] = transfer_code(change)
+        change['_value'] = sum(change.get(x,0) for x in fields)
         for k,v in change.iteritems():
             if k.startswith('date'):
                 change['date'] = v
@@ -101,7 +101,9 @@ def get_groups(changes):
         date_reserve = [c for c in date_changes if c['budget_code'].startswith('0047')
                         if sum(c[field]*c[field] for field in fields) > 0]
         #print 'len(date_reserve)=',len(date_reserve)
-        for comb_size in range(2,min(len(date_reserve),8)):
+        i = 0
+        print date_kind
+        for comb_size in range(2,min(len(date_reserve),7)):
             done = False
             #print "comb_size", comb_size
             while not done:
@@ -112,12 +114,12 @@ def get_groups(changes):
                 done = True
                 try:
                     while True:
+                        i += 1
+                        if i % 100000 == 0:
+                            print date, len(date_reserve), len(selected_transfer_codes), i
                         group = date_groups.send(found)
                         found = False
-                        vecs = list(change_to_vec(c) for c in group)
-                        sumvec = sum(vecs)
-                        if len(sumvec)>1:
-                            sumvec = sum(sumvec)
+                        sumvec = sum(c['_value'] for c in group)
                         if sumvec == 0:
                             transfer_codes = set(x['trcode'] for x in group)
                             if len(selected_transfer_codes & transfer_codes) > 0:

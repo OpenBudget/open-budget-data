@@ -21,6 +21,8 @@ fields = ['net_expense_diff',
           'commitment_limit_diff',
           'personnel_max_diff']
 
+expense_fields = ['net_expense_diff','gross_expense_diff','allocated_income_diff']
+
 def change_to_vec(change):
     return array([change[x] for x in fields])
 
@@ -71,7 +73,7 @@ def get_url(url):
     if not cache.has_key(url):
         try:
             print url
-            data = json.loads(urllib2.urlopen("http://the.open-budget.org.il/api/"+url+"?limit=1000").read())
+            data = json.loads(urllib2.urlopen("http://the.open-budget.org.il/api/"+url+"?limit=5000").read())
         except:
             print "Failed to get data for %s" % url
             raise
@@ -178,7 +180,9 @@ def prepare_rss(output_filename):
     transfer_dict = {}
     for key,v in pending_by:
         k = json.loads(key)
-        transfer_dict[key] = { 'explanation': get_url("change_expl/%02d-%03d/%d" % (k[1],k[2],k[0]))[0],
+        print key
+        expl = get_url("change_expl/%02d-%03d/%d" % (k[1],k[2],k[0]))
+        transfer_dict[key] = { 'explanation': expl[0] if len(expl) > 0 else { "explanation" :""},
                              'year': k[0], 'req_code': k[2], 'leading_item': k[1],
                              'items': [enhance_item(i) for i in v] }
     final_transfers = []
@@ -190,14 +194,17 @@ def prepare_rss(output_filename):
             main_codes = set(item['budget_code'][:4] for item in tr['items'])
             main_codes.discard('0047')
             if len(main_codes)<1:
+                print "deleting",key,tr['items']
                 del transfer_dict[key]
                 continue
             main_codes = list(main_codes)
             tr['main_code'] = main_codes[0]
+            tr['key'] = key
             assert(len(main_codes)==1)
             transfers.append(tr)
         if len(transfers) == 0:
             continue
+        print "TT",group,len(transfers)
         group_transfers = { 'transfers': transfers,
                             'group': list(group),
                             'items': list(chain.from_iterable(tr['items'] for tr in transfers)) }
@@ -209,6 +216,8 @@ def prepare_rss(output_filename):
             tr['net_expense_diff'] = sum(map(lambda x:x['net_expense_diff'],tr['filt_items']))
             tr['gross_expense_diff'] = sum(map(lambda x:x['gross_expense_diff'],tr['filt_items']))
             tr['allocated_income_diff'] = sum(map(lambda x:x['allocated_income_diff'],tr['filt_items']))
+            tr['expenses'] = tr['net_expense_diff']+tr['gross_expense_diff']+tr['allocated_income_diff']
+            print "LL", group, tr['key'], len(tr['filt_items']),tr['expenses']
             tr['personnel_max_diff'] = sum(map(lambda x:x['personnel_max_diff'],tr['filt_items']))
             tr['commitment_limit_diff'] = sum(map(lambda x:x['commitment_limit_diff'],tr['filt_items']))
             budget_codes = [x['budget_code'] for x in tr['filt_items']]
@@ -266,21 +275,18 @@ def prepare_rss(output_filename):
         explanation = None
         if len(group) == 1:
             tr = transfers[0]
-            if tr['net_expense_diff']+tr['gross_expense_diff'] > 0:
+            if tr['expenses'] > 0:
                 template = 'enlargement-allocation'
-                value = tr['net_expense_diff']+tr['gross_expense_diff']
-            elif tr['net_expense_diff']+tr['gross_expense_diff'] < 0:
+                value = tr['expenses']
+            elif tr['expenses'] < 0:
                 template = 'cutbacks-allocation'
-                value = - (tr['net_expense_diff']+tr['gross_expense_diff'])
+                value = - (tr['expenses'])
             elif tr['commitment_limit_diff'] > 0:
                 template = 'commitment-allocation'
                 value = tr['commitment_limit_diff']
-            elif tr['net_expense_diff'] == 0 and max(x['net_expense_diff'] for x in tr['items']) > 0:
+            elif tr['expenses'] == 0 and max(chain.from_iterable((x[f] for x in tr['items']) for f in expense_fields)) > 0:
                 template = 'internal-change'
-                value = sum(x['net_expense_diff'] for x in tr['items'] if x['net_expense_diff']>0)
-            elif tr['gross_expense_diff'] == 0 and max(x['gross_expense_diff'] for x in tr['items']) > 0:
-                template = 'internal-change'
-                value = sum(x['gross_expense_diff'] for x in tr['items'] if x['gross_expense_diff']>0)
+                value = max(sum(x[f] for x in tr['items'] if x[f]>0) for f in expense)
             else:
                 template = 'other'
                 value = None
@@ -291,11 +297,11 @@ def prepare_rss(output_filename):
             req_title = tr['items'][0]['req_title']
             explanation = tr['explanation'].replace("\n","<br/>")
         else:
-            filt = lambda x:x['net_expense_diff']+x['gross_expense_diff']+x['allocated_income_diff']
+            filt = lambda x:x['expenses']
             minus_transfers = filter(lambda x:filt(x)<0,transfers)
             plus_transfers = filter(lambda x:filt(x)>0,transfers)
             value = sum(map(filt,plus_transfers))
-            print group
+            print [t['key'] for t in minus_transfers], [t['key'] for t in plus_transfers], group, sum(map(filt,minus_transfers)), value
             assert(sum(map(filt,minus_transfers))+value==0)
             template = 'transfer'
             group_transfers['template'] = 'transfer'
