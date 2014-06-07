@@ -37,3 +37,5 @@ class csv_to_jsons(object):
             if out is None:
                 out = file(output,"w")
             out.write(json.dumps(outrec,sort_keys=True)+"\n")
+        if out is None:
+            out = file(output,"w")
