@@ -32,6 +32,5 @@ class fix_changeline_budget_titles(object):
                     changed_num += 1
             else:
                 logging.error("Failed to find title for change with key %s" % key)
-                raise Exception()
             outfile.write(json.dumps(line,sort_keys=True)+"\n")
         print "updated %d entries" % changed_num
