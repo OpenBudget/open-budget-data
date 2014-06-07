@@ -289,8 +289,6 @@ def prepare_rss(output_filename):
                 template = 'internal-change'
                 value = max(sum(x[f] for x in tr['items'] if x[f]>0) for f in expense)
             else:
-                template = 'other'
-                value = None
                 logging.error("No template found for %s" % tr['key'])
             group_transfers['template'] = template
             group_transfers['value'] = value
