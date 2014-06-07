@@ -290,7 +290,7 @@ def prepare_rss(output_filename):
             else:
                 template = 'other'
                 value = None
-                pprint.pprint(it)
+                logging.error("No template found for %s" % tr['key'])
             group_transfers['template'] = template
             group_transfers['value'] = value
             group_transfers['titles'] = [tr['main_budget_item']['title']]
