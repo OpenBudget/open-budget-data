@@ -6,6 +6,7 @@ import urllib2
 from pyquery import PyQuery as pq
 import logging
 import hashlib
+import sqlite3
 
 YEAR = 2014
 
@@ -21,8 +22,10 @@ def write_if_changed(filename,data):
     if current != new:
         logging.debug('>> %s wrote %d bytes' % (filename,len(data)))
         file(filename,"w").write(data)
+        return True
     else:
         logging.debug('>> %s unchanged' % filename)
+    return False
 
 if __name__ == "__main__":
     inputs = sys.argv[1]
@@ -30,12 +33,13 @@ if __name__ == "__main__":
     processor = download_pending_changes().process(input,output)
 
 class download_pending_changes(object):
-    def process(self,input,output,changes_basepath,change_expl_basepath):
+    def process(self,input,output,changes_basepath,change_expl_basepath,sql_to_delete_from):
         url = mofgov("/BudgetSite/StateBudget/Pages/BudgetChanges.aspx")
         page = urllib2.urlopen(url).read()
         page = pq(page)
         files = page("#ctl00_PlaceHolderMain_GovXContentSectionPanel a")
         pending = False
+        downloaded = False
         for _f in files:
             f = pq(_f)
             href = f.attr('href')
@@ -57,7 +61,7 @@ class download_pending_changes(object):
                     pending = True
                 if 'תאריך אישור' in csvdata:
                     filename = os.path.join(changes_basepath,'changes-%s.csv' % YEAR)
-                write_if_changed(filename,csvdata)
+                downloaded = downloaded or write_if_changed(filename,csvdata)
             if href.endswith('rar'):
                 logging.debug('downloading %s' % href)
                 try:
@@ -67,7 +71,7 @@ class download_pending_changes(object):
                     else:
                         filename = os.path.join(change_expl_basepath,'explanations-%s.rar' % YEAR)
                     logging.debug('>> %s' % filename)
-                    write_if_changed(filename,rardata)
+                    downloaded = downloaded or write_if_changed(filename,rardata)
                 except urllib2.HTTPError:
                     logging.error('Failed to download %s' % href)
                     href = href.replace('.rar','.zip')
@@ -80,8 +84,16 @@ class download_pending_changes(object):
                     else:
                         filename = os.path.join(change_expl_basepath,'explanations-%s.zip' % YEAR)
                     logging.debug('>> %s' % filename)
-                    write_if_changed(filename,zipdata)
+                    downloaded = downloaded or write_if_changed(filename,zipdata)
                 except urllib2.HTTPError:
                     logging.error('Failed to download %s' % href)
+
+        if downloaded:
+            conn = sqlite3.connect(sql_to_delete_from)
+            c = conn.cursor()
+            ret = c.execute("""delete from data where key like 'year:%d%%'""" % YEAR)
+            print ret
+            conn.commit()
+            conn.close()
 
         file(output,"w").write("OK")

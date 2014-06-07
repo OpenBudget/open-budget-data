@@ -5,6 +5,7 @@ rules:
       params:
           changes_basepath: changes/mof-data/
           change_expl_basepath: change_explanation/
+          sql_to_delete_from: changes/changes.sqlite
     - processor: csv_to_jsons
       input: changes-*.csv
       output: /.csv/.jsons/
