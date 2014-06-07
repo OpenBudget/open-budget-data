@@ -10,6 +10,7 @@ import math
 import jinja2
 import datetime
 import sys
+import logging
 from numpy import array
 from itertools import chain, combinations, groupby
 
