@@ -287,7 +287,7 @@ def prepare_rss(output_filename):
                 value = tr['commitment_limit_diff']
             elif tr['expenses'] == 0 and max(chain.from_iterable((x[f] for x in tr['items']) for f in expense_fields)) > 0:
                 template = 'internal-change'
-                value = max(sum(x[f] for x in tr['items'] if x[f]>0) for f in expense)
+                value = max(sum(x[f] for x in tr['items'] if x[f]>0) for f in expense_fields)
             else:
                 logging.error("No template found for %s" % tr['key'])
             group_transfers['template'] = template
