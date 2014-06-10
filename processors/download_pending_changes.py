@@ -7,6 +7,7 @@ from pyquery import PyQuery as pq
 import logging
 import hashlib
 import sqlite3
+import json
 
 YEAR = 2014
 
@@ -27,6 +28,19 @@ def write_if_changed(filename,data):
         logging.debug('>> %s unchanged' % filename)
     return False
 
+def download(url,last_modified):
+    request = urllib2.Request(url)
+    opener = urllib2.build_opener()
+    last_modified_date = last_modified.get(url)
+    if last_modified_date is not None:
+        request.add_header('If-Modified-Since',last_modified_date)
+    datastream = opener.open(request)
+    last_modified[url] = datastream.headers.get('Last-Modified')
+    ret = datastream.read()
+    if len(ret) < 1024:
+        return None
+    return ret
+
 if __name__ == "__main__":
     inputs = sys.argv[1]
     output = sys.argv[2]
@@ -40,21 +54,32 @@ class download_pending_changes(object):
         files = page("#ctl00_PlaceHolderMain_GovXContentSectionPanel a")
         pending = False
         downloaded = False
+        try:
+            last_modified = json.load(file(output))
+        except:
+            last_modified = {}
         for _f in files:
             f = pq(_f)
             href = f.attr('href')
             if href.endswith('csv'):
                 logging.debug('downloading %s' % href)
-                csvdata = urllib2.urlopen(mofgov(href)).read()
-                for coding in ['utf8','iso8859-8','windows-1255']:
-                    try:
-                        decoded = csvdata.decode(coding)
-                        if u'שנה' in decoded:
-                            csvdata = decoded.encode('utf8')
-                            break
-                        else:
-                            decoded = None
-                    except:
+                try:
+                    csvdata = download(mofgov(href),last_modified)
+                    for coding in ['utf8','iso8859-8','windows-1255']:
+                        try:
+                            decoded = csvdata.decode(coding)
+                            if u'שנה' in decoded:
+                                csvdata = decoded.encode('utf8')
+                                break
+                            else:
+                                decoded = None
+                        except:
+                            continue
+                except urllib2.HTTPError, e:
+                    if e.code != 304:
+                        logging.error('Failed to download %s' % href)
+                    else:
+                        logging.debug('Not modified!')
                         continue
                 if 'תאריך משלוח לוועדה' in csvdata:
                     filename = os.path.join(changes_basepath,'changes-pending.csv')
@@ -65,28 +90,36 @@ class download_pending_changes(object):
             if href.endswith('rar'):
                 logging.debug('downloading %s' % href)
                 try:
-                    rardata = urllib2.urlopen(mofgov(href)).read()
+                    rardata = download(mofgov(href),last_modified)
                     if pending:
                         filename = os.path.join(change_expl_basepath,'explanations-pending.rar')
                     else:
                         filename = os.path.join(change_expl_basepath,'explanations-%s.rar' % YEAR)
                     logging.debug('>> %s' % filename)
                     downloaded = downloaded or write_if_changed(filename,rardata)
-                except urllib2.HTTPError:
-                    logging.error('Failed to download %s' % href)
-                    href = href.replace('.rar','.zip')
+                except urllib2.HTTPError, e:
+                    if e.code != 304:
+                        logging.error('Failed to download %s' % href)
+                        href = href.replace('.rar','.zip')
+                    else:
+                        logging.debug('Not modified!')
+                        continue
             if href.endswith('zip'):
                 logging.debug('downloading %s' % href)
                 try:
-                    zipdata = urllib2.urlopen(mofgov(href)).read()
+                    zipdata = download(mofgov(href),last_modified)
                     if pending:
                         filename = os.path.join(change_expl_basepath,'explanations-pending.zip')
                     else:
                         filename = os.path.join(change_expl_basepath,'explanations-%s.zip' % YEAR)
                     logging.debug('>> %s' % filename)
                     downloaded = downloaded or write_if_changed(filename,zipdata)
-                except urllib2.HTTPError:
-                    logging.error('Failed to download %s' % href)
+                except urllib2.HTTPError, e:
+                    if e.code != 304:
+                        logging.error('Failed to download %s' % href)
+                    else:
+                        logging.debug('Not modified!')
+                        continue
 
         if downloaded:
             conn = sqlite3.connect(sql_to_delete_from)
@@ -96,4 +129,4 @@ class download_pending_changes(object):
             conn.commit()
             conn.close()
 
-        file(output,"w").write("OK")
+        file(output,"w").write(json.dumps(last_modified))

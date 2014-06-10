@@ -100,6 +100,7 @@ def get_groups(changes):
         print 'reserve date:',date_kind, pending
         date_reserve = [c for c in date_changes if c['budget_code'].startswith('0047')
                         if sum(c[field]*c[field] for field in fields) > 0]
+        num_found = 0
         #print 'len(date_reserve)=',len(date_reserve)
         i = 0
         print date_kind
@@ -116,7 +117,7 @@ def get_groups(changes):
                     while True:
                         i += 1
                         if i % 100000 == 0:
-                            print date, len(date_reserve), len(selected_transfer_codes), i
+                            print date, len(date_reserve), num_found, i
                         group = date_groups.send(found)
                         found = False
                         sumvec = sum(c['_value'] for c in group)
@@ -127,6 +128,7 @@ def get_groups(changes):
                             selected_transfer_codes.update(transfer_codes)
                             transfer_codes = list(transfer_codes)
                             transfer_codes.sort()
+                            num_found += len(transfer_codes)
                             to_append = { 'transfer_ids': transfer_codes,
                                           'date': date,
                                           'pending': pending}
