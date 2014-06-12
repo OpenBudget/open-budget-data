@@ -156,18 +156,26 @@ def enhance_item(item):
     return item
 
 def join_explanations(explanations):
-    #print repr(explanations)
-    explanations = [ x.split('\n') for x in explanations ]
-    explanations = [ enumerate([y.strip() for y in x if y.strip() != '']) for x in explanations ]
-    sorter = {}
-    for i,expl in enumerate(explanations):
-        for j,part in expl:
-            sorter.setdefault(part,{})[i]=j
-    sorter = list(sorter.iteritems())
-    for i in range(len(explanations)):
-        sorter.sort(key=lambda x:x[1].get(i),cmp=lambda x,y: 0 if x is None or y is None else x-y)
-    ret = "\n".join(x[0] for x in sorter)
-    return ret
+    splits = [ex.split('\n') for ex in explanations]
+    min_length = min(len(sp) for sp in splits)
+    for i in range(1,min_length):
+        ss = set("\n".join(sp[-i:]) for sp in splits)
+        if len(ss)>1:
+            break
+    i = i-1
+    return "\n".join("\n".join(sp[:-i]) for sp in splits)+"\n"+"\n".join(splits[0][-i:])
+    # #print repr(explanations)
+    # explanations = [ x.split('\n') for x in explanations ]
+    # explanations = [ enumerate([y.strip() for y in x if y.strip() != '']) for x in explanations ]
+    # sorter = {}
+    # for i,expl in enumerate(explanations):
+    #     for j,part in expl:
+    #         sorter.setdefault(part,{})[i]=j
+    # sorter = list(sorter.iteritems())
+    # for i in range(len(explanations)):
+    #     sorter.sort(key=lambda x:x[1].get(i),cmp=lambda x,y: 0 if x is None or y is None else x-y)
+    # ret = "\n".join(x[0] for x in sorter)
+    # return ret
 
 def prepare_rss(output_filename):
     pending_changes = get_url("changes/pending/all")
