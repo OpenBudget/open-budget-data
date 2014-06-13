@@ -96,19 +96,19 @@ def get_groups(changes):
     for date_kind, date_changes in itertools.groupby(changes, get_date):
         date_changes = list(date_changes)
         date = date_changes[0]['date']
-        print 'reserve date:',date_kind
         date_reserve = [c for c in date_changes if c['budget_code'].startswith('0047')
                         if sum(c[field]*c[field] for field in fields) > 0]
+        print 'reserve date:',date_kind,len(date_reserve)
         num_found = 0
         #print 'len(date_reserve)=',len(date_reserve)
         i = 0
         print date_kind
-        for comb_size in range(2,min(len(date_reserve),7)):
+        for comb_size in range(2,min(len(date_reserve)+1,7)):
             done = False
             #print "comb_size", comb_size
             while not done:
                 not_selected = list(x for x in date_reserve if x['trcode'] not in selected_transfer_codes)
-                #print 'len(not_selected)=',len(not_selected)
+                print 'len(not_selected)=',len(not_selected)
                 date_groups = combinations(not_selected,comb_size)
                 found = None
                 done = True
