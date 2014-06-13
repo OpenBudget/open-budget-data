@@ -24,50 +24,22 @@ fields = ['net_expense_diff',
 
 expense_fields = ['net_expense_diff','gross_expense_diff','allocated_income_diff']
 
-def change_to_vec(change):
-    return array([change[x] for x in fields])
+def get_field(c,field):
+    ret = c.get(field,0)
+    if ret is None:
+        ret = 0
+    return ret
 
 def transfer_code(change):
     return (change['year'],change['leading_item'],change['req_code'])
-
-def powerset(iterable):
-    s = list(iterable)
-    return chain.from_iterable(combinations(s, r) for r in range(2,len(s)+1))
-
-def subsets(s):
-    return map(set, powerset(s))
 
 def avg(l):
     l = list(l)
     return 1.0*sum(l)/len(l)
 
 def get_groups(changes):
-    groups = []
-    selected_transfer_codes = set()
-    reserve = [c for c in changes if c['budget_code'].startswith('0047')
-               if sum(c[field]*c[field] for field in fields) > 0]
-    dates = set(x['date'] for x in reserve)
-    print dates
-    for date in dates:
-        date_changes = list(c for c in reserve if c['date'] == date)
-        date_groups = powerset(date_changes)
-        for group in date_groups:
-            vecs = list(change_to_vec(c) for c in group)
-            sumvec = sum(vecs)
-            if len(sumvec)>1:
-                sumvec = sum(sumvec)
-            if sumvec == 0:
-                transfer_codes = set(transfer_code(x) for x in group)
-                if len(selected_transfer_codes & transfer_codes) > 0:
-                    continue
-                print ["%(leading_item)02d-%(req_code)03d" % x for x in group], date
-                selected_transfer_codes.update(transfer_codes)
-                groups.append(transfer_codes)
-    all_transfer_codes = set(transfer_code(x) for x in changes)
-    for code in all_transfer_codes:
-        if not code in selected_transfer_codes:
-            groups.append(set([code]))
-    print groups
+    groups = get_url('changegroup/pending')
+    groups = [ [(g['year'],int(t.split('-')[0]),int(t.split('-')[1])) for t in g['transfer_ids']] for g in groups ]
     return groups
 
 def get_url(url):
@@ -163,7 +135,7 @@ def join_explanations(explanations):
         if len(ss)>1:
             break
     i = i-1
-    return "\n".join("\n".join(sp[:-i]) for sp in splits)+"\n"+"\n".join(splits[0][-i:])
+    return "\n".join("\n".join(sp[:-i]) for sp in splits)+"\n\n"+"\n\n".join(splits[0][-i:])
     # #print repr(explanations)
     # explanations = [ x.split('\n') for x in explanations ]
     # explanations = [ enumerate([y.strip() for y in x if y.strip() != '']) for x in explanations ]
