@@ -96,8 +96,7 @@ def get_groups(changes):
     for date_kind, date_changes in itertools.groupby(changes, get_date):
         date_changes = list(date_changes)
         date = date_changes[0]['date']
-        pending = date_changes[0]['pending']
-        print 'reserve date:',date_kind, pending
+        print 'reserve date:',date_kind
         date_reserve = [c for c in date_changes if c['budget_code'].startswith('0047')
                         if sum(c[field]*c[field] for field in fields) > 0]
         num_found = 0
@@ -122,6 +121,7 @@ def get_groups(changes):
                         found = False
                         sumvec = sum(c['_value'] for c in group)
                         if sumvec == 0:
+                            pending = group[0]['pending']
                             transfer_codes = set(x['trcode'] for x in group)
                             if len(selected_transfer_codes & transfer_codes) > 0:
                                 continue
@@ -138,19 +138,22 @@ def get_groups(changes):
                 except StopIteration:
                     pass
                 #print "considered %d combinations" % i
-    all_transfer_codes = set((x['trcode'],x['date']) for x in changes)
-    for trcode,date in all_transfer_codes:
-        if not trcode in selected_transfer_codes:
-            groups.append({'transfer_ids': [trcode],
-                            'date': date})
+    for change in changes:
+        if not change['trcode'] in selected_transfer_codes:
+            selected_transfer_codes.add(change['trcode'])
+            groups.append({'transfer_ids': [change['trcode']],
+                            'date': change['date'],
+                            'pending': change['pending']})
     for group in groups:
         trcodes = set(group['transfer_ids'])
         years = list(set(int(x.split('/')[0]) for x in trcodes))
         assert(len(years)==1)
         group['year'] = years[0]
         group['transfer_ids'] = list(set(x.split('/')[1] for x in trcodes))
+        sample_changes = [ filter(lambda x:x['trcode']==trcode,changes)[0] for trcode in trcodes ]
         transfer_changes = list(filter(lambda x:x['trcode'] in trcodes,changes))
         #group['changes'] = transfer_changes
+        group['req_titles'] = [ x['req_title'] for x in sample_changes ]
         group['budget_codes'] = list(set(x['budget_code'] for x in transfer_changes))
         group['prefixes'] = list(set(chain.from_iterable([code[:l] for l in range(2,8,2)] for code in group['budget_codes'])))
         group['group_id'] = group['transfer_ids'][0]
