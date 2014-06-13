@@ -41,8 +41,11 @@ rules:
     - processor: rss
       input: changes.upload
       output: rss-properties.jsons
+    - processor: concat
+      input: mof-data/changegroups-*.jsons
+      output: changegroups.jsons
     - processor: dump_to_db
-      input: changes/changegroups.jsons
+      input: changegroups.jsons
       output: changegroups.sqlite
       params:
           key_fields:
