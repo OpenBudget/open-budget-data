@@ -1,15 +1,11 @@
 #encoding: utf8
 
-import pystache
+import logging
 import json
 import urllib2
 import itertools
 import pprint
-import shelve
-import math
-import jinja2
 import datetime
-from numpy import array
 from itertools import chain
 
 if __name__ == "__main__":
@@ -156,8 +152,25 @@ def get_groups(changes):
         group['req_titles'] = [ x['req_title'] for x in sample_changes ]
         group['budget_codes'] = list(set(x['budget_code'] for x in transfer_changes))
         group['prefixes'] = list(set(chain.from_iterable([code[:l] for l in range(2,8,2)] for code in group['budget_codes'])))
+        def sum_fields_for_prefix(l,prefix,fields):
+            return sum(sum(x[f] for f in fields) for x in l if x['budget_code'].startswith(prefix))
+        group['changes'] = [
+            {
+                'budget_code': code,
+                'expense_change': sum_fields_for_prefix(transfer_changes,code,["net_expense_diff","gross_expense_diff","allocated_income_diff"]),
+                'commitment_change': sum_fields_for_prefix(transfer_changes,code,["commitment_limit_diff"]),
+                'personnel_change': sum_fields_for_prefix(transfer_changes,code,["personnel_max_diff"])
+            }
+            for code in group['prefixes']
+        ]
         group['group_id'] = group['transfer_ids'][0]
-
+        for trcode in trcodes:
+            per_transfer_changes = list(filter(lambda x:x['trcode']==trcode,transfer_changes))
+            s = sum(sum(x[f] for f in fields) for x in per_transfer_changes)
+            if s > 0:
+                group['group_id'] = trcode.split('/')[1]
+                logging.debug('selected group id %(group_id)s as representative for %(transfer_ids)r' % group)
+                break
     return groups
 
 class extract_change_groups(object):
