@@ -164,6 +164,8 @@ def get_groups(changes):
             for code in group['prefixes']
         ]
         group['group_id'] = group['transfer_ids'][0]
+        trcodes = list(trcodes)
+        trcodes.sort()
         for trcode in trcodes:
             per_transfer_changes = list(filter(lambda x:x['trcode']==trcode and not x['budget_code'].startswith("0047"),transfer_changes))
             s = sum(sum(x[f] for f in fields) for x in per_transfer_changes)
