@@ -151,7 +151,7 @@ def get_groups(changes):
         #group['changes'] = transfer_changes
         group['req_titles'] = [ x['req_title'] for x in sample_changes ]
         group['budget_codes'] = list(set(x['budget_code'] for x in transfer_changes))
-        group['prefixes'] = list(set(chain.from_iterable([code[:l] for l in range(2,8,2)] for code in group['budget_codes'])))
+        group['prefixes'] = list(set(chain.from_iterable([code[:l] for l in range(2,10,2)] for code in group['budget_codes'])))
         def sum_fields_for_prefix(l,prefix,fields):
             return sum(sum(x[f] for f in fields) for x in l if x['budget_code'].startswith(prefix))
         group['changes'] = [
@@ -165,7 +165,7 @@ def get_groups(changes):
         ]
         group['group_id'] = group['transfer_ids'][0]
         for trcode in trcodes:
-            per_transfer_changes = list(filter(lambda x:x['trcode']==trcode,transfer_changes))
+            per_transfer_changes = list(filter(lambda x:x['trcode']==trcode and not x['budget_code'].startswith("0047"),transfer_changes))
             s = sum(sum(x[f] for f in fields) for x in per_transfer_changes)
             if s > 0:
                 group['group_id'] = trcode.split('/')[1]
