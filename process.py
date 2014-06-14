@@ -111,6 +111,10 @@ def setup_logging():
     root.addHandler(ch)
 
 if __name__ == "__main__":
+
+    import singleton
+    me = singleton.SingleInstance()
+
     APIKEY = None
     if len(sys.argv) > 1:
         APIKEY = sys.argv[1]
