@@ -44,8 +44,13 @@ rules:
     - processor: concat
       input: mof-data/changegroups-*.jsons
       output: changegroups.jsons
+    - processor: fix_changeline_budget_titles
+      input:
+          - changegroups.jsons
+          - ../budget/budgets.jsons
+      output: changegroups-fixed-titles.jsons
     - processor: dump_to_db
-      input: changegroups.jsons
+      input: changegroups-fixed-titles.jsons
       output: changegroups.sqlite
       params:
           key_fields:
