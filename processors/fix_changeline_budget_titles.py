@@ -111,7 +111,7 @@ class fix_changeline_budget_titles(object):
                     else:
                         template = 'transfer-expenses'
                     group['title_template'] = template
-                    group['tite_value'] = value
+                    group['title_value'] = value
                     title = lambda x:x['budget_title']
                     group['titles'] = [map(title,minus_transfers),map(title,plus_transfers)]
 
