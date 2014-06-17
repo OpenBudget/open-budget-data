@@ -67,10 +67,10 @@ class fix_changeline_budget_titles(object):
                         value = change['commitment_change']
                     elif change['personnel_change'] < 0:
                         template = 'allocation-personnel'
-                        value = -change['personnel_change']
+                        value = int(-change['personnel_change'])
                     elif change['personnel_change'] > 0:
                         template = 'cutbacks-personnel'
-                        value = change['personnel_change']
+                        value = int(change['personnel_change'])
                     else:
                         template = 'internal-change'
                         changes = [ch for ch in group['changes'] if len(ch['budget_code'])==4 and ch['budget_code']!="0047"]
@@ -101,7 +101,7 @@ class fix_changeline_budget_titles(object):
                     if value == 0:
                         value = sum(x['commitment_change'] for x in plus_transfers)
                         if value == 0:
-                            value = sum(x['personnel_change'] for x in plus_transfers)
+                            value = int(sum(x['personnel_change'] for x in plus_transfers))
                             if value == 0:
                                 template = 'transfer-generic'
                             else:
