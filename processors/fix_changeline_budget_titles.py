@@ -48,9 +48,9 @@ class fix_changeline_budget_titles(object):
                         #logging.warn("can't find template for %r/%d" % (group['transfer_ids'],group['year']))
                         changes = [ch for ch in group['changes'] if len(ch['budget_code'])==4 and ch['budget_code']!="0047"]
                         change = {}
-                        change['expense_change'] = sum(x['expense_change'] for x in changes)
-                        change['commitment_change'] = sum(x['commitment_change'] for x in changes)
-                        change['personnel_change'] = sum(x['personnel_change'] for x in changes)
+                        change['expense_change'] = -sum(x['expense_change'] for x in changes)
+                        change['commitment_change'] = -sum(x['commitment_change'] for x in changes)
+                        change['personnel_change'] = -sum(x['personnel_change'] for x in changes)
                     else:
                         change = change[0]
                     if change['expense_change'] < 0:
