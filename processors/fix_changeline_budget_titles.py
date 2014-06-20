@@ -115,5 +115,7 @@ class fix_changeline_budget_titles(object):
                     title = lambda x:x['budget_title']
                     group['titles'] = [map(title,minus_transfers),map(title,plus_transfers)]
 
+                group['changes'].sort(key=lambda x: int(1+x['budget_code']))
+
             outfile.write(json.dumps(line,sort_keys=True)+"\n")
         print "updated %d entries" % changed_num
