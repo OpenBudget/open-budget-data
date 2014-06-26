@@ -5,6 +5,7 @@ import os
 import gzip
 import json
 import tempfile
+import logging
 
 if __name__ == "__main__":
     input = sys.argv[1:-1]
@@ -40,7 +41,9 @@ class extract_txt_from_docs(object):
             parts = filename.split("/")[-1].split(".")[0].split("_")
             parts = map(int,parts)
             year,leading_item,req_code = parts
+            logging.debug("%d / %02d-%03d ?" % parts)
             explanation = extract(inp.read(filename))
+            logging.debug("%d / %02d-%03d got %d bytes" % (year,leading_item,req_code,len(explanation)))
             row = {'year':year,'leading_item':leading_item,'req_code':req_code,'explanation':explanation}
             if explanation is None: print filename, row
             out.write(json.dumps(row)+"\n")
