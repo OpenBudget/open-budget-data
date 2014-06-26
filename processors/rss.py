@@ -160,7 +160,7 @@ def prepare_rss(output_filename):
         k = json.loads(key)
         print key
         expl = get_url("change_expl/%02d-%03d/%d" % (k[1],k[2],k[0]))
-        transfer_dict[key] = { 'explanation': expl[0] if len(expl) > 0 else { "explanation" :""},
+        transfer_dict[key] = { 'explanation': expl,
                              'year': k[0], 'req_code': k[2], 'leading_item': k[1],
                              'items': [enhance_item(i) for i in v] }
     final_transfers = []
