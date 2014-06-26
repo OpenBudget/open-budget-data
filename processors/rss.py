@@ -39,7 +39,7 @@ def avg(l):
 
 def get_groups(changes):
     groups = get_url('changegroup/pending')
-    groups = [ [(g['year'],int(t.split('-')[0]),int(t.split('-')[1])) for t in g['transfer_ids']] for g in groups ]
+    groups = [ (g['group_id'],[(g['year'],int(t.split('-')[0]),int(t.split('-')[1])) for t in g['transfer_ids']]) for g in groups ]
     return groups
 
 def get_url(url):
@@ -123,6 +123,15 @@ def format_title(template,value,titles):
 
     return u"%s %s %s" % (template,title,value)
 
+def append_age(title,age):
+    if age < 7:
+        title += u" חדש!"
+    elif age < 14:
+        title += u" (מהשבוע שעבר)"
+    else:
+        title += u" (מלפני %d שבועות)" % (age / 7)
+    return title
+
 def enhance_item(item):
     item['value'] = sum(item.get(x,0) for x in ['net_expense_diff','gross_expense_diff','allocated_income_diff','commitment_limit_diff'])
     return item
@@ -136,18 +145,6 @@ def join_explanations(explanations):
             break
     i = i-1
     return "\n".join("\n".join(sp[:-i]) for sp in splits)+"\n\n"+"\n\n".join(splits[0][-i:])
-    # #print repr(explanations)
-    # explanations = [ x.split('\n') for x in explanations ]
-    # explanations = [ enumerate([y.strip() for y in x if y.strip() != '']) for x in explanations ]
-    # sorter = {}
-    # for i,expl in enumerate(explanations):
-    #     for j,part in expl:
-    #         sorter.setdefault(part,{})[i]=j
-    # sorter = list(sorter.iteritems())
-    # for i in range(len(explanations)):
-    #     sorter.sort(key=lambda x:x[1].get(i),cmp=lambda x,y: 0 if x is None or y is None else x-y)
-    # ret = "\n".join(x[0] for x in sorter)
-    # return ret
 
 def prepare_rss(output_filename):
     pending_changes = get_url("changes/pending/all")
@@ -167,7 +164,7 @@ def prepare_rss(output_filename):
                              'year': k[0], 'req_code': k[2], 'leading_item': k[1],
                              'items': [enhance_item(i) for i in v] }
     final_transfers = []
-    for group in groups:
+    for group_id, group in groups:
         transfers = []
         for k in group:
             key = json.dumps(k)
@@ -187,9 +184,12 @@ def prepare_rss(output_filename):
             continue
         print "TT",group,len(transfers)
         group_transfers = { 'transfers': transfers,
+                            'group_id': group_id,
                             'group': list(group),
                             'items': list(chain.from_iterable(tr['items'] for tr in transfers)) }
         group_transfers['date'] = group_transfers['items'][0]['date']
+        date = datetime.datetime.strptime(group_transfers['date'],"%d/%m/%Y").date()
+        group_transfers['age'] = (datetime.datetime.now() - date).days
         for tr in transfers:
             main_code = tr['main_code']
             tr['explanation'] = tr['explanation']['explanation']
@@ -294,10 +294,12 @@ def prepare_rss(output_filename):
         score = None
         if template is not None:
             score = value * avg(tr['performance_score'] for tr in transfers) * avg(tr['changes_score'] for tr in transfers)
+            score = score / (group_transfers['age'] + 14s)
             group_transfers['score'] = score
             group_transfers['req_title'] = req_title
             group_transfers['explanation'] = explanation
             group_transfers['title'] = format_title(group_transfers['template'],group_transfers['value'],group_transfers['titles'])
+            group_transfers['title'] = append_age( group_transfers['title'], group_transfers['age'] )
             final_transfers.append(group_transfers)
         else:
             print "XXXXX!!!!",group,template,score
@@ -316,9 +318,9 @@ def prepare_rss(output_filename):
         feed_title = "%d/%d - %d/%d" % (start.day,start.month,end.day,end.month)
 
     to_write = {'rss_title':feed_title,
-                'rss_items':len(final_transfers)}
+                'rss_items':[x['group_id'] for x in final_transfers]}
     for i,e in enumerate(final_transfers):
-        to_write['rss_items[%d]' % i] = e
+        to_write['rss_items[%s]' % e['group_id']] = e
     for k,v in to_write.iteritems():
         output.write(json.dumps({'key':k,'value':v})+'\n')
 
@@ -328,13 +330,12 @@ def prepare_rss(output_filename):
     # for tr in final_transfers:
     #     #print tr['template'], tr['main_budget_item']['code'], tr['main_budget_item']['title'], tr['value'], "/".join(tr['breadcrumbs']), tr["score"]
     #
-    #     rendered.append( {'title': format_title(tr['template'],tr['value'],tr['titles']),
-    #                       'subtitle': "",
+    #     rendered.append( {'title': "%(title)s (%(date)s)" % tr,
     #                       'description': item_template.render(tr),
-    #                       'link': 'YYY',
+    #                       'score': tr['score'],
     #                       'index': len(rendered)+1 } )
     #     #pprint.pprint(tr)
-    # email_data = { 'feed': { 'title': u'6 / 21-27' }, 'items': rendered }
+    # email_data = { 'feed': { 'title': feed_title }, 'entries': rendered }
     # email_template = file('email_template.mustache.html').read().decode('utf8')
     # out = pystache.render(email_template, email_data)
     # file('email.html','w').write(out.encode('utf8'))
