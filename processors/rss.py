@@ -294,7 +294,7 @@ def prepare_rss(output_filename):
         score = None
         if template is not None:
             score = value * avg(tr['performance_score'] for tr in transfers) * avg(tr['changes_score'] for tr in transfers)
-            score = score / (group_transfers['age'] + 14s)
+            score = score / (group_transfers['age'] + 14)
             group_transfers['score'] = score
             group_transfers['req_title'] = req_title
             group_transfers['explanation'] = explanation
