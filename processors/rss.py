@@ -241,7 +241,7 @@ def prepare_rss(output_filename):
         group_transfers['filt_items'] = list(chain.from_iterable(x['filt_items'] for x in transfers))
         budget_codes = set(x['budget_code'] for x in group_transfers['filt_items'])
         group_transfers['filt_items'] = [{'budget_code':x['budget_code'],'budget_title':x['budget_title']} for x in group_transfers['filt_items']]
-        supports = chain.from_iterable(get_url('supports/%s' % budget_code[2:]) for budget_code in budget_codes)
+        supports = chain.from_iterable(get_url('supports/%s' % budget_code) for budget_code in budget_codes)
         recipients = {}
         for sup in supports:
             recipient = sup['recipient']
