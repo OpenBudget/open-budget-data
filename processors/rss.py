@@ -189,7 +189,7 @@ def prepare_rss(output_filename):
                             'items': list(chain.from_iterable(tr['items'] for tr in transfers)) }
         group_transfers['date'] = group_transfers['items'][0]['date']
         tr_date = datetime.datetime.strptime(group_transfers['date'],"%d/%m/%Y")
-        group_transfers['age'] = (datetime.datetime.now().date() - tr_date).days
+        group_transfers['age'] = (datetime.datetime.now() - tr_date).days
         for tr in transfers:
             main_code = tr['main_code']
             tr['explanation'] = tr['explanation']['explanation']
