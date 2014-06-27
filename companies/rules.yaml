@@ -1,0 +1,7 @@
+rules:
+    - processor: dump_to_db
+      input: company-records.jsons.gz
+      output: company-records.sqlite
+      params:
+          key_fields:
+              - registration_id
