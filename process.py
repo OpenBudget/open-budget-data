@@ -104,7 +104,8 @@ def setup_logging():
     root = logging.getLogger()
     root.setLevel(logging.DEBUG)
 
-    ch = logging.StreamHandler(sys.stdout)
+    out = file('process.log','w')
+    ch = logging.StreamHandler(out)
     ch.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s:%(levelname)s:%(message)s')
     ch.setFormatter(formatter)
@@ -118,13 +119,17 @@ if __name__ == "__main__":
     APIKEY = None
     if len(sys.argv) > 1:
         APIKEY = sys.argv[1]
-    setup_logging()
+    has_logging = False
     priorities = list
     processors = list( collect_processors() )
     while True:
         relevant = [ p for p in processors if is_relevant_processor(p) ]
         relevant.sort( key=lambda p: processor_order[p['processor']] )
-        print [ r['processor'] for r in relevant ]
         if len(relevant) == 0:
             break
+        else:
+            if not has_logging:
+                setup_logging()
+                has_logging = True
+        logging.debug("relevant processors: %r" % [ r['processor'] for r in relevant ])
         run_processor(relevant[0],APIKEY)
