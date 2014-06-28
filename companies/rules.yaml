@@ -5,3 +5,8 @@ rules:
       params:
           key_fields:
               - registration_id
+    - processor: upload
+      input: company-records.sqlite
+      output: company-records.upload
+      params:
+          kind: cr
