@@ -116,8 +116,8 @@ class join(object):
             count = count.next()[0]
             logging.debug("got %r records in input" % count)
 
-            for skip in range(0,count,10000):
-                in_values = input_cur.execute("""SELECT value from data LIMIT 10000 OFFSET %d""" % skip)
+            for skip in range(0,count,30000):
+                in_values = input_cur.execute("""SELECT value from data LIMIT 30000 OFFSET %d""" % skip)
                 trie = TrieNode()
                 for _value in in_values:
                     value = json.loads(_value[0])
@@ -155,7 +155,6 @@ class join(object):
                     join_value = None
                     results = None
                     if match is None:
-                        matches[to_match] = False
 
                         if len(to_match) < 5:
                             continue
@@ -174,7 +173,7 @@ class join(object):
                         match_num += 1
                         v[dst_field_name] = match
                         yield (json.dumps(v,sort_keys=True),k)
-                        if matches[to_match] != False and results is not None:
+                        if matches.get(to_match) is not None and results is not None:
                             logging.error("got more than one match! for %s: %r, %r" % (to_match,results,matches[to_match]))
                         matches[to_match] = match
 
