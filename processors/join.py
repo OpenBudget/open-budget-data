@@ -109,69 +109,81 @@ def searchRecursive( node, letter, word, previousRow, results, maxCost ):
 class join(object):
     def process(self,input,output,dst_file=None,src_field=None,join_field=None,dst_field=None,dst_field_name=None,max_len=35):
 
-        def get_updates():
-
-            trie = TrieNode()
+        def get_tries():
             input_conn = sqlite3.connect(input)
             input_cur = input_conn.cursor()
-            in_values = input_cur.execute("""SELECT value from data""")
-            for _value in in_values:
-                value = json.loads(_value[0])
-                join_value = value.get(join_field)
-                dst_value = value.get(dst_field)
-                if join_value is None or dst_value is None:
-                    continue
-                trie.insert( join_value[:max_len], dst_value )
-            logging.debug("built trie, %d nodes" % NodeCount)
+            count = input_cur.execute("""SELECT COUNT(*) from data""")
+            count = count.next()[0]
+            logging.debug("got %r records in input" % count)
 
-            cc = conn.cursor()
-            key_values = cc.execute("""SELECT key,value from data""")
-            key_values = ( (k,json.loads(v)) for k,v in key_values )
+            for skip in range(0,count,10000):
+                in_values = input_cur.execute("""SELECT value from data LIMIT 10000 OFFSET %d""" % skip)
+                trie = TrieNode()
+                for _value in in_values:
+                    value = json.loads(_value[0])
+                    join_value = value.get(join_field)
+                    dst_value = value.get(dst_field)
+                    if join_value is None or dst_value is None:
+                        continue
+                    trie.insert( join_value[:max_len], dst_value )
+                logging.debug("built trie, %d nodes" % NodeCount)
+                yield trie
+
+        def get_updates(conn):
+
             matches = {}
-            num = 0
             match_num = 0
-            for k,v in key_values:
-                num += 1
-                if num % 1000 == 0:
-                    logging.debug('processed %d records, %d matches' % (num,match_num))
-                if v.get(dst_field_name) is not None:
-                    print v.get('recipient'), v.get(dst_field_name)
-                    continue
-                to_match = v[src_field][:max_len]
-                if v.get('dst_field_name') is not None:
-                    match_num += 1
-                    continue
-
-                match = matches.get(to_match)
-                join_value = None
-                if match is None:
-                    matches[to_match] = False
-
-                    if len(to_match) < 5:
+            trie_num = 0
+            for trie in get_tries():
+                cc = conn.cursor()
+                key_values = cc.execute("""SELECT key,value from data""")
+                key_values = ( (k,json.loads(v)) for k,v in key_values )
+                num = 0
+                for k,v in key_values:
+                    num += 1
+                    if num % 1000 == 0:
+                        logging.debug('Trie #%d: processed %d records, %d matches' % (trie_num, num,match_num))
+                    if v.get(dst_field_name) is not None:
+                        print v.get('recipient'), v.get(dst_field_name)
+                        continue
+                    to_match = v[src_field][:max_len]
+                    if v.get('dst_field_name') is not None:
+                        match_num += 1
                         continue
 
-                    for cost in range(3):
-                        results = search(trie,to_match,cost)
-                        if len(results) > 1:
-                            logging.error("got more than one match! for %s: %r" % (to_match,results))
-                        if len(results) == 1:
-                            results = results[0]
-                            match = results[2]
-                            logging.debug("MATCH for %s: %s (cost %d)" % (to_match,match,results[1]))
-                            break
+                    match = matches.get(to_match)
+                    join_value = None
+                    results = None
+                    if match is None:
+                        matches[to_match] = False
 
-                if match is not None and match != False:
-                    match_num += 1
-                    v[dst_field_name] = match
-                    yield (json.dumps(v,sort_keys=True),k)
-                    matches[to_match] = match
+                        if len(to_match) < 5:
+                            continue
+
+                        for cost in range(3):
+                            results = search(trie,to_match,cost)
+                            if len(results) > 1:
+                                logging.error("got more than one match! for %s: %r" % (to_match,results))
+                            if len(results) == 1:
+                                results = results[0]
+                                match = results[2]
+                                logging.debug("MATCH for %s: %s (cost %d)" % (to_match,match,results[1]))
+                                break
+
+                    if match is not None and match != False:
+                        match_num += 1
+                        v[dst_field_name] = match
+                        yield (json.dumps(v,sort_keys=True),k)
+                        if matches[to_match] != False and results is not None:
+                            logging.error("got more than one match! for %s: %r, %r" % (to_match,results,matches[to_match]))
+                        matches[to_match] = match
 
         conn = sqlite3.connect(dst_file)
 
         outfile = file(output,"w")
 
         c = conn.cursor()
-        c.executemany("UPDATE data set value=?, dirty=1 where key=?", get_updates())
+        c.executemany("UPDATE data set value=?, dirty=1 where key=?", get_updates(conn))
         conn.commit()
         conn.close()
 

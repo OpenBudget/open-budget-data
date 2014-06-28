@@ -41,11 +41,12 @@ class extract_txt_from_docs(object):
             parts = filename.split("/")[-1].split(".")[0].split("_")
             parts = map(int,parts)
             year,leading_item,req_code = parts
-            logging.debug("%d / %02d-%03d ?" % (year,leading_item,req_code))
             explanation = extract(inp.read(filename))
-            logging.debug("%d / %02d-%03d got %d bytes" % (year,leading_item,req_code,len(explanation)))
             row = {'year':year,'leading_item':leading_item,'req_code':req_code,'explanation':explanation}
-            if explanation is None: print filename, row
+            if explanation is None:
+                logging.debug("no explanation for %s, %s" % (filename, row))
+            else:
+                logging.debug("%d / %02d-%03d got %d bytes" % (year,leading_item,req_code,len(explanation)))
             out.write(json.dumps(row)+"\n")
 
         out.close()
