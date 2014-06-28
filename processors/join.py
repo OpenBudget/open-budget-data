@@ -144,7 +144,7 @@ class join(object):
                     if num % 1000 == 0:
                         logging.debug('Trie #%d: processed %d records, %d matches' % (trie_num, num,match_num))
                     if v.get(dst_field_name) is not None:
-                        print v.get('recipient'), v.get(dst_field_name)
+                        #print v.get('recipient'), v.get(dst_field_name)
                         continue
                     to_match = v[src_field][:max_len]
                     if v.get('dst_field_name') is not None:
