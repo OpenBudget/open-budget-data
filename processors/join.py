@@ -133,49 +133,56 @@ class join(object):
 
             matches = {}
             match_num = 0
-            trie_num = 0
-            for trie in get_tries():
-                cc = conn.cursor()
-                key_values = cc.execute("""SELECT key,value from data""")
-                key_values = ( (k,json.loads(v)) for k,v in key_values )
-                num = 0
-                for k,v in key_values:
-                    num += 1
-                    if num % 1000 == 0:
-                        logging.debug('Trie #%d: processed %d records, %d matches' % (trie_num, num,match_num))
-                    if v.get(dst_field_name) is not None:
-                        #print v.get('recipient'), v.get(dst_field_name)
-                        continue
-                    to_match = v[src_field][:max_len]
-                    if v.get('dst_field_name') is not None:
-                        match_num += 1
-                        continue
-
-                    match = matches.get(to_match)
-                    join_value = None
-                    results = None
-                    if match is None:
-
-                        if len(to_match) < 5:
+            globally_unmatachable = set()
+            for cost in range(3):
+                trie_num = 0
+                for trie in get_tries():
+                    cc = conn.cursor()
+                    key_values = cc.execute("""SELECT key,value from data""")
+                    key_values = ( (k,json.loads(v)) for k,v in key_values )
+                    num = 0
+                    unmatchable = set()
+                    for k,v in key_values:
+                        num += 1
+                        if num % 1000 == 0:
+                            logging.debug('Trie #%d/%d: processed %d records, %d matches' % (cost, trie_num, num,match_num))
+                        if v.get(dst_field_name) is not None:
+                            #print v.get('recipient'), v.get(dst_field_name)
+                            continue
+                        to_match = v[src_field][:max_len]
+                        if v.get('dst_field_name') is not None:
+                            match_num += 1
                             continue
 
-                        for cost in range(3):
+                        if to_match in globally_unmatachable:
+                            continue
+                        if to_match in unmatchable:
+                            continue
+
+                        match = matches.get(to_match)
+                        join_value = None
+                        results = None
+                        if match is None:
+                            if len(to_match) < 5:
+                                continue
+
                             results = search(trie,to_match,cost)
                             if len(results) > 1:
                                 logging.error("got more than one match! for %s: %r" % (to_match,results))
+                                globally_unmatachable.add(to_match)
                             if len(results) == 1:
                                 results = results[0]
                                 match = results[2]
                                 logging.debug("MATCH for %s: %s (cost %d)" % (to_match,match,results[1]))
                                 break
 
-                    if match is not None and match != False:
-                        match_num += 1
-                        v[dst_field_name] = match
-                        yield (json.dumps(v,sort_keys=True),k)
-                        if matches.get(to_match) is not None and results is not None:
-                            logging.error("got more than one match! for %s: %r, %r" % (to_match,results,matches[to_match]))
-                        matches[to_match] = match
+                        if match is not None:
+                            match_num += 1
+                            v[dst_field_name] = match
+                            yield (json.dumps(v,sort_keys=True),k)
+                            matches[to_match] = match
+                        else:
+                            unmatchable.add(to_match)
 
         conn = sqlite3.connect(dst_file)
 
