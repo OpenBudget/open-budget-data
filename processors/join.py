@@ -198,7 +198,7 @@ class join(object):
         conn.close()
 
         time.sleep(10)
-        os.utime(output, None)
+        file(output,"w").write("OK")
 
 
 if __name__ == "__main__":
