@@ -1,26 +1,27 @@
-- processor: csv_to_jsons
-  input: amutot.csv
-  output: amutot.jsons
-  params:
-      has_header: true
-      field_definition:
-        - field_name: amuta_id
-        - field_name: name_heb
-        - field_name: kind
-          convertor: ngo_kind
-        - field_name: category
-        - field_name: founding_year
-          convertor: integer
-        - field_name: essence
-        - field_name: objective
-- processor: dump_to_db
-  input: amutot.jsons
-  output: amutot.sqlite
-  params:
-      key_fields:
-          - amuta_id
-#- processor: upload
-#  input: amutot.sqlite
-#  output: amutot.updload
-#  params:
-#      kind: ngo
+rules:
+    - processor: csv_to_jsons
+      input: amutot.csv
+      output: amutot.jsons
+      params:
+          has_header: true
+          field_definition:
+            - field_name: amuta_id
+            - field_name: name_heb
+            - field_name: kind
+              convertor: ngo_kind
+            - field_name: category
+            - field_name: founding_year
+              convertor: integer
+            - field_name: essence
+            - field_name: objective
+    - processor: dump_to_db
+      input: amutot.jsons
+      output: amutot.sqlite
+      params:
+          key_fields:
+              - amuta_id
+    - processor: upload
+      input: amutot.sqlite
+      output: amutot.updload
+      params:
+          kind: ngo

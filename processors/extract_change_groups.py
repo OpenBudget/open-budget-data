@@ -83,8 +83,8 @@ def get_groups(changes):
                 change['pending'] = kind == 'pending'
                 change['date_kind'] = kind+"/"+v
                 break
-        if change.get('date') is None:
-            print change
+#        if change.get('date') is None:
+#            print change
     get_date = lambda x:x['date_kind']
     changes.sort(key=get_date)
     groups = []
@@ -94,17 +94,16 @@ def get_groups(changes):
         date = date_changes[0]['date']
         date_reserve = [c for c in date_changes if c['budget_code'].startswith('0047')
                         if sum(c[field]*c[field] for field in fields) > 0]
-        print 'reserve date:',date_kind,len(date_reserve)
+        logging.debug('reserve date: kind:%s num:%s' % (date_kind,len(date_reserve)))
         num_found = 0
         #print 'len(date_reserve)=',len(date_reserve)
         i = 0
-        print date_kind
         for comb_size in range(2,min(len(date_reserve)+1,7)):
             done = False
             #print "comb_size", comb_size
             while not done:
                 not_selected = list(x for x in date_reserve if x['trcode'] not in selected_transfer_codes)
-                print 'len(not_selected)=',len(not_selected)
+                logging.debug('len(not_selected)=%d' % len(not_selected))
                 date_groups = combinations(not_selected,comb_size)
                 found = None
                 done = True
@@ -112,7 +111,7 @@ def get_groups(changes):
                     while True:
                         i += 1
                         if i % 100000 == 0:
-                            print date, len(date_reserve), num_found, i
+                            logging.debug("%s %s %s %s" % (date, len(date_reserve), num_found, i))
                         group = date_groups.send(found)
                         found = False
                         sumvec = sum(c['_value'] for c in group)
@@ -128,7 +127,7 @@ def get_groups(changes):
                             to_append = { 'transfer_ids': transfer_codes,
                                           'date': date,
                                           'pending': pending}
-                            print to_append
+                            #print to_append
                             groups.append(to_append)
                             found = True
                 except StopIteration:

@@ -36,7 +36,7 @@ class extract_txt_from_docs(object):
         names = inp.namelist()
         for filename in names:
             if not filename.endswith('.doc'):
-                print filename
+                logging.error("non document file: %s" % filename)
                 continue
             parts = filename.split("/")[-1].split(".")[0].split("_")
             parts = map(int,parts)

@@ -14,7 +14,7 @@ import logging
 from numpy import array
 from itertools import chain, combinations, groupby
 
-cache = {}#shelve.open('api.cache',writeback=True)
+cache = shelve.open('api.cache',writeback=True)
 
 fields = ['net_expense_diff',
           'gross_expense_diff',
@@ -45,10 +45,10 @@ def get_groups(changes):
 def get_url(url):
     if not cache.has_key(url):
         try:
-            print url
+            logging.debug( "getting url %s" % url )
             data = json.loads(urllib2.urlopen("http://the.open-budget.org.il/api/"+url+"?limit=5000").read())
         except:
-            print "Failed to get data for %s" % url
+            logging.error( "Failed to get data for %s" % url )
             raise
         cache[url] = data
         try:
@@ -77,7 +77,7 @@ def process_title(title):
     elif type(title) == list:
         return ", ".join(map(process_title,title))
     else:
-        print repr(title)
+        logging.error( "bad title kind %r" % title )
         assert(False)
 
 def format_value(value):
@@ -153,12 +153,11 @@ def prepare_rss(output_filename):
     for ch in pending_changes:
         key = json.dumps(transfer_code(ch))
         pending_by.setdefault(key,[]).append(ch)
-    print pending_by.keys()
+    logging.debug( "pending_by keys %r" % pending_by.keys() )
     pending_by = pending_by.iteritems()
     transfer_dict = {}
     for key,v in pending_by:
         k = json.loads(key)
-        print key
         expl = get_url("change_expl/%02d-%03d/%d" % (k[1],k[2],k[0]))
         transfer_dict[key] = { 'explanation': expl,
                              'year': k[0], 'req_code': k[2], 'leading_item': k[1],
@@ -172,7 +171,7 @@ def prepare_rss(output_filename):
             main_codes = set(item['budget_code'][:4] for item in tr['items'])
             main_codes.discard('0047')
             if len(main_codes)<1:
-                print "deleting",key,tr['items']
+                logging.warning( "deleting %s %r" % (key,tr['items']) )
                 del transfer_dict[key]
                 continue
             main_codes = list(main_codes)
@@ -182,7 +181,7 @@ def prepare_rss(output_filename):
             transfers.append(tr)
         if len(transfers) == 0:
             continue
-        print "TT",group,len(transfers)
+        #print "TT",group,len(transfers)
         group_transfers = { 'transfers': transfers,
                             'group_id': group_id,
                             'group': list(group),
@@ -199,7 +198,7 @@ def prepare_rss(output_filename):
             tr['gross_expense_diff'] = sum(map(lambda x:x['gross_expense_diff'],tr['filt_items']))
             tr['allocated_income_diff'] = sum(map(lambda x:x['allocated_income_diff'],tr['filt_items']))
             tr['expenses'] = tr['net_expense_diff']+tr['gross_expense_diff']+tr['allocated_income_diff']
-            print "LL", group, tr['key'], len(tr['filt_items']),tr['expenses']
+            #print "LL", group, tr['key'], len(tr['filt_items']),tr['expenses']
             tr['personnel_max_diff'] = sum(map(lambda x:x['personnel_max_diff'],tr['filt_items']))
             tr['commitment_limit_diff'] = sum(map(lambda x:x['commitment_limit_diff'],tr['filt_items']))
             budget_codes = [x['budget_code'] for x in tr['filt_items']]
@@ -281,7 +280,7 @@ def prepare_rss(output_filename):
             minus_transfers = filter(lambda x:filt(x)<0,transfers)
             plus_transfers = filter(lambda x:filt(x)>0,transfers)
             value = sum(map(filt,plus_transfers))
-            print [t['key'] for t in minus_transfers], [t['key'] for t in plus_transfers], group, sum(map(filt,minus_transfers)), value
+            #print [t['key'] for t in minus_transfers], [t['key'] for t in plus_transfers], group, sum(map(filt,minus_transfers)), value
             assert(sum(map(filt,minus_transfers))+value==0)
             template = 'transfer'
             group_transfers['template'] = 'transfer'
@@ -302,10 +301,14 @@ def prepare_rss(output_filename):
             group_transfers['title'] = append_age( group_transfers['title'], group_transfers['age'] )
             final_transfers.append(group_transfers)
         else:
-            print "XXXXX!!!!",group,template,score
+            logging.error( "no template for group %s %s %s" % (group,template,score) )
     final_transfers.sort(key=lambda x:-x['score'])
     for tr in final_transfers:
-        print "SCORE",tr['score'], tr['group'],"value:%s" % tr['value'],repr([x['performance_score'] for x in tr['transfers']]),repr([x['changes_score'] for x in tr['transfers']])
+        logging.info("SCORE %s %s %s %r %r" % (tr['score'],
+                                               tr['group'],
+                                               "value:%s" % tr['value'],
+                                               [x['performance_score'] for x in tr['transfers']]),
+                                               [x['changes_score'] for x in tr['transfers']])
 
     output = file(output_filename,"w")
     now = datetime.datetime.now()

@@ -125,7 +125,7 @@ class download_pending_changes(object):
             conn = sqlite3.connect(sql_to_delete_from)
             c = conn.cursor()
             ret = c.execute("""delete from data where key like 'year:%d%%'""" % YEAR)
-            print ret
+            logging.info("deleted yearly changes from DB %r" % ret)
             conn.commit()
             conn.close()
 

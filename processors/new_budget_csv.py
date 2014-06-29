@@ -45,7 +45,7 @@ class new_budget_csv(object):
             for col in [1,3,5,7]:
                 code = to_code(row,col)
                 if len(code) != col+3:
-                    print code, row
+                    logging.error("%s, %s" % (code, row))
                     assert(False)
                 new_year = year in new_years and len(code) < 10
                 title = row[col+1].decode('utf8')

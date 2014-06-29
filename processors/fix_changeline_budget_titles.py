@@ -118,4 +118,4 @@ class fix_changeline_budget_titles(object):
                 group['changes'].sort(key=lambda x: int("1"+x['budget_code']))
 
             outfile.write(json.dumps(line,sort_keys=True)+"\n")
-        print "updated %d entries" % changed_num
+        logging.info("updated %d entries" % changed_num)

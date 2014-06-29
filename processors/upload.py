@@ -19,14 +19,14 @@ def do_write(kind,APIKEY,data,i):
         u = urllib2.urlopen(req).read()
     except Exception,e:
         raise
-    print u,i
+    logging.debug("do_write: %s,%s" % (u,i))
 
 class upload(object):
     def process(self,input,output,kind,APIKEY):
         pool = Pool(10)
 
         if APIKEY is None:
-            print "no API key"
+            logging.error("no API key")
             return
 
         conn = sqlite3.connect(input)
@@ -45,7 +45,7 @@ class upload(object):
             #print lines
             pool.spawn(do_write, kind, APIKEY, lines,i)
             #do_write("\n".join(lines),i)
-            print "."
+            #print "."
         pool.join()
         if i > 0:
             dirtys = c.execute("""UPDATE data SET dirty=0 WHERE dirty=1""")
