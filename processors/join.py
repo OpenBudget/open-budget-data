@@ -110,6 +110,7 @@ class join(object):
     def process(self,input,output,dst_file=None,src_field=None,join_field=None,dst_field=None,dst_field_name=None,max_len=35):
 
         def get_tries():
+            global NodeCount
             input_conn = sqlite3.connect(input)
             input_cur = input_conn.cursor()
             count = input_cur.execute("""SELECT COUNT(*) from data""")
@@ -118,6 +119,7 @@ class join(object):
 
             for skip in range(0,count,30000):
                 in_values = input_cur.execute("""SELECT value from data LIMIT 30000 OFFSET %d""" % skip)
+                NodeCount = 0
                 trie = TrieNode()
                 for _value in in_values:
                     value = json.loads(_value[0])
@@ -183,6 +185,9 @@ class join(object):
                             matches[to_match] = match
                         else:
                             unmatchable.add(to_match)
+
+                    logging.debug('Trie #%d/%d: TOTAL processed %d records, %d matches' % (cost, trie_num, num,match_num))
+                    trie_num += 1
 
         conn = sqlite3.connect(dst_file)
 
