@@ -38,4 +38,4 @@ def canonize_date(datestr):
     out = datetime.strftime(out,"%d/%m/%Y")
     return out
 
-ngo_kind = lambda x:{u'חל"ץ':'cic','עמותה':'association'}[x]
+ngo_kind = lambda x:{u'חל"ץ':'cic','עמותה':'association'}[x.decode('utf8')]
