@@ -176,7 +176,6 @@ class join(object):
                                 results = results[0]
                                 match = results[2]
                                 logging.debug("MATCH for %s: %s (cost %d)" % (to_match,match,results[1]))
-                                break
 
                         if match is not None:
                             match_num += 1
