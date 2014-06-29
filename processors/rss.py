@@ -43,6 +43,7 @@ def get_groups(changes):
     return groups
 
 def get_url(url):
+    url = url.encode('utf8')
     if not cache.has_key(url):
         try:
             logging.debug( "getting url %s" % url )
@@ -307,8 +308,8 @@ def prepare_rss(output_filename):
         logging.info("SCORE %s %s %s %r %r" % (tr['score'],
                                                tr['group'],
                                                "value:%s" % tr['value'],
-                                               [x['performance_score'] for x in tr['transfers']]),
-                                               [x['changes_score'] for x in tr['transfers']])
+                                               [x['performance_score'] for x in tr['transfers']],
+                                               [x['changes_score'] for x in tr['transfers']]))
 
     output = file(output_filename,"w")
     now = datetime.datetime.now()
