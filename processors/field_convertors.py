@@ -5,7 +5,6 @@ id = lambda x:x
 
 integer = lambda x: int(x)
 canonize_integer = lambda x: int(x.replace(",",""))
-
 canonize_float = lambda x: float(x.replace(",",""))
 
 def canonize_budget_code(code):
@@ -38,3 +37,5 @@ def canonize_date(datestr):
         out = datetime.strptime(datestr,"%d/%m/%Y").date()
     out = datetime.strftime(out,"%d/%m/%Y")
     return out
+
+ngo_kind = lambda x:{u'חל"ץ':'cic','עמותה':'association'}[x]

@@ -55,6 +55,16 @@ rules:
           dst_field: registration_id
           dst_field_name: company_id
           max_len: 35
+    - processor: join
+      input: ../../amutot/amutot.sqlite
+      output: amutot.jsons
+      params:
+          dst_file: tmichot/data/tmichot.sqlite
+          src_field: recipient
+          join_field: name_heb
+          dst_field: amuta_id
+          dst_field_name: ngo_id
+          max_len: 35
     - processor: upload
       input: tmichot.sqlite
       output: tmichot.upload
