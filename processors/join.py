@@ -26,6 +26,7 @@ CLEAN_WORDS = [ u'בע"מ',
 clean_strings = {}
 
 def clean_string(s, max_len):
+    s=s[:max_len]
     if clean_strings.has_key(s):
         return clean_strings[s]
     ret = s
@@ -165,7 +166,7 @@ class join(object):
                     dst_value = value.get(dst_field)
                     if join_value is None or dst_value is None:
                         continue
-                    trie.insert( clean_string(join_value[:max_len]), dst_value )
+                    trie.insert( clean_string(join_value,max_len), dst_value )
                 logging.debug("built trie, %d nodes" % NodeCount)
                 yield trie
 
@@ -189,7 +190,7 @@ class join(object):
                         if v.get(dst_field_name) is not None:
                             #print v.get('recipient'), v.get(dst_field_name)
                             continue
-                        to_match = clean_string(v[src_field][:max_len])
+                        to_match = clean_string(v[src_field],max_len)
                         if v.get('dst_field_name') is not None:
                             match_num += 1
                             continue
