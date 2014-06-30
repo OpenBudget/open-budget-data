@@ -8,6 +8,44 @@ import Levenshtein
 import os
 import time
 
+CLEAN_WORDS = [ u'בע"מ',
+                u'בעמ',
+                u"בע'מ",
+                u'(חל"צ)',
+                u'בע"מ.',
+                u'אינק.',
+                u'לימיטד',
+                u'בע"מ"',
+                u'בע,מ',
+                u'עב"מ',
+                u'בע"ם',
+                u'(ע"ר)',
+                u"(ע''ר)",
+              ]
+
+clean_strings = {}
+
+def clean_string(s, max_len):
+    if clean_strings.has_key(s):
+        return clean_strings[s]
+    ret = s
+    if len(s) < max_len:
+        for _word in CLEAN_WORDS:
+            word = " " + _word
+            if s.endswith(word):
+                ret = s[:-len(word)]
+                break
+    else:
+        for _word in CLEAN_WORDS:
+            for sublen in range(1,len(_word)+1):
+                word = " " + _word[:sublen]
+                if s.endswith(word):
+                    ret = s[:-len(word)]
+                    break
+    clean_strings[s] = ret
+    return ret
+
+
 # def common_prefix(s1,s2):
 #     return Levenshtein.ratio(s1,s2)>0.8
 
@@ -127,7 +165,7 @@ class join(object):
                     dst_value = value.get(dst_field)
                     if join_value is None or dst_value is None:
                         continue
-                    trie.insert( join_value[:max_len], dst_value )
+                    trie.insert( clean_string(join_value[:max_len]), dst_value )
                 logging.debug("built trie, %d nodes" % NodeCount)
                 yield trie
 
@@ -151,7 +189,7 @@ class join(object):
                         if v.get(dst_field_name) is not None:
                             #print v.get('recipient'), v.get(dst_field_name)
                             continue
-                        to_match = v[src_field][:max_len]
+                        to_match = clean_string(v[src_field][:max_len])
                         if v.get('dst_field_name') is not None:
                             match_num += 1
                             continue
