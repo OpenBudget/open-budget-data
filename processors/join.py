@@ -118,7 +118,7 @@ class join(object):
             logging.debug("got %r records in input" % count)
 
             for skip in range(0,count,30000):
-                in_values = input_cur.execute("""SELECT value from data LIMIT 30000 OFFSET %d""" % skip)
+                in_values = input_cur.execute("""SELECT value from data WHERE dirty=1 LIMIT 30000 OFFSET %d""" % skip)
                 NodeCount = 0
                 trie = TrieNode()
                 for _value in in_values:
