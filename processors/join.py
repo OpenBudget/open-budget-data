@@ -146,7 +146,7 @@ def searchRecursive( node, letter, word, previousRow, results, maxCost ):
 # print "Search took %g s" % (end - start)
 
 class join(object):
-    def process(self,input,output,dst_file=None,src_field=None,join_field=None,dst_field=None,dst_field_name=None,max_len=35):
+    def process(self,input,output,dst_file=None,src_field=None,join_field=None,dst_field=None,dst_field_name=None,max_len=35,max_cost=3):
 
         def get_tries():
             global NodeCount
@@ -175,7 +175,7 @@ class join(object):
             matches = {}
             match_num = 0
             globally_unmatachable = set()
-            for cost in range(3):
+            for cost in range(max_cost):
                 trie_num = 0
                 for trie in get_tries():
                     cc = conn.cursor()

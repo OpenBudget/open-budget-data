@@ -55,6 +55,7 @@ rules:
           dst_field: amuta_id
           dst_field_name: ngo_id
           max_len: 35
+          max_cost: 2
     - processor: join
       input: ../../companies/company-records.sqlite
       output: companies.jsons

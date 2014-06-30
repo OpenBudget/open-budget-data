@@ -3,6 +3,7 @@
 import sqlite3
 import sys
 import csv
+import json
 
 fields = [
     ("amount_allocated", u"סכום מאושר"),
@@ -26,12 +27,14 @@ if __name__ == "__main__":
     o = csv.DictWriter(file("export_ngos.csv","w"), [f[0] for f in fields])
     o.writerow(dict((x,y.encode('utf8')) for x,y in fields))
     for value in values:
-        j = values[0]
+        j = json.loads(value[0])
         row = {}
-        row.update(j)
         for k,v in j.iteritems():
+            if k not in [f[0] for f in fields]: continue
             if type(v)==unicode:
                 row[k] = v.encode('utf8')
+            else:
+                row[k] = v
         o.writerow(row)
 
     conn.close()
