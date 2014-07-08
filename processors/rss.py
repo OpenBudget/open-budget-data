@@ -14,7 +14,7 @@ import logging
 from numpy import array
 from itertools import chain, combinations, groupby
 
-cache = shelve.open('api.cache',writeback=True)
+cache = {}#shelve.open('api.cache',writeback=True)
 
 fields = ['net_expense_diff',
           'gross_expense_diff',
