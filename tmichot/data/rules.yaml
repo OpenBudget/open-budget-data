@@ -33,6 +33,11 @@ rules:
               - title
     - processor: concat
       input: tmichot20*.aggregated-jsons
+      output: tmichot-unfixed-titles.jsons
+    - processor: fix_support_budget_titles
+      input:
+          - tmichot-unfixed-titles.jsons
+          - ../budget/budgets.jsons
       output: tmichot.jsons
     - processor: dump_to_db
       input: tmichot.jsons
