@@ -28,6 +28,10 @@ class aggregate_jsons_by_key(object):
                         if k not in key_fields and (type(v) == int or type(v) == long):
                             current.setdefault(k,0)
                             current[k]+=v
+                        elif type(v) == str or type(k) == unicode:
+                            current.setdefault(k,'')
+                            if len(current[k]) < len(v):
+                                current[k] = v
                         else:
                             current[k] = v
                 else:
