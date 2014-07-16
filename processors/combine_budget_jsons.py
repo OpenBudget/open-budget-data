@@ -23,7 +23,19 @@ class combine_budget_jsons(object):
                     if rec.get('title') == None: continue
                     key = "%s|%10s" % (rec['year'],rec['code'])
                     keys.add(key)
-                    alldata.setdefault(key,{}).update(rec)
+                    alldata.setdefault(key,{})
+                    for k,v in rec.iteritems():
+                        if type(v) == str or type(v) == unicode:
+                            alldata[key].setdefault(k,'')
+                            if len(alldata[key][k]) < len(v):
+                                alldata[key][k] = v
+                        elif type(v) == int or type(v) == long:
+                            alldata[key].setdefault(k,0)
+                            if v != 0:
+                                alldata[key][k] = v
+                        else:
+                            if v is not None:
+                                alldata[key][k] = v
                 except Exception,e:
                     logging.error("combine_budget_jsons: error %s in line %r" % (e,line))
 
