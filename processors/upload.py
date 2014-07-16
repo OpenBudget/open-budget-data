@@ -6,6 +6,7 @@ import urllib2
 import sys
 import gzip
 import sqlite3
+import logging
 
 if __name__ == "__main__":
     inputs = sys.argv[1]
