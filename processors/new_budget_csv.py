@@ -1,10 +1,24 @@
+#encoding: utf8
+
 import csv
 import json
+import logging
 
 if __name__ == "__main__":
     inputs = sys.argv[1:-1]
     output = sys.argv[-1]
     processor = new_budget_csv().process(inputs,output)
+
+def indexof(*args):
+    row = args[0]
+    names = args[1:]
+    for name in names:
+        for i,h in enumerate(row):
+            if name in h.decode('utf8'):
+                return i
+    logging.error('cant find %s in row!' % "/".join(names))
+    logging.error('row=%s' % ", ".join(row))
+    return None
 
 def to_code(row,col):
     t = row[col]
@@ -20,6 +34,8 @@ def to_code(row,col):
 
 def get_from(row,index,to_add=0):
     try:
+        if index is None:
+            return None
         val = row[index]
         val = val.replace(",","")
         if "." in val:
@@ -37,23 +53,40 @@ class new_budget_csv(object):
     def process(self,input,output,new_years=[]):
         sums = {}
         budgets=csv.reader(file(input))
+        YEAR_COL = None
         for row in budgets:
             try:
-                year = int(row[0])
+                year = int(row[YEAR_COL])
             except:
+                if YEAR_COL is not None:
+                    continue
+                YEAR_COL = indexof(row,u'שנה')
+                SAIF_COL = indexof(row,u'קוד סעיף')
+                SAIF_NAME_COL = indexof(row,u'שם סעיף')
+                THUM_COL = indexof(row,u'קוד תחום')
+                THUM_NAME_COL = indexof(row,u'שם תחום')
+                PROG_COL = indexof(row,u'קוד תוכנית')
+                PROG_NAME_COL = indexof(row,u'שם תוכנית')
+                TAKA_COL = indexof(row,u'קוד תקנה')
+                TAKA_NAME_COL = indexof(row,u'שם תקנה מלא',u'שם תקנה')
+                NET_ALLOC_COL = indexof(row,u'מקורי - נטו',u'מקורי - הוצאות נטו')
+                GROSS_ALLOC_COL = indexof(row,u'מקורי - הוצאה מותנית')
+                NET_REVISED_COL = indexof(row,u'מאושר - הוצאות נטו')
+                GROSS_REVISED_COL = indexof(row,u'תקציב מאושר - הוצאה מותנית בהכנסה')
+                USED_COL = indexof(row,u'ביצוע - מזומן')
                 continue
-            for col in [1,3,5,7]:
+            for col,title_col in [(SAIF_COL,SAIF_NAME_COL),(THUM_COL,THUM_NAME_COL),(PROG_COL,PROG_NAME_COL),(TAKA_COL,TAKA_NAME_COL)]:
                 code = to_code(row,col)
-                if len(code) != col+3:
-                    logging.error("%s, %s" % (code, row))
-                    assert(False)
+                # if len(code) != col+3:
+                #     logging.error("%s, %s" % (code, row))
+                #     assert(False)
                 new_year = year in new_years and len(code) < 10
-                title = row[col+1].decode('utf8')
-                net_allocated = get_from(row,11)
-                gross_allocated = get_from(row,12,net_allocated)
-                net_revised = get_from(row,18) if not new_year else net_allocated
-                gross_revised = get_from(row,19,net_revised) if not new_year else gross_allocated
-                net_used = get_from(row,25)
+                title = row[title_col].decode('utf8')
+                net_allocated = get_from(row,NET_ALLOC_COL)
+                gross_allocated = get_from(row,GROSS_ALLOC_COL,net_allocated)
+                net_revised = get_from(row,NET_REVISED_COL) if not new_year else net_allocated
+                gross_revised = get_from(row,GROSS_REVISED_COL,net_revised) if not new_year else gross_allocated
+                net_used = get_from(row,USED_COL)
 
                 key = "%s/%s" % (year,code)
                 sums.setdefault(key,{'code':code,'year':year,'title':title})
