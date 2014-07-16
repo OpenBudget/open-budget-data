@@ -20,7 +20,7 @@ class combine_budget_jsons(object):
                 try:
                     line = line.strip()
                     rec = json.loads(line)
-                    if rec.get('title') == None: continue
+                    if rec.get('title') == None or rec.get('title').strip()=="": continue
                     key = "%s|%10s" % (rec['year'],rec['code'])
                     keys.add(key)
                     alldata.setdefault(key,{})
