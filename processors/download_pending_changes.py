@@ -34,7 +34,7 @@ def download(url,last_modified):
     last_modified_date = last_modified.get(url)
     if last_modified_date is not None:
         request.add_header('If-Modified-Since',last_modified_date)
-    datastream = opener.open(request)
+    datastream = opener.open(request, timeout=60)
     last_modified[url] = datastream.headers.get('Last-Modified')
     ret = datastream.read()
     if len(ret) < 1024:

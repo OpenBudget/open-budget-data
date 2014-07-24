@@ -4,8 +4,8 @@ rules:
           - financial_report/2000-2008/out.json
           - history_neto/history.json
           - queries/out.json
-          - data/budgets.jsons
           - full_titles/out.json
+          - data/budgets.jsons
       output: budgets.jsons
     - processor: aggregate_jsons_by_key
       input:

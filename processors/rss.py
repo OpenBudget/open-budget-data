@@ -165,6 +165,7 @@ def prepare_rss(output_filename):
                              'items': [enhance_item(i) for i in v] }
     final_transfers = []
     for group_id, group in groups:
+        logging.debug(">> group id %s: %r" % (group_id,group))
         transfers = []
         for k in group:
             key = json.dumps(k)
@@ -191,6 +192,7 @@ def prepare_rss(output_filename):
         tr_date = datetime.datetime.strptime(group_transfers['date'],"%d/%m/%Y")
         group_transfers['age'] = (datetime.datetime.now() - tr_date).days
         for tr in transfers:
+            logging.debug(">> transfer id %s" % tr['key'])
             main_code = tr['main_code']
             tr['explanation'] = tr['explanation']['explanation']
             tr['main_budget_item'] = get_url('budget/%s/%d' % (main_code,tr['year']))
