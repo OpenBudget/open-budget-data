@@ -192,7 +192,7 @@ def prepare_rss(output_filename):
         tr_date = datetime.datetime.strptime(group_transfers['date'],"%d/%m/%Y")
         group_transfers['age'] = (datetime.datetime.now() - tr_date).days
         for tr in transfers:
-            logging.debug(">> transfer id %s" % tr['key'])
+            logging.debug(">> transfer id %s: %r" % (tr['key'],tr))
             main_code = tr['main_code']
             tr['explanation'] = tr['explanation']['explanation']
             tr['main_budget_item'] = get_url('budget/%s/%d' % (main_code,tr['year']))
