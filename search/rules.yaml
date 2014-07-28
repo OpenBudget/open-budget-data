@@ -1,6 +1,6 @@
 rules:
     - processor: make_search_prefixes
-      input: ../budget/budgets.json
+      input: ../budget/budgets.jsons
       output: search.jsons
     - processor: dump_to_db
       input: search.jsons
