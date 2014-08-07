@@ -13,8 +13,9 @@ def indexof(*args):
     row = args[0]
     names = args[1:]
     for name in names:
-        for i,h in enumerate(row):
-            if name in h.decode('utf8'):
+        for i,_h in enumerate(row):
+            h = _h.decode('utf8')
+            if all(word in h for word in name.split()):
                 return i
     logging.error('cant find %s in row!' % "/".join(names))
     logging.error('row=%s' % ", ".join(row))
@@ -69,11 +70,28 @@ class new_budget_csv(object):
                 PROG_NAME_COL = indexof(row,u'שם תוכנית')
                 TAKA_COL = indexof(row,u'קוד תקנה')
                 TAKA_NAME_COL = indexof(row,u'שם תקנה מלא',u'שם תקנה')
-                NET_ALLOC_COL = indexof(row,u'מקורי - נטו',u'מקורי - הוצאות נטו')
-                GROSS_ALLOC_COL = indexof(row,u'מקורי - הוצאה מותנית')
-                NET_REVISED_COL = indexof(row,u'מאושר - הוצאות נטו')
-                GROSS_REVISED_COL = indexof(row,u'תקציב מאושר - הוצאה מותנית בהכנסה')
-                USED_COL = indexof(row,u'ביצוע - מזומן')
+
+                NET_ALLOC_COL = indexof(row,u'מקורי נטו')
+                GROSS_ALLOC_COL = indexof(row,u'מקורי הוצאה מותנית')
+
+                DEDICATED_ALLOC_COL = indexof(row,u'מקורי הכנסה מיועדת')
+                COMMITMENT_ALLOC_COL = indexof(row,u'מקורי הרשאה')
+                PERSONNEL_ALLOC_COL = indexof(row,u'מקורי שיא כא')
+                CONTRACTORS_ALLOC_COL = indexof(row,u'מקורי עבצ')
+                AMOUNTS_ALLOC_COL = indexof(row,u'מקורי כמויות')
+
+                NET_REVISED_COL = indexof(row,u'מאושר נטו')
+                GROSS_REVISED_COL = indexof(row,u'תקציב מאושר הוצאה מותנית בהכנסה')
+
+                DEDICATED_REVISED_COL = indexof(row,u'מאושר הכנסה מיועדת')
+                COMMITMENT_REVISED_COL = indexof(row,u'מאושר הרשאה')
+                PERSONNEL_REVISED_COL = indexof(row,u'מאושר שיא כא')
+                CONTRACTORS_REVISED_COL = indexof(row,u'מאושר עבצ')
+                AMOUNTS_REVISED_COL = indexof(row,u'מאושר כמויות')
+
+                USED_COL = indexof(row,u'ביצוע מזומן')
+
+
                 continue
             for col,title_col in [(SAIF_COL,SAIF_NAME_COL),(THUM_COL,THUM_NAME_COL),(PROG_COL,PROG_NAME_COL),(TAKA_COL,TAKA_NAME_COL)]:
                 code = to_code(row,col)
@@ -88,6 +106,18 @@ class new_budget_csv(object):
                 gross_revised = get_from(row,GROSS_REVISED_COL,net_revised) if not new_year else gross_allocated
                 net_used = get_from(row,USED_COL)
 
+                dedicated_allocated = get_from(row,DEDICATED_ALLOC_COL)
+                commitment_allocated = get_from(row,COMMITMENT_ALLOC_COL)
+                personnel_allocated = get_from(row,PERSONNEL_ALLOC_COL)
+                contractors_allocated = get_from(row,CONTRACTORS_ALLOC_COL)
+                amounts_allocated = get_from(row,AMOUNTS_ALLOC_COL)
+
+                dedicated_revised = get_from(row,DEDICATED_REVISED_COL)
+                commitment_revised = get_from(row,COMMITMENT_REVISED_COL)
+                personnel_revised = get_from(row,PERSONNEL_REVISED_COL)
+                contractors_revised = get_from(row,CONTRACTORS_REVISED_COL)
+                amounts_revised = get_from(row,AMOUNTS_REVISED_COL)
+
                 key = "%s/%s" % (year,code)
                 sums.setdefault(key,{'code':code,'year':year,'title':title})
                 add_to_sums(key,sums,net_allocated,'net_allocated')
@@ -95,6 +125,18 @@ class new_budget_csv(object):
                 add_to_sums(key,sums,net_used,'net_used')
                 add_to_sums(key,sums,gross_allocated,'gross_allocated')
                 add_to_sums(key,sums,gross_revised,'gross_revised')
+
+                add_to_sums(key,sums,dedicated_allocated,'dedicated_allocated')
+                add_to_sums(key,sums,commitment_allocated,'commitment_allocated')
+                add_to_sums(key,sums,personnel_allocated,'personnel_allocated')
+                add_to_sums(key,sums,contractors_allocated,'contractors_allocated')
+                add_to_sums(key,sums,amounts_allocated,'amounts_allocated')
+
+                add_to_sums(key,sums,dedicated_revised,'dedicated_revised')
+                add_to_sums(key,sums,commitment_revised,'commitment_revised')
+                add_to_sums(key,sums,personnel_revised,'personnel_revised')
+                add_to_sums(key,sums,contractors_revised,'contractors_revised')
+                add_to_sums(key,sums,amounts_revised,'amounts_revised')
 
         keys = sums.keys()
         keys.sort()
