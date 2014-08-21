@@ -92,7 +92,7 @@ def get_groups(changes):
     for date_kind, date_changes in itertools.groupby(changes, get_date):
         date_changes = list(date_changes)
         date = date_changes[0]['date']
-        date_reserve = [c for c in date_changes if c['budget_code'].startswith('0047')
+        date_reserve = [c for c in date_changes if c['budget_code'].startswith('0047') and c['leading_item'] != 47
                         if sum(c[field]*c[field] for field in fields) > 0]
         logging.debug('reserve date: kind:%s num:%s' % (date_kind,len(date_reserve)))
         num_found = 0
