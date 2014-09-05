@@ -20,7 +20,8 @@ class combine_budget_jsons(object):
                 try:
                     line = line.strip()
                     rec = json.loads(line)
-                    if rec.get('title') == None or rec.get('title').strip()=="": continue
+                    if rec.get('title') is not None and rec.get('title','').strip()=="":
+                        del rec['title']
                     key = "%s|%10s" % (rec['year'],rec['code'])
                     keys.add(key)
                     alldata.setdefault(key,{})
@@ -68,4 +69,6 @@ class combine_budget_jsons(object):
 
         out = file(output,'w')
         for k in keys:
+            if alldata[k].get('title') is None:
+                continue
             out.write( json.dumps(alldata[k],sort_keys=True)+'\n' )

@@ -6,6 +6,7 @@ rules:
           - queries/out.json
           - full_titles/out.json
           - data/budgets.jsons
+          - connections/budget_equivalents.jsons
       output: budgets.jsons
     - processor: aggregate_jsons_by_key
       input:
