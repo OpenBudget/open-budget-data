@@ -51,7 +51,7 @@ class download_pending_changes(object):
         url = mofgov("/BudgetSite/StateBudget/Pages/BudgetChanges.aspx")
         page = urllib2.urlopen(url).read()
         page = pq(page)
-        files = page("#ctl00_PlaceHolderMain_GovXContentSectionPanel a")
+        files = page(".FilesLinkList a")
         pending = False
         downloaded = False
         try:
