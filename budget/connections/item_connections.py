@@ -56,6 +56,7 @@ def process(input_file, output_file):
                 #print "EEE %r" % equivs
                 go_on = False
                 new_equivs = []
+                bad_keys = []
                 for k in equivs:
                     year = int(k.split("/")[0])
                     if year == target_year:
@@ -79,9 +80,9 @@ def process(input_file, output_file):
                         continue
 
                     #print k,"?"
+                    bad_keys.append(k)
+                if len(bad_keys) > 0:
                     new_equivs = None
-                    bad_keys = equivs
-                    break
                 equivs = new_equivs
             if equivs is not None:
                 for x in equivs:
