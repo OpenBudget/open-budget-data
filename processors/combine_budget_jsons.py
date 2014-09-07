@@ -28,7 +28,7 @@ class combine_budget_jsons(object):
                     for k,v in rec.iteritems():
                         if type(v) == str or type(v) == unicode:
                             alldata[key].setdefault(k,'')
-                            if len(alldata[key][k]) < len(v):
+                            if len(alldata[key][k]) < len(v) and v.startswith(alldata[key][k]):
                                 alldata[key][k] = v
                         elif type(v) == int or type(v) == long:
                             alldata[key].setdefault(k,0)

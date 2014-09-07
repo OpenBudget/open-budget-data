@@ -6,7 +6,7 @@ YEAR = 2014
 def process(input_file, output_file):
     all_codes = []
     h_eq = {}
-    y_eq = {}
+    y_eq = { YEAR: {} }
     code_titles = {}
 
     with file(input_file) as input:
@@ -43,7 +43,7 @@ def process(input_file, output_file):
 
     all_codes.sort(reverse=True)
     missing_links = {}
-    target_years = range(1992,YEAR)
+    target_years = range(1992,YEAR+1)
     target_years.sort(reverse=True)
     for target_year in target_years:
         for key in all_codes:
@@ -86,9 +86,8 @@ def process(input_file, output_file):
                 if len(equivs)>1:
                     print "%s --> %r" % (key, equivs)
             else:
-                year,code = key.split('/')
-                year=int(year)
-                code=code[:-1]
+                code = key.split('/')[1][:-1]
+                year = target_year
                 if missing_links.has_key(code):
                     if missing_links[code] < year:
                         missing_links[code] = year
