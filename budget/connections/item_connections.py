@@ -59,7 +59,7 @@ def process(input_file, output_file):
                 for k in equivs:
                     year = int(k.split("/")[0])
                     if year == target_year:
-			#print k,"F"
+                        #print k,"F"
                         new_equivs.append(k)
                         continue
                     got_year = False
@@ -80,7 +80,7 @@ def process(input_file, output_file):
 
                     #print k,"?"
                     new_equivs = None
-                    bad_key = key
+                    bad_keys = equivs
                     break
                 equivs = new_equivs
             if equivs is not None:
@@ -91,16 +91,17 @@ def process(input_file, output_file):
                 if len(equivs)>1:
                     print "%s --> %r" % (key, equivs)
             else:
-                year,code = bad_key.split('/')
-                code = code[:-1]
-                year = target_year
-		        #print "MISSING: %s -> %s (%r)" % (key, bad_key, equivs)
-                assert(code!='')
-                if missing_links.has_key(code):
-                    if missing_links[code] < year:
+                for bad_key in bad_keys:
+                    year,code = bad_key.split('/')
+                    code = code[:-1]
+                    year = int(year)
+    		        #print "MISSING: %s -> %s (%r)" % (key, bad_key, equivs)
+                    assert(code!='')
+                    if missing_links.has_key(code):
+                        if missing_links[code] < year:
+                            missing_links[code] = year
+                    else:
                         missing_links[code] = year
-                else:
-                    missing_links[code] = year
 
     out = {}
     for y,eqs in y_eq.iteritems():
