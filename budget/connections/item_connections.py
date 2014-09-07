@@ -13,7 +13,7 @@ def process(input_file, output_file):
     with file(input_file) as input:
         for line in input:
             line = json.loads(line)
-            code = line['code']
+            code = str(line['code'])
             year = line['year']
             title = line['title']
             if len(code) > 2:
@@ -51,13 +51,15 @@ def process(input_file, output_file):
         for key in all_codes:
             go_on = True
             equivs = [ key ]
+            #print "KK %s,%d" % (key,target_year)
             while go_on and equivs is not None:
+                #print "EEE %r" % equivs
                 go_on = False
                 new_equivs = []
                 for k in equivs:
                     year = int(k.split("/")[0])
                     if year == target_year:
-                        #print k,"F"
+			#print k,"F"
                         new_equivs.append(k)
                         continue
                     got_year = False
@@ -78,6 +80,7 @@ def process(input_file, output_file):
 
                     #print k,"?"
                     new_equivs = None
+		            bad_key = key
                     break
                 equivs = new_equivs
             if equivs is not None:
@@ -88,8 +91,11 @@ def process(input_file, output_file):
                 if len(equivs)>1:
                     print "%s --> %r" % (key, equivs)
             else:
-                code = key.split('/')[1][:-1]
-                year = target_year
+                year,code = bad_key.split('/')
+                code = code[:-1]
+                year = int(year)
+		        #print "MISSING: %s -> %s (%r)" % (key, bad_key, equivs)
+		        assert(code!='')
                 if missing_links.has_key(code):
                     if missing_links[code] < year:
                         missing_links[code] = year
@@ -129,12 +135,18 @@ def process(input_file, output_file):
         #                     'equiv_code': 'E'+key[:-1] }
         #             output.write(json.dumps(rec,sort_keys=True)+"\n")
 
-    with file('missing.csv','w') as output:
-        missing_links = list(missing_links.iteritems())
-        missing_links.sort(key=lambda x:int("1"+x[0]))
-        for code,year in missing_links:
-            title = title_for_code[(code,year)]
-            output.write('%s,%s,%s\n' % (year,code,title))
+    output = file('missing.csv','wb')
+    missing_links = list(missing_links.iteritems())
+    missing_links.sort(key=lambda x:int(str(x[1])+x[0]))
+    #print "RRR %r" % missing_links[:10]
+    for code,year in missing_links:
+        title = title_for_code.get((code,year))
+	if title is None:
+		print "BAD CODE FOUND: %s/%s" % (code,year)
+     		continue
+	title = title.encode('utf8')
+        #print "T: %r,%r,%r" % (year,code,title)
+        output.write('%s,"C%s","%s"\n' % (year,code,title.replace('"','""')))
 
 if __name__ == "__main__":
     process("../budgets-noequiv.jsons","budget_equivalents.jsons")
