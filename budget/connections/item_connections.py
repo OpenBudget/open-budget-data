@@ -142,12 +142,12 @@ def process(input_file, output_file):
     #print "RRR %r" % missing_links[:10]
     for code,year in missing_links:
         title = title_for_code.get((code,year))
-	if title is None:
-		print "BAD CODE FOUND: %s/%s" % (code,year)
+        if title is None:
+            print "BAD CODE FOUND: %s/%s" % (code,year)
      		continue
-	title = title.encode('utf8')
+        title = title.encode('utf8')
         #print "T: %r,%r,%r" % (year,code,title)
-        output.write('%s,"C%s","%s"\n' % (year,code,title.replace('"','""')))
+        output.write('%s,"C%s","%s"\n' % (year,str(code),title.replace('"','""')))
 
 if __name__ == "__main__":
     process("../budgets-noequiv.jsons","budget_equivalents.jsons")
