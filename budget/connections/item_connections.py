@@ -144,7 +144,7 @@ def process(input_file, output_file):
         title = title_for_code.get((code,year))
         if title is None:
             print "BAD CODE FOUND: %s/%s" % (code,year)
-     		continue
+            continue
         title = title.encode('utf8')
         #print "T: %r,%r,%r" % (year,code,title)
         output.write('%s,"C%s","%s"\n' % (year,str(code),title.replace('"','""')))
