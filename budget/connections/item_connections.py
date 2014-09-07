@@ -8,6 +8,7 @@ def process(input_file, output_file):
     h_eq = {}
     y_eq = { YEAR: {} }
     code_titles = {}
+    title_for_code = {}
 
     with file(input_file) as input:
         for line in input:
@@ -19,6 +20,7 @@ def process(input_file, output_file):
                 parent_code = code[:-2]
                 h_eq.setdefault(KEY % (year,parent_code),[]).append(KEY % (year,code))
             code_titles.setdefault((code,title),[]).append(year)
+            title_for_code[(code,year)] = title
             if year == YEAR:
                 all_codes.append(KEY % (year,code))
 
@@ -130,8 +132,9 @@ def process(input_file, output_file):
     with file('missing.csv','w') as output:
         missing_links = list(missing_links.iteritems())
         missing_links.sort(key=lambda x:int("1"+x[0]))
-        for x in missing_links:
-            output.write('%s,%s\n' % x)
+        for code,year in missing_links:
+            title = title_for_code[(code,year)]
+            output.write('%s,%s,%s\n' % (year,code,title))
 
 if __name__ == "__main__":
     process("../budgets-noequiv.jsons","budget_equivalents.jsons")
