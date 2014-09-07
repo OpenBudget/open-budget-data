@@ -42,6 +42,7 @@ def process(input_file, output_file):
                 y_eq[tgt_year][KEY % tuple(key)] = [KEY % tuple(k) for k in keys]
 
     all_codes.sort(reverse=True)
+    missing_links = {}
     target_years = range(1992,YEAR)
     target_years.sort(reverse=True)
     for target_year in target_years:
@@ -84,6 +85,15 @@ def process(input_file, output_file):
                     y_eq[target_year][key] = equivs
                 if len(equivs)>1:
                     print "%s --> %r" % (key, equivs)
+            else:
+                year,code = key.split('/')
+                year=int(year)
+                code=code[:-1]
+                if missing_links.has_key(code):
+                    if missing_links[code] < year:
+                        missing_links[code] = year
+                else:
+                    missing_links[code] = year
 
     out = {}
     for y,eqs in y_eq.iteritems():
@@ -118,5 +128,11 @@ def process(input_file, output_file):
         #                     'equiv_code': 'E'+key[:-1] }
         #             output.write(json.dumps(rec,sort_keys=True)+"\n")
 
+    with file('missing.csv','w') as output:
+        missing_links = list(missing_links.iteritems())
+        missing_links.sort(key=lambda x:int("1"+x[0]))
+        for x in missing_links:
+            output.write('%s,%s\n' % x)
+
 if __name__ == "__main__":
-    process("../budgets.jsons","budget_equivalents.jsons")
+    process("../budgets-noequiv.jsons","budget_equivalents.jsons")
