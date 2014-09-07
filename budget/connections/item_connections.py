@@ -80,7 +80,7 @@ def process(input_file, output_file):
 
                     #print k,"?"
                     new_equivs = None
-		            bad_key = key
+                    bad_key = key
                     break
                 equivs = new_equivs
             if equivs is not None:
@@ -93,9 +93,9 @@ def process(input_file, output_file):
             else:
                 year,code = bad_key.split('/')
                 code = code[:-1]
-                year = int(year)
+                year = target_year
 		        #print "MISSING: %s -> %s (%r)" % (key, bad_key, equivs)
-		        assert(code!='')
+                assert(code!='')
                 if missing_links.has_key(code):
                     if missing_links[code] < year:
                         missing_links[code] = year
