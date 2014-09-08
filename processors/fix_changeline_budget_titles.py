@@ -33,7 +33,7 @@ class fix_changeline_budget_titles(object):
                 data = [line]
             for datum in data:
                 key = "%s/%s" % (year, datum['budget_code'])
-                title, equiv_code = budgets.get(key)
+                title, equiv_code = budgets.get(key,(None,None))
                 if title != None:
                     changed = False
                     if equiv_code is not None:
