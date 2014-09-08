@@ -6,21 +6,21 @@ rules:
           - queries/out.json
           - full_titles/out.json
           - data/budgets.jsons
-      output: budgets-noequiv.jsons
-    - processor: combine_budget_jsons
-      input:
-          - budgets-noequiv.jsons
-          - connections/budget_equivalents.jsons
       output: budgets.jsons
     - processor: aggregate_jsons_by_key
       input:
           - budgets.jsons
           - ../changes/budget_changes.jsons
-      output: budgets.aggregated-jsons
+      output: budgets-noequiv.aggregated-jsons
       params:
           key_fields:
               - year
               - code
+    - processor: combine_budget_jsons
+      input:
+          - budgets-noequiv.aggregated-jsons
+          - connections/budget_equivalents.jsons
+      output: budgets.aggregated-jsons
     # - processor: aggregate_jsons_by_key
     #   input:
     #       - budget_equivalents.jsons

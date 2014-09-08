@@ -15,8 +15,8 @@ def process(input_file, output_file):
             line = json.loads(line)
             code = str(line['code'])
             year = line['year']
-            value = line.get('net_allocated',0) + line.get('gross_allocated',0)
-            if value == 0:
+            value = line.get('net_revised',0) + line.get('gross_revised',0)
+            if value == 0 and year != YEAR:
                 continue
             title = line['title']
             if len(code) > 2:

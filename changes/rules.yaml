@@ -21,7 +21,7 @@ rules:
     - processor: fix_changeline_budget_titles
       input:
           - changes-with-dates.jsons
-          - ../budget/budgets.jsons
+          - ../budget/budgets.aggregated-jsons
       output: changes-fixed-titles.jsons
     - processor: dump_to_db
       input: changes-fixed-titles.jsons

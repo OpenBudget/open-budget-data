@@ -18,7 +18,7 @@ class fix_changeline_budget_titles(object):
 
         for line in file(budget_jsons):
             line = json.loads(line.strip())
-            budgets["%(year)s/%(code)s" % line] = line['title']
+            budgets["%(year)s/%(code)s" % line] = (line['title'],line.get('equiv_code'))
 
         outfile = file(output,"w")
         changed_num = 0
@@ -33,10 +33,16 @@ class fix_changeline_budget_titles(object):
                 data = [line]
             for datum in data:
                 key = "%s/%s" % (year, datum['budget_code'])
-                title = budgets.get(key)
+                title, equiv_code = budgets.get(key)
                 if title != None:
+                    changed = False
+                    if equiv_code is not None:
+                        datum['equiv_code'] = equiv_code
+                        changed = True
                     if title != line.get('budget_title',''):
                         datum['budget_title'] = title
+                        changed = True
+                    if changed:
                         changed_num += 1
                 else:
                     logging.error("Failed to find title for change with key %s" % key)
