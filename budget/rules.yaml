@@ -41,3 +41,19 @@ rules:
       output: budget.upload
       params:
           kind: bl
+    - processor: extract_for_partition_layout
+      input: budgets.aggregated-jsons
+      output: budget_partition_layout.jsons
+      params:
+          year: 2014
+    - processor: dump_to_db
+      input: budget_partition_layout.jsons
+      output: budget_partition_layout.sqlite
+      params:
+          key_fields:
+              - key
+    - processor: upload
+      input: budget_partition_layout.sqlite
+      output: budget_partition_layout.upload
+      params:
+          kind: sp
