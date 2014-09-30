@@ -35,7 +35,7 @@ def process(input_file, output_file):
             y2=years[i+1]
             y_eq.setdefault(y1,{}).setdefault(KEY % (y2,code),[]).append(KEY % (y1,code))
 
-    for preset_fn in ["2013-2012-conversion.json"]:
+    for preset_fn in ["2013-2012-conversion.json","curated.json"]:
         with file(preset_fn) as preset_file:
             presets = json.load(preset_file)
             for preset in presets:
