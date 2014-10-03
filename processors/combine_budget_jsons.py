@@ -22,6 +22,7 @@ class combine_budget_jsons(object):
                     rec = json.loads(line)
                     if rec.get('title') is not None and rec.get('title','').strip()=="":
                         del rec['title']
+                    rec.setdefault('equiv_code',[])
                     key = "%s|%10s" % (rec['year'],rec['code'])
                     keys.add(key)
                     alldata.setdefault(key,{})
