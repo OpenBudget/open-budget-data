@@ -139,6 +139,7 @@ def get_groups(changes):
             groups.append({'transfer_ids': [change['trcode']],
                             'date': change['date'],
                             'pending': change['pending']})
+    non_groups = []
     for group in groups:
         trcodes = set(group['transfer_ids'])
         years = list(set(int(x.split('/')[0]) for x in trcodes))
@@ -174,6 +175,22 @@ def get_groups(changes):
                 group['group_id'] = trcode.split('/')[1]
                 logging.debug('selected group id %(group_id)s as representative for %(transfer_ids)r' % group)
                 break
+        for trcode in trcodes:
+            group_id = trcode.split('/')[1]
+            if group_id != group['group_id']:
+                nongroup = {
+                    'group_id': group_id,
+                    'year': group['year'],
+                    'transfer_ids': [],
+                    'committee_ids': [],
+                    'req_titles': [],
+                    'budget_codes': [],
+                    'prefixes': [],
+                    'changes': [],
+                    'pending': None
+                }
+                non_groups.append(nongroup)
+    groups.extend(non_groups)
     return groups
 
 class extract_change_groups(object):
