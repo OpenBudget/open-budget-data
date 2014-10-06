@@ -40,9 +40,12 @@ class extract_for_partition_layout(object):
                             break
                     else:
                         print "ERR ERR ERR ",key
-                node.setdefault('children',[]).append(recs[key])
-                if node.has_key('size'):
-                    del node['size']
+                        node = None
+                        break
+                if node is not None:
+                    node.setdefault('children',[]).append(recs[key])
+                    if node.has_key('size'):
+                        del node['size']
 
         out = {'key':'static-budget','value':root}
         file(output,'w').write(json.dumps(out))
