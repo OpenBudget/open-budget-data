@@ -16,7 +16,7 @@ class extract_for_partition_layout(object):
                 continue
             if rec['code'].startswith('0000'):
                 continue
-            if rec.get('net_revised',0) <= 0:
+            if rec.get('net_revised',rec.get('net_allocated',0)) <= 0:
                 continue
             recs[rec['code']] = {
                 'code':rec['code'],
