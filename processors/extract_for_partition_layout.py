@@ -12,7 +12,7 @@ class extract_for_partition_layout(object):
             rec = json.loads(line)
             if rec['year'] != year:
                 continue
-            if len(rec['code']) > 8:
+            if len(rec['code']) > 10:
                 continue
             if rec['code'].startswith('0000'):
                 continue
