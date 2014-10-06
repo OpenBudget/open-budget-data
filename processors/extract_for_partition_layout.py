@@ -29,7 +29,6 @@ class extract_for_partition_layout(object):
         keys = recs.keys()
         keys.sort(key=lambda x:int("1"+x))
         for key in keys:
-            print key, recs[key]
             if root is None:
                 root = recs[key]
             else:
