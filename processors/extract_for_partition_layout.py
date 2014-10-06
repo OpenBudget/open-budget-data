@@ -21,7 +21,7 @@ class extract_for_partition_layout(object):
                 if len(rec['code'])>8:
                     try:
                         parent = recs[rec['code'][:-2]]
-                        revised = rec['net_allocated'] * 1.0 * parent['size'] / parent['orig_size']
+                        revised = int(rec['net_allocated'] * 1.0 * parent['size'] / parent['orig_size'])
                     except:
                         continue
                 else:
