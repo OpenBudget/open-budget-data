@@ -16,11 +16,12 @@ class extract_for_partition_layout(object):
                 continue
             if rec['code'].startswith('0000'):
                 continue
-            if rec.get('net_revised',rec.get('net_allocated',0)) <= 0:
+            revised = rec.get('net_revised',rec.get('net_allocated',0))
+            if revised <= 0:
                 continue
             recs[rec['code']] = {
                 'code':rec['code'],
-                'size':rec['net_revised'],
+                'size':revised,
                 'name':rec['title'],
                 'orig_size':rec['net_allocated']
             }
