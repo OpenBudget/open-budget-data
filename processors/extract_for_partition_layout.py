@@ -39,7 +39,7 @@ class extract_for_partition_layout(object):
                             node = child
                             break
                     else:
-                        print "ERR ERR ERR ",key,node
+                        print "ERR ERR ERR ",key
                 node.setdefault('children',[]).append(recs[key])
                 if node.has_key('size'):
                     del node['size']
