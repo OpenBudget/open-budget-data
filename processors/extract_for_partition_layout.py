@@ -28,10 +28,10 @@ class extract_for_partition_layout(object):
                     continue
 
             recs[rec['code']] = {
-                'code':rec['code'],
-                'size':revised,
-                'name':rec['title'],
-                'orig_size':rec['net_allocated']
+                'c':rec['code'],
+                's':revised,
+                'n':rec['title'],
+                'o':rec['net_allocated']
             }
 
         keys = recs.keys()
@@ -41,9 +41,9 @@ class extract_for_partition_layout(object):
                 root = recs[key]
             else:
                 node = root
-                while len(key) > len(node['code'])+2:
+                while len(key) > len(node['c'])+2:
                     for child in node['children']:
-                        if key.startswith(child['code']):
+                        if key.startswith(child['c']):
                             node = child
                             break
                     else:
@@ -52,11 +52,11 @@ class extract_for_partition_layout(object):
                         break
                 if node is not None:
                     node.setdefault('children',[]).append(recs[key])
-                    if node.has_key('size'):
-                        del node['size']
+                    if node.has_key('s'):
+                        del node['s']
 
         out = {'key':'static-budget','value':root}
-        file(output,'w').write(json.dumps(out))
+        file(output,'w').write(json.dumps(out,separators=(',', ':')))
 
 if __name__=="__main__":
     extract_for_partition_layout().process(sys.argv[1],sys.argv[2],int(sys.argv[3]))
