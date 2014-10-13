@@ -21,7 +21,7 @@ class extract_for_partition_layout(object):
                 if len(rec['code'])>8:
                     try:
                         parent = recs[rec['code'][:-2]]
-                        revised = int(rec['net_allocated'] * 1.0 * parent['size'] / parent['orig_size'])
+                        revised = int(rec['net_allocated'] * 1.0 * parent['s'] / parent['k'])
                     except:
                         continue
                 else:
@@ -42,7 +42,7 @@ class extract_for_partition_layout(object):
             else:
                 node = root
                 while len(key) > len(node['c'])+2:
-                    for child in node['children']:
+                    for child in node['k']:
                         if key.startswith(child['c']):
                             node = child
                             break
@@ -51,7 +51,7 @@ class extract_for_partition_layout(object):
                         node = None
                         break
                 if node is not None:
-                    node.setdefault('children',[]).append(recs[key])
+                    node.setdefault('k',[]).append(recs[key])
                     if node.has_key('s'):
                         del node['s']
 
