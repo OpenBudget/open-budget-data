@@ -24,7 +24,8 @@ class extract_for_partition_layout(object):
                         revised = int(rec['net_allocated'] * 1.0 * parent['s'] / parent['o'])
                         if revised <= 0:
                             continue
-                    except:
+                    except Exception,e:
+                        print "ERR %s %s" % (rec['code'],e)
                         continue
                 else:
                     continue
