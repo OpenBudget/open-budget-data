@@ -16,25 +16,26 @@ class extract_for_partition_layout(object):
                 continue
             if rec['code'].startswith('0000'):
                 continue
+            if rec.get('net_allocated',0) <= 0:
+                continue
             revised = rec.get('net_revised',0)
             if revised <= 0:
                 if len(rec['code'])>8:
                     try:
                         parent = recs[rec['code'][:-2]]
-                        revised = int(rec['net_allocated'] * 1.0 * parent['s'] / parent['o'])
-                        if revised <= 0:
-                            continue
+                        p_change = parent['o']
                     except Exception,e:
                         print "ERR %s %s" % (rec['code'],e)
                         continue
                 else:
                     continue
-
+            else:
+                p_change = (100*revised)/rec['net_allocated']-100
             recs[rec['code']] = {
                 'c':rec['code'],
-                's':revised,
+                's':rec['net_allocated'],
                 'n':rec['title'],
-                'o':rec['net_allocated']
+                'o':p_change
             }
 
         keys = recs.keys()
