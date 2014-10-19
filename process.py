@@ -5,8 +5,9 @@ import yaml
 import logging
 import time
 
-processor_order = ['download_pending_changes',
-                   'new_budget_csv',
+processor_order = ['spreadsheet_to_jsons',
+                    'download_pending_changes',
+                    'new_budget_csv',
                    'rar_to_zip',
                    'combine_budget_jsons',
                    'prepare_budget_changes',

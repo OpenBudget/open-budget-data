@@ -1,0 +1,25 @@
+{"en": "Single budget line", "field": "_", "he": "\u05e1\u05e2\u05d9\u05e3 \u05d1\u05d5\u05d3\u05d3 \u05de\u05ea\u05d5\u05da \u05ea\u05e7\u05e6\u05d9\u05d1 \u05d4\u05de\u05d3\u05d9\u05e0\u05d4", "model": "BudgetLine", "order": -1}
+{"en": "code", "field": "code", "he": "\u05de\u05d6\u05d4\u05d4 \u05e1\u05e2\u05d9\u05e3", "model": "BudgetItem", "order": 0}
+{"en": "title", "field": "title", "he": "\u05db\u05d5\u05ea\u05e8\u05ea", "model": "BudgetItem", "order": 1}
+{"en": "year", "field": "year", "he": "\u05e9\u05e0\u05d4", "model": "BudgetItem", "order": 2}
+{"en": "net allocated", "field": "net_allocated", "he": "\u05de\u05e7\u05d5\u05e8\u05d9 - \u05e0\u05d8\u05d5", "model": "BudgetItem", "order": 3}
+{"en": "gross allocated", "field": "gross_allocated", "he": "\u05de\u05e7\u05d5\u05e8\u05d9 - \u05d1\u05e8\u05d5\u05d8\u05d5", "model": "BudgetItem", "order": 4}
+{"en": "dedicated allocated", "field": "dedicated_allocated", "he": "\u05de\u05e7\u05d5\u05e8\u05d9 - \u05d4\u05d5\u05e6\u05d0\u05d4 \u05de\u05d9\u05d5\u05e2\u05d3\u05ea", "model": "BudgetItem", "order": 5}
+{"en": "commitment allocated", "field": "commitment_allocated", "he": "\u05de\u05e7\u05d5\u05e8\u05d9 - \u05d4\u05e8\u05e9\u05d0\u05d4 \u05dc\u05d4\u05ea\u05d7\u05d9\u05d9\u05d1", "model": "BudgetItem", "order": 6}
+{"en": "personnel allocated", "field": "personnel_allocated", "he": "\u05de\u05e7\u05d5\u05e8\u05d9 - \u05e9\u05d9\u05d0 \u05db\u05d7 \u05d0\u05d3\u05dd", "model": "BudgetItem", "order": 7}
+{"en": "contractors allocated", "field": "contractors_allocated", "he": "\u05de\u05e7\u05d5\u05e8\u05d9 - \u05e2\u05d1\u05d5\u05d3\u05d4 \u05d1\u05dc\u05ea\u05d9 \u05e6\u05de\u05d9\u05ea\u05d4", "model": "BudgetItem", "order": 8}
+{"en": "amounts allocated", "field": "amounts_allocated", "he": "\u05de\u05e7\u05d5\u05e8\u05d9 - \u05db\u05de\u05d5\u05d9\u05d5\u05ea", "model": "BudgetItem", "order": 9}
+{"en": "net revised", "field": "net_revised", "he": "\u05de\u05d0\u05d5\u05e9\u05e8 - \u05e0\u05d8\u05d5", "model": "BudgetItem", "order": 10}
+{"en": "gross revised", "field": "gross_revised", "he": "\u05de\u05d0\u05d5\u05e9\u05e8 - \u05d1\u05e8\u05d5\u05d8\u05d5", "model": "BudgetItem", "order": 11}
+{"en": "dedicated revised", "field": "dedicated_revised", "he": "\u05de\u05d0\u05d5\u05e9\u05e8 - \u05d4\u05d5\u05e6\u05d0\u05d4 \u05de\u05d9\u05d5\u05e2\u05d3\u05ea", "model": "BudgetItem", "order": 12}
+{"en": "commitment revised", "field": "commitment_revised", "he": "\u05de\u05d0\u05d5\u05e9\u05e8 - \u05d4\u05e8\u05e9\u05d0\u05d4 \u05dc\u05d4\u05ea\u05d7\u05d9\u05d9\u05d1", "model": "BudgetItem", "order": 13}
+{"en": "personnel revised", "field": "personnel_revised", "he": "\u05de\u05d0\u05d5\u05e9\u05e8 - \u05e9\u05d9\u05d0 \u05db\u05d7 \u05d0\u05d3\u05dd", "model": "BudgetItem", "order": 14}
+{"en": "contractors revised", "field": "contractors_revised", "he": "\u05de\u05d0\u05d5\u05e9\u05e8 - \u05e2\u05d1\u05d5\u05d3\u05d4 \u05d1\u05dc\u05ea\u05d9 \u05e6\u05de\u05d9\u05ea\u05d4", "model": "BudgetItem", "order": 15}
+{"en": "amounts revised", "field": "amounts_revised", "he": "\u05de\u05d0\u05d5\u05e9\u05e8 - \u05db\u05de\u05d5\u05d9\u05d5\u05ea", "model": "BudgetItem", "order": 16}
+{"en": "net used", "field": "net_used", "he": "\u05d1\u05d9\u05e6\u05d5\u05e2 \u05de\u05d6\u05d5\u05de\u05df", "model": "BudgetItem", "order": 17}
+{"en": "Single support line", "field": "_", "he": "\u05ea\u05de\u05d9\u05db\u05d4 \u05d1\u05d5\u05d3\u05d3\u05ea \u05d1\u05d0\u05e8\u05d2\u05d5\u05df", "model": "SupportLine", "order": -1}
+{"en": "Single budget transfer", "field": "_", "he": "\u05e8\u05e9\u05d5\u05de\u05d4 \u05e9\u05dc \u05d4\u05e2\u05d1\u05e8\u05d4 \u05ea\u05e7\u05e6\u05d9\u05d1\u05d9\u05ea", "model": "ChangeLine", "order": -1}
+{"en": "Change request explanation", "field": "_", "he": "\u05d3\u05d1\u05e8\u05d9 \u05d4\u05e1\u05d1\u05e8 \u05e9\u05dc \u05d4\u05e2\u05d1\u05e8\u05d4", "model": "ChangeExplanation", "order": -1}
+{"en": "Aggregated change group", "field": "_", "he": "\u05d4\u05e2\u05d1\u05e8\u05d4 \u05ea\u05e7\u05e6\u05d9\u05d1\u05d9\u05ea \u05d0\u05d7\u05d5\u05d3\u05d4", "model": "ChangeGroup", "order": -1}
+{"en": "A single company record", "field": "_", "he": "\u05e8\u05e9\u05d5\u05de\u05d4 \u05d1\u05d5\u05d3\u05d3\u05ea \u05de\u05e8\u05e9\u05dd \u05d4\u05d7\u05d1\u05e8\u05d5\u05ea", "model": "CompanyRecord", "order": -1}
+{"en": "A single amuta record", "field": "_", "he": "\u05e8\u05e9\u05d5\u05de\u05d4 \u05d1\u05d5\u05d3\u05d3\u05ea \u05de\u05e8\u05e9\u05dd \u05d4\u05e2\u05de\u05d5\u05ea\u05d5\u05ea", "model": "NGORecord", "order": -1}

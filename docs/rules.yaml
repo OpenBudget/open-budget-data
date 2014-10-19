@@ -1,0 +1,22 @@
+rules:
+    - processor: spreadsheet_to_jsons
+      output: model-documentation.jsons
+      delay: 60
+      params:
+          key: 1OJ9jRN0PJx_pN4iRsdWY2PG1mKfzT1tvuZPDcWwxnIc
+          sheet: fields
+          num_cols: 5
+          convertors:
+              order: integer
+    - processor: dump_to_db
+      input: model-documentation.jsons
+      output: model-documentation.sqlite
+      params:
+          key_fields:
+              - model
+              - field
+    - processor: upload
+      input: model-documentation.sqlite
+      output: model-documentation.upload
+      params:
+          kind: md
