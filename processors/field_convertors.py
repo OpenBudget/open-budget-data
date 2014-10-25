@@ -1,11 +1,18 @@
 #encoding: utf8
 from datetime import date, datetime
+import calendar
 
 id = lambda x:x
 
 integer = lambda x: int(x)
 canonize_integer = lambda x: int(x.replace(",",""))
 canonize_float = lambda x: float(x.replace(",",""))
+comma_separated_list = lambda x: [xx.strip() for xx in x.split(",")]
+def simple_date_from_spreadsheet(datestr):
+    if datestr is None: return None
+    print datestr
+    d = datetime.strptime(datestr.strip(),"%d.%m.%Y").timetuple()
+    return calendar.timegm(d)
 
 def canonize_budget_code(code):
     code = str(code).replace("-","")

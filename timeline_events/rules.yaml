@@ -28,6 +28,7 @@ rules:
           key: 19HOiE3lMQiINuA1CO2neobpSomYdbObfaSmCM_MoftU
           sheet: pm
           num_cols: 5
+          spreadsheet_name_key: kind
           convertors:
               start_date: simple_date_from_spreadsheet
               end_date: simple_date_from_spreadsheet
@@ -38,6 +39,7 @@ rules:
           key: 19HOiE3lMQiINuA1CO2neobpSomYdbObfaSmCM_MoftU
           sheet: education
           num_cols: 5
+          spreadsheet_name_key: kind
           convertors:
                 start_date: simple_date_from_spreadsheet
                 end_date: simple_date_from_spreadsheet
@@ -48,6 +50,7 @@ rules:
           key: 19HOiE3lMQiINuA1CO2neobpSomYdbObfaSmCM_MoftU
           sheet: finance
           num_cols: 5
+          spreadsheet_name_key: kind
           convertors:
                 start_date: simple_date_from_spreadsheet
                 end_date: simple_date_from_spreadsheet
@@ -59,6 +62,7 @@ rules:
       output: participant_timeline.sqlite
       params:
           key_fields:
+            - kind
             - title
             - start_date
     - processor: upload

@@ -8,7 +8,7 @@ if __name__ == "__main__":
     processor = spreadsheet_to_jsons().process(inp,out,key,sheet)
 
 class spreadsheet_to_jsons(object):
-    def process(self,input,output,key="",sheet=None,num_cols=2,convertors={}):
+    def process(self,input,output,key="",sheet=None,num_cols=2,convertors={},spreadsheet_name_key=None):
 
         sheet = "sheet=%s&" % sheet if sheet is not None else ""
         columns = ",".join([ chr(65+i) for i in range(num_cols) ])
@@ -19,10 +19,17 @@ class spreadsheet_to_jsons(object):
         data = json.loads(data)
 
         header = [x['label'] for x in data['table']['cols']]
-        rows = [[x['v'] for x in data['table']['rows'][i]['c']] for i in range(len(data['table']['rows']))]
+        start=0
+        if list(set(header))[0] == "":
+            header = [x['v'] if x is not None else None for x in data['table']['rows'][0]['c']]
+            start = 1
+        rows = [[x['v'] if x is not None else None for x in data['table']['rows'][i]['c']] for i in range(start,len(data['table']['rows']))]
 
         convertors = dict([ (h, field_convertors.__dict__[convertors.get(h,'id')]) for h in header ])
         rows = [ dict([(k,convertors[k](v)) for k,v in zip(header,row)]) for row in rows ]
+        if spreadsheet_name_key is not None:
+            for row in rows:
+                row[spreadsheet_name_key] = sheet
         out = file(output,'w')
         for row in rows:
             out.write(json.dumps(row,sort_keys=True)+"\n")
