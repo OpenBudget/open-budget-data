@@ -1,0 +1,88 @@
+rules:
+    # Mapping of budget codes
+    - processor: spreadsheet_to_jsons
+      output: participant_mapping.jsons
+      delay: 60
+      params:
+          key: 19HOiE3lMQiINuA1CO2neobpSomYdbObfaSmCM_MoftU
+          sheet: mapping
+          num_cols: 2
+          convertors:
+              participants: comma_separated_list
+    - processor: dump_to_db
+      input: participant_mapping.jsons
+      output: participant_mapping.sqlite
+      params:
+          key_fields:
+              - budget_code
+    - processor: upload
+      input: participant_mapping.sqlite
+      output: participant_mapping.upload
+      params:
+          kind: pm
+    # People on the timeline
+    - processor: spreadsheet_to_jsons
+      output: participant_timeline__pm.jsons
+      delay: 60
+      params:
+          key: 19HOiE3lMQiINuA1CO2neobpSomYdbObfaSmCM_MoftU
+          sheet: pm
+          num_cols: 5
+          convertors:
+              start_date: simple_date_from_spreadsheet
+              end_date: simple_date_from_spreadsheet
+    - processor: spreadsheet_to_jsons
+      output: participant_timeline__education.jsons
+      delay: 60
+      params:
+          key: 19HOiE3lMQiINuA1CO2neobpSomYdbObfaSmCM_MoftU
+          sheet: education
+          num_cols: 5
+          convertors:
+                start_date: simple_date_from_spreadsheet
+                end_date: simple_date_from_spreadsheet
+    - processor: spreadsheet_to_jsons
+      output: participant_timeline__finance.jsons
+      delay: 60
+      params:
+          key: 19HOiE3lMQiINuA1CO2neobpSomYdbObfaSmCM_MoftU
+          sheet: finance
+          num_cols: 5
+          convertors:
+                start_date: simple_date_from_spreadsheet
+                end_date: simple_date_from_spreadsheet
+    - processor: concat
+      input: participant_timeline__*.jsons
+      output: participant_timeline.jsons
+    - processor: dump_to_db
+      input: participant_timeline.jsons
+      output: participant_timeline.sqlite
+      params:
+          key_fields:
+            - title
+            - start_date
+    - processor: upload
+      input: participant_timeline.sqlite
+      output: participant_timeline.upload
+      params:
+          kind: pt
+
+    # People photos
+    - processor: spreadsheet_to_jsons
+      output: participant_photos.jsons
+      delay: 60
+      params:
+          key: 19HOiE3lMQiINuA1CO2neobpSomYdbObfaSmCM_MoftU
+          sheet: people
+          num_cols: 2
+    - processor: dump_to_db
+      input: participant_photos.jsons
+      output: participant_photos.sqlite
+      params:
+          key_fields:
+            - name
+    - processor: upload
+      input: participant_photos.sqlite
+      output: participant_photos.upload
+      params:
+          kind: pp
