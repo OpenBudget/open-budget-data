@@ -54,6 +54,61 @@ rules:
           convertors:
                 start_date: simple_date_from_spreadsheet
                 end_date: simple_date_from_spreadsheet
+    - processor: spreadsheet_to_jsons
+      output: participant_timeline__defense.jsons
+      delay: 60
+      params:
+          key: 19HOiE3lMQiINuA1CO2neobpSomYdbObfaSmCM_MoftU
+          sheet: defense
+          num_cols: 5
+          spreadsheet_name_key: kind
+          convertors:
+                start_date: simple_date_from_spreadsheet
+                end_date: simple_date_from_spreadsheet
+    - processor: spreadsheet_to_jsons
+      output: participant_timeline__police.jsons
+      delay: 60
+      params:
+          key: 19HOiE3lMQiINuA1CO2neobpSomYdbObfaSmCM_MoftU
+          sheet: police
+          num_cols: 5
+          spreadsheet_name_key: kind
+          convertors:
+                start_date: simple_date_from_spreadsheet
+                end_date: simple_date_from_spreadsheet
+    - processor: spreadsheet_to_jsons
+      output: participant_timeline__housing.jsons
+      delay: 60
+      params:
+          key: 19HOiE3lMQiINuA1CO2neobpSomYdbObfaSmCM_MoftU
+          sheet: housing
+          num_cols: 5
+          spreadsheet_name_key: kind
+          convertors:
+                start_date: simple_date_from_spreadsheet
+                end_date: simple_date_from_spreadsheet
+    - processor: spreadsheet_to_jsons
+      output: participant_timeline__health.jsons
+      delay: 60
+      params:
+          key: 19HOiE3lMQiINuA1CO2neobpSomYdbObfaSmCM_MoftU
+          sheet: health
+          num_cols: 5
+          spreadsheet_name_key: kind
+          convertors:
+                start_date: simple_date_from_spreadsheet
+                end_date: simple_date_from_spreadsheet
+    - processor: spreadsheet_to_jsons
+      output: participant_timeline__fin_com.jsons
+      delay: 60
+      params:
+          key: 19HOiE3lMQiINuA1CO2neobpSomYdbObfaSmCM_MoftU
+          sheet: fin_com
+          num_cols: 5
+          spreadsheet_name_key: kind
+          convertors:
+                start_date: simple_date_from_spreadsheet
+                end_date: simple_date_from_spreadsheet
     - processor: concat
       input: participant_timeline__*.jsons
       output: participant_timeline.jsons

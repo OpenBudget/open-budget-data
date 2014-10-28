@@ -10,7 +10,6 @@ canonize_float = lambda x: float(x.replace(",",""))
 comma_separated_list = lambda x: [xx.strip() for xx in x.split(",")]
 def simple_date_from_spreadsheet(datestr):
     if datestr is None: return None
-    print datestr
     d = datetime.strptime(datestr.strip(),"%d.%m.%Y").timetuple()
     return calendar.timegm(d)
 
