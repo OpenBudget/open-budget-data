@@ -20,6 +20,7 @@ rules:
       output: participant_mapping.upload
       params:
           kind: pm
+
     # People on the timeline
     - processor: spreadsheet_to_jsons
       output: participant_timeline__pm.jsons
@@ -145,3 +146,28 @@ rules:
       output: participant_photos.upload
       params:
           kind: pp
+
+    # Bubdget Appprovals
+    - processor: spreadsheet_to_jsons
+      output: budget_approvals.jsons
+      delay: 60
+      params:
+          key: 19HOiE3lMQiINuA1CO2neobpSomYdbObfaSmCM_MoftU
+          sheet: budget_approvals
+          num_cols: 5
+        convertors:
+            year: integer
+            approval_date: simple_date_from_spreadsheet
+            effect_date: simple_date_from_spreadsheet
+            end_date: simple_date_from_spreadsheet
+    - processor: dump_to_db
+      input: budget_approvals.jsons
+      output: budget_approvals.sqlite
+      params:
+          key_fields:
+            - year
+    - processor: upload
+      input: budget_approvals.sqlite
+      output: budget_approvals.upload
+      params:
+          kind: ba
