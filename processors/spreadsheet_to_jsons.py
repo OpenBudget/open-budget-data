@@ -11,13 +11,14 @@ class spreadsheet_to_jsons(object):
     def process(self,input,output,key="",sheet=None,num_cols=2,convertors={},spreadsheet_name_key=None):
 
         if sheet is None:
-            sheetps = [""]
+            sheets = [ None ]
         else:
             if type(sheet) is str or type(sheet) is unicode:
-                sheet = [ sheet ]
-            sheetps = [ "sheet=%s&" % s for s in sheet ]
+                sheets = [ sheet ]
+            sheets = sheet
         out = file(output,'w')
-        for sheetp in sheetps:
+        for sheet in sheets:
+            sheetp = "sheet=%s&" % sheet if sheet is not None else ""
             columns = ",".join([ chr(65+i) for i in range(num_cols) ])
             params = (key,sheetp,columns)
             URL="https://docs.google.com/a/open-budget.org.il/spreadsheets/d/%s/gviz/tq?%stq=select+%s&tqx=reqId:1;out:json;+responseHandler:x" % params
