@@ -32,8 +32,8 @@ class spreadsheet_to_jsons(object):
                 start = 1
             rows = [[x['v'] if x is not None else None for x in data['table']['rows'][i]['c']] for i in range(start,len(data['table']['rows']))]
 
-            convertors = dict([ (h, field_convertors.__dict__[convertors.get(h,'id')]) for h in header ])
-            rows = [ dict([(k,convertors[k](v)) for k,v in zip(header,row)]) for row in rows ]
+            _convertors = dict([ (h, field_convertors.__dict__[convertors.get(h,'id')]) for h in header ])
+            rows = [ dict([(k,_convertors[k](v)) for k,v in zip(header,row)]) for row in rows ]
             if spreadsheet_name_key is not None and sheet is not None:
                 for row in rows:
                     row[spreadsheet_name_key] = sheet
