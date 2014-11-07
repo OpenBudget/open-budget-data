@@ -15,7 +15,8 @@ class spreadsheet_to_jsons(object):
         else:
             if type(sheet) is str or type(sheet) is unicode:
                 sheets = [ sheet ]
-            sheets = sheet
+            else:
+                sheets = sheet
         out = file(output,'w')
         for sheet in sheets:
             sheetp = "sheet=%s&" % sheet if sheet is not None else ""
