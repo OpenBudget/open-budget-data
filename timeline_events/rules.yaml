@@ -23,96 +23,24 @@ rules:
 
     # People on the timeline
     - processor: spreadsheet_to_jsons
-      output: participant_timeline__pm.jsons
+      output: participant_timeline.jsons
       delay: 60
       params:
           key: 19HOiE3lMQiINuA1CO2neobpSomYdbObfaSmCM_MoftU
-          sheet: pm
+          sheet:
+              - pm
+              - education
+              - finance
+              - defense
+              - police
+              - housing
+              - health
+              - fin_com
           num_cols: 5
           spreadsheet_name_key: kind
           convertors:
               start_date: simple_date_from_spreadsheet
               end_date: simple_date_from_spreadsheet
-    - processor: spreadsheet_to_jsons
-      output: participant_timeline__education.jsons
-      delay: 60
-      params:
-          key: 19HOiE3lMQiINuA1CO2neobpSomYdbObfaSmCM_MoftU
-          sheet: education
-          num_cols: 5
-          spreadsheet_name_key: kind
-          convertors:
-                start_date: simple_date_from_spreadsheet
-                end_date: simple_date_from_spreadsheet
-    - processor: spreadsheet_to_jsons
-      output: participant_timeline__finance.jsons
-      delay: 60
-      params:
-          key: 19HOiE3lMQiINuA1CO2neobpSomYdbObfaSmCM_MoftU
-          sheet: finance
-          num_cols: 5
-          spreadsheet_name_key: kind
-          convertors:
-                start_date: simple_date_from_spreadsheet
-                end_date: simple_date_from_spreadsheet
-    - processor: spreadsheet_to_jsons
-      output: participant_timeline__defense.jsons
-      delay: 60
-      params:
-          key: 19HOiE3lMQiINuA1CO2neobpSomYdbObfaSmCM_MoftU
-          sheet: defense
-          num_cols: 5
-          spreadsheet_name_key: kind
-          convertors:
-                start_date: simple_date_from_spreadsheet
-                end_date: simple_date_from_spreadsheet
-    - processor: spreadsheet_to_jsons
-      output: participant_timeline__police.jsons
-      delay: 60
-      params:
-          key: 19HOiE3lMQiINuA1CO2neobpSomYdbObfaSmCM_MoftU
-          sheet: police
-          num_cols: 5
-          spreadsheet_name_key: kind
-          convertors:
-                start_date: simple_date_from_spreadsheet
-                end_date: simple_date_from_spreadsheet
-    - processor: spreadsheet_to_jsons
-      output: participant_timeline__housing.jsons
-      delay: 60
-      params:
-          key: 19HOiE3lMQiINuA1CO2neobpSomYdbObfaSmCM_MoftU
-          sheet: housing
-          num_cols: 5
-          spreadsheet_name_key: kind
-          convertors:
-                start_date: simple_date_from_spreadsheet
-                end_date: simple_date_from_spreadsheet
-    - processor: spreadsheet_to_jsons
-      output: participant_timeline__health.jsons
-      delay: 60
-      params:
-          key: 19HOiE3lMQiINuA1CO2neobpSomYdbObfaSmCM_MoftU
-          sheet: health
-          num_cols: 5
-          spreadsheet_name_key: kind
-          convertors:
-                start_date: simple_date_from_spreadsheet
-                end_date: simple_date_from_spreadsheet
-    - processor: spreadsheet_to_jsons
-      output: participant_timeline__fin_com.jsons
-      delay: 60
-      params:
-          key: 19HOiE3lMQiINuA1CO2neobpSomYdbObfaSmCM_MoftU
-          sheet: fin_com
-          num_cols: 5
-          spreadsheet_name_key: kind
-          convertors:
-                start_date: simple_date_from_spreadsheet
-                end_date: simple_date_from_spreadsheet
-    - processor: concat
-      input: participant_timeline__*.jsons
-      output: participant_timeline.jsons
     - processor: dump_to_db
       input: participant_timeline.jsons
       output: participant_timeline.sqlite
@@ -135,6 +63,8 @@ rules:
           key: 19HOiE3lMQiINuA1CO2neobpSomYdbObfaSmCM_MoftU
           sheet: people
           num_cols: 2
+          convertors:
+              name: nbsp
     - processor: dump_to_db
       input: participant_photos.jsons
       output: participant_photos.sqlite
@@ -147,7 +77,7 @@ rules:
       params:
           kind: pp
 
-    # Bubdget Appprovals
+    # Budget Appprovals
     - processor: spreadsheet_to_jsons
       output: budget_approvals.jsons
       delay: 60
@@ -155,7 +85,7 @@ rules:
           key: 19HOiE3lMQiINuA1CO2neobpSomYdbObfaSmCM_MoftU
           sheet: budget_approvals
           num_cols: 5
-        convertors:
+          convertors:
             year: integer
             approval_date: simple_date_from_spreadsheet
             effect_date: simple_date_from_spreadsheet
