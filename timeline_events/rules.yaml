@@ -36,7 +36,7 @@ rules:
               - housing
               - health
               - fin_com
-          num_cols: 5
+          num_cols: 6
           spreadsheet_name_key: kind
           convertors:
               start_date: simple_date_from_spreadsheet
