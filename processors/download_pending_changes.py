@@ -31,11 +31,11 @@ def write_if_changed(filename,data):
 def download(url,last_modified):
     request = urllib2.Request(url)
     opener = urllib2.build_opener()
-    last_modified_date = last_modified.get(url)
-    if last_modified_date is not None:
-        request.add_header('If-Modified-Since',last_modified_date)
+    # last_modified_date = last_modified.get(url)
+    # if last_modified_date is not None:
+    #     request.add_header('If-Modified-Since',last_modified_date)
     datastream = opener.open(request, timeout=60)
-    last_modified[url] = datastream.headers.get('Last-Modified')
+    # last_modified[url] = datastream.headers.get('Last-Modified')
     ret = datastream.read()
     if len(ret) < 1024:
         return None

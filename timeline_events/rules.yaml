@@ -2,7 +2,7 @@ rules:
     # Mapping of budget codes
     - processor: spreadsheet_to_jsons
       output: participant_mapping.jsons
-      delay: 60
+      delay: 600
       params:
           key: 19HOiE3lMQiINuA1CO2neobpSomYdbObfaSmCM_MoftU
           sheet: mapping
@@ -24,7 +24,7 @@ rules:
     # People on the timeline
     - processor: spreadsheet_to_jsons
       output: participant_timeline.jsons
-      delay: 60
+      delay: 600
       params:
           key: 19HOiE3lMQiINuA1CO2neobpSomYdbObfaSmCM_MoftU
           sheet:
@@ -58,7 +58,7 @@ rules:
     # People photos
     - processor: spreadsheet_to_jsons
       output: participant_photos.jsons
-      delay: 60
+      delay: 600
       params:
           key: 19HOiE3lMQiINuA1CO2neobpSomYdbObfaSmCM_MoftU
           sheet: people
@@ -80,7 +80,7 @@ rules:
     # Budget Appprovals
     - processor: spreadsheet_to_jsons
       output: budget_approvals.jsons
-      delay: 60
+      delay: 600
       params:
           key: 19HOiE3lMQiINuA1CO2neobpSomYdbObfaSmCM_MoftU
           sheet: budget_approvals
