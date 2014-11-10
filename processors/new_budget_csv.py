@@ -9,6 +9,7 @@ if __name__ == "__main__":
     output = sys.argv[-1]
     processor = new_budget_csv().process(inputs,output)
 
+ROOT_COL = None
 def indexof(*args):
     row = args[0]
     names = args[1:]
@@ -25,11 +26,11 @@ def to_code(row,col):
     t = row[col]
     if '-' in t:
         t = t.split('-')
-        assert(len(t)==(col+1)/2)
+        assert(len(t)==((col-ROOT_COL+2)/2)
         t= [ "%02d" % int(x) for x in t ]
         t = "00" + ''.join(t)
     else:
-        add = "0" * (col+3-len(t))
+        add = "0" * (col-ROOT_COL+4-len(t))
         t=add+t
     return t
 
@@ -63,6 +64,8 @@ class new_budget_csv(object):
                     continue
                 YEAR_COL = indexof(row,u'שנה')
                 SAIF_COL = indexof(row,u'קוד סעיף')
+                global ROOT_COL
+                ROOT_COL = SAIF_COL
                 SAIF_NAME_COL = indexof(row,u'שם סעיף')
                 THUM_COL = indexof(row,u'קוד תחום')
                 THUM_NAME_COL = indexof(row,u'שם תחום')
