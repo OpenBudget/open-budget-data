@@ -1,6 +1,7 @@
 import logging
 import json
 import urllib2
+import time
 import field_convertors
 
 if __name__ == "__main__":
@@ -24,7 +25,15 @@ class spreadsheet_to_jsons(object):
             params = (key,sheetp,columns)
             URL="https://docs.google.com/a/open-budget.org.il/spreadsheets/d/%s/gviz/tq?%stq=select+%s&tqx=reqId:1;out:json;+responseHandler:x" % params
             print URL
-            data = urllib2.urlopen(URL).read()[2:-2] # remove JavaScript handler
+            retries = 3
+            while retries > 0:
+                try:
+                    data = urllib2.urlopen(URL).read()[2:-2] # remove JavaScript handler
+                    break
+                except Exception,e:
+                    logging.error("Failed to open url, retries=%d" % retries)
+                time.sleep(3)
+                retries = retries - 1
             data = json.loads(data)
 
             header = [x['label'] for x in data['table']['cols']]
