@@ -19,7 +19,9 @@ def process(input_file, output_file):
             test_value = sum(line.get(x,0)**2 for x in ['net_allocated','gross_allocated','commitment_allocated','net_used'])
             if test_value == 0 and year != YEAR:
                 continue
-            title = line['title']
+            title = line.get('title')
+            if title is None:
+                continue
             if len(code) > 2:
                 parent_code = code[:-2]
                 h_eq.setdefault(KEY % (year,parent_code),[]).append(KEY % (year,code))
