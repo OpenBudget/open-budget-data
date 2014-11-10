@@ -16,7 +16,8 @@ def process(input_file, output_file):
             code = str(line['code'])
             year = line['year']
             value = line.get('net_revised',0) + line.get('gross_revised',0)
-            if value == 0 and year != YEAR:
+            test_value = sum(line.get(x,0)**2 for x in ['net_allocated','gross_allocated','commitment_allocated','net_used'])
+            if test_value == 0 and year != YEAR:
                 continue
             title = line['title']
             if len(code) > 2:
