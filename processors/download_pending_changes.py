@@ -87,9 +87,11 @@ class download_pending_changes(object):
                         continue
                 if 'תאריך משלוח לוועדה' in csvdata:
                     filename = os.path.join(changes_basepath,'changes-pending.csv')
+                    logging.info("Setting pending to true")
                     pending = True
                 if 'תאריך אישור' in csvdata:
                     filename = os.path.join(changes_basepath,'changes-%s.csv' % YEAR)
+                    logging.info("Setting pending to false")
                     pending = False
                 downloaded = downloaded or write_if_changed(filename,csvdata)
             if href.endswith('rar'):

@@ -26,7 +26,7 @@ def to_code(row,col):
     t = row[col]
     if '-' in t:
         t = t.split('-')
-        assert(len(t)==((col-ROOT_COL+2)/2)
+        assert(len(t)==((col-ROOT_COL+2)/2))
         t= [ "%02d" % int(x) for x in t ]
         t = "00" + ''.join(t)
     else:
