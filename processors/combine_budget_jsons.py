@@ -41,7 +41,7 @@ class combine_budget_jsons(object):
                 except Exception,e:
                     logging.error("combine_budget_jsons: error %s in line %r" % (e,line))
 
-        for year in range(1992,2015):
+        for year in range(1992,2016):
             totalkey = '%s|%8s' % (year,"00")
             if '%s|%10s' % (year,"00") in keys:
                 continue
