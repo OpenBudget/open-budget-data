@@ -31,9 +31,11 @@ class spreadsheet_to_jsons(object):
                     data = urllib2.urlopen(URL).read()[2:-2] # remove JavaScript handler
                     break
                 except Exception,e:
-                    logging.error("Failed to open url, retries=%d" % retries)
+                    logging.error("Failed to open url, retries=%d" % retries, e)
                 time.sleep(3)
                 retries = retries - 1
+                if retries == 0:
+                    return
             data = json.loads(data)
 
             header = [x['label'] for x in data['table']['cols']]
