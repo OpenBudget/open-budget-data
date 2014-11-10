@@ -94,6 +94,8 @@ class new_budget_csv(object):
 
                 continue
             for col,title_col in [(SAIF_COL,SAIF_NAME_COL),(THUM_COL,THUM_NAME_COL),(PROG_COL,PROG_NAME_COL),(TAKA_COL,TAKA_NAME_COL)]:
+                if col is None or title_col is None:
+                    continue
                 code = to_code(row,col)
                 # if len(code) != col+3:
                 #     logging.error("%s, %s" % (code, row))
