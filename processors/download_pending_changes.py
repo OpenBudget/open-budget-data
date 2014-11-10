@@ -24,7 +24,7 @@ def write_if_changed(filename,data):
         current_size = None
     new = hashlib.md5(data[:10000]).hexdigest()
     if current != new and len(data) != current_size:
-        logging.debug('>> %s != %s, %d != %d' % (current,new,len(data),current_size))        
+        logging.debug('>> %s != %s, %d != %d' % (current,new,len(data),current_size))
         logging.debug('>> %s wrote %d bytes' % (filename,len(data)))
         file(filename,"w").write(data)
         return True
@@ -90,6 +90,7 @@ class download_pending_changes(object):
                     pending = True
                 if 'תאריך אישור' in csvdata:
                     filename = os.path.join(changes_basepath,'changes-%s.csv' % YEAR)
+                    pending = False
                 downloaded = downloaded or write_if_changed(filename,csvdata)
             if href.endswith('rar'):
                 logging.debug('downloading %s' % href)
