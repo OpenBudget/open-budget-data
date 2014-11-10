@@ -16,11 +16,15 @@ def mofgov(relative):
 
 def write_if_changed(filename,data):
     try:
-        current = hashlib.md5(file(filename).read()).hexdigest()
-    except:
+        current = hashlib.md5(file(filename).read()[:10000]).hexdigest()
+        current_size = os.path.getsize(filename)
+    except Exception, e:
+        print e
         current = None
-    new = hashlib.md5(data).hexdigest()
-    if current != new:
+        current_size = None
+    new = hashlib.md5(data[:10000]).hexdigest()
+    if current != new and len(data) != current_size:
+        logging.debug('>> %s != %s, %d != %d' % (current,new,len(data),current_size)        
         logging.debug('>> %s wrote %d bytes' % (filename,len(data)))
         file(filename,"w").write(data)
         return True

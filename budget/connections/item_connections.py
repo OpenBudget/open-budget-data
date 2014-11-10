@@ -160,4 +160,4 @@ def process(input_file, output_file):
         output.write('%s,"C%s","%s",%s\n' % (year,str(code),title.replace('"','""'),value))
 
 if __name__ == "__main__":
-    process("../budgets-noequiv.jsons","budget_equivalents.jsons")
+    process("../budgets-noequiv.aggregated-jsons","budget_equivalents.jsons")
