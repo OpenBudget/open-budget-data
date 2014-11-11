@@ -51,7 +51,9 @@ def add_to_sums(key,sums,amount,field):
     if amount is not None: sums[key][field] = sums[key].setdefault(field,0)+amount
 
 def add_to_list(key,sums,item,field):
-    if item is not None: sums[key][field].append(item)
+    if item is not None:
+        if item not in sums[key][field]:
+            sums[key][field].append(item)
     if len(sums[key][field])>1 and len(key)>=11:
         logging.error("TOO MANY GROUPS FOR %r" % sums[key])
 
