@@ -50,6 +50,11 @@ def get_from(row,index,to_add=0):
 def add_to_sums(key,sums,amount,field):
     if amount is not None: sums[key][field] = sums[key].setdefault(field,0)+amount
 
+def add_to_list(key,sums,item,field):
+    if item is not None: sums[key][field].append(item)
+    if len(sums[key][field])>1 and len(key)>=11:
+        logging.error("TOO MANY GROUPS FOR %r" % sums[key])
+
 class new_budget_csv(object):
 
     def process(self,input,output,new_years=[]):
@@ -94,6 +99,9 @@ class new_budget_csv(object):
 
                 USED_COL = indexof(row,u'ביצוע מזומן')
 
+                GROUP1_COL = indexof(row,u'שם רמה 1')
+                GROUP2_COL = indexof(row,u'שם רמה 2')
+
 
                 continue
             for col,title_col in [(SAIF_COL,SAIF_NAME_COL),(THUM_COL,THUM_NAME_COL),(PROG_COL,PROG_NAME_COL),(TAKA_COL,TAKA_NAME_COL)]:
@@ -123,8 +131,13 @@ class new_budget_csv(object):
                 contractors_revised = get_from(row,CONTRACTORS_REVISED_COL)
                 amounts_revised = get_from(row,AMOUNTS_REVISED_COL)
 
+                group1 = get_from(row,GROUP1_COL)
+                group2 = get_from(row,GROUP2_COL)
+                group_top = group1
+                group_full = "%s/%s" % (group1,group2) if group1 is not None and group2 is not None else None
+
                 key = "%s/%s" % (year,code)
-                sums.setdefault(key,{'code':code,'year':year,'title':title})
+                sums.setdefault(key,{'code':code,'year':year,'title':title,'group_top':[], 'group_full':[]})
                 add_to_sums(key,sums,net_allocated,'net_allocated')
                 add_to_sums(key,sums,net_revised,'net_revised')
                 add_to_sums(key,sums,net_used,'net_used')
@@ -142,6 +155,9 @@ class new_budget_csv(object):
                 add_to_sums(key,sums,personnel_revised,'personnel_revised')
                 add_to_sums(key,sums,contractors_revised,'contractors_revised')
                 add_to_sums(key,sums,amounts_revised,'amounts_revised')
+
+                add_to_list(key,sums,group_top,'group_top')
+                add_to_list(key,sums,group_full,'group_full')
 
         keys = sums.keys()
         keys.sort()
