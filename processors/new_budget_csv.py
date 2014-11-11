@@ -131,8 +131,10 @@ class new_budget_csv(object):
                 contractors_revised = get_from(row,CONTRACTORS_REVISED_COL)
                 amounts_revised = get_from(row,AMOUNTS_REVISED_COL)
 
-                group1 = get_from(row,GROUP1_COL)
-                group2 = get_from(row,GROUP2_COL)
+                group1 = group2 = None
+                if GROUP1_COL is not None and GROUP2_COL is not None:
+                    group1 = row[GROUP1_COL].decode('utf8')
+                    group2 = row[GROUP2_COL].decode('utf8')
                 group_top = group1
                 group_full = "%s/%s" % (group1,group2) if group1 is not None and group2 is not None else None
 
