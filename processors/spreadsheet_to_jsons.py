@@ -9,7 +9,8 @@ if __name__ == "__main__":
     processor = spreadsheet_to_jsons().process(inp,out,key,sheet)
 
 class spreadsheet_to_jsons(object):
-    def process(self,input,output,key="",sheet=None,num_cols=2,convertors={},spreadsheet_name_key=None):
+    def process(self,input,output,key="",sheet=None,num_cols=2,convertors={},
+                spreadsheet_name_key=None,spreadsheet_index_key=None):
 
         if sheet is None:
             sheets = [ None ]
@@ -50,5 +51,8 @@ class spreadsheet_to_jsons(object):
             if spreadsheet_name_key is not None and sheet is not None:
                 for row in rows:
                     row[spreadsheet_name_key] = sheet
+            if spreadsheet_index_key is not None:
+                for i,row in enumerate(rows):
+                    row[spreadsheet_index_key] = i
             for row in rows:
                 out.write(json.dumps(row,sort_keys=True)+"\n")

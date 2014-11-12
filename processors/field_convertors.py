@@ -4,7 +4,9 @@ import calendar
 
 id = lambda x:x
 
-integer = lambda x: int(x)
+integer = lambda x: int(x) if x is not None else None
+boolean = lambda x: x.strip().lower() in ["true","1","yes"] if type(x) is str else x
+newlines_to_br = lambda x: x.replace('\n','<br/>')
 canonize_integer = lambda x: int(x.replace(",",""))
 canonize_float = lambda x: float(x.replace(",",""))
 comma_separated_list = lambda x: [xx.strip() for xx in x.split(",")]

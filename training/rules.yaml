@@ -1,0 +1,29 @@
+rules:
+    - processor: spreadsheet_to_jsons
+      output: training-flows.jsons
+      delay: 60
+      params:
+          key: 1YizUPoQ71fEYTjato6inBDLOBb-nYbVvy5_hDIrsSKM
+          sheet:
+              - main
+          num_cols: 9
+          spreadsheet_name_key: flow
+          spreadsheet_index_key: index
+          convertors:
+              duration: integer
+              backbrop: boolean
+              orphan: boolean
+              content: newlines_to_br
+
+    - processor: dump_to_db
+      input: training-flows.jsons
+      output: training-flows.sqlite
+      params:
+          key_fields:
+              - model
+              - field
+    - processor: upload
+      input: training-flows.sqlite
+      output: training-flows.upload
+      params:
+          kind: tf

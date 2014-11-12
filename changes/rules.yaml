@@ -15,6 +15,7 @@ rules:
       params:
           new_years:
               - 2014
+              - 2015
     - processor: consolidate_change_dates
       input: changes.jsons
       output: changes-with-dates.jsons
