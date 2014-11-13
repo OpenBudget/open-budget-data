@@ -24,7 +24,8 @@ processor_order = ['spreadsheet_to_jsons',
                    'join',
                    'upload',
 		           'rss',
-                   'extract_for_partition_layout']
+                   'extract_for_partition_layout',
+                   'prepare_compare_record']
 processor_order = dict( (e,i) for i,e in enumerate(processor_order) )
 
 def collect_processors():

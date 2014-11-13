@@ -41,6 +41,24 @@ rules:
       output: budget.upload
       params:
           kind: bl
+    # Comparison record
+    - processor: prepare_compare_record
+      input: budgets.aggregated-jsons
+      output: compare_record.jsons
+      params:
+         year: 2015
+    - processor: dump_to_db
+      input: compare_record.jsons
+      output: compare_record.sqlite
+      params:
+           key_fields:
+               - key
+    - processor: upload
+      input: compare_record.sqlite
+      output: compare_record.upload
+      params:
+           kind: sp
+    # Partition Layout
     - processor: extract_for_partition_layout
       input: budgets.aggregated-jsons
       output: budget_partition_layout.jsons
