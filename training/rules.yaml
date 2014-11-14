@@ -6,6 +6,7 @@ rules:
           key: 1YizUPoQ71fEYTjato6inBDLOBb-nYbVvy5_hDIrsSKM
           sheet:
               - main
+              - calcalist
           num_cols: 9
           spreadsheet_name_key: flow
           spreadsheet_index_key: index
