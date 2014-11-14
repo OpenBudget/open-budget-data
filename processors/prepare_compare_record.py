@@ -32,17 +32,21 @@ class prepare_compare_record(object):
             equivs = prev_recs_by_code.get(equiv_code)
             if equivs is None:
                 test_value = sum(rec.get(x,0)**2 for x in ['net_allocated','gross_allocated','commitment_allocated','net_used'])
-                print "no equiv for %s, value=%d" % (rec['code'],test_value)
+                logging.warning("no equiv for %s, value=%d" % (rec['code'],test_value))
                 continue
             erec = {'code': rec['code'],
                     'title': rec['title'] }
+            add = True
             for k,nk in [("net_allocated","orig"),("net_revised","rev")]:
                 try:
                     erec["%s_%s" % (year,nk)] = rec[k]
                     erec["%s_%s" % (year-1,nk)] = sum(x[k] for x in equivs)
-                    out.append(erec)
-                except:
-                    continue
+                except Exception, e:
+                    logging.warning("%s, %s" % (rec,e))
+                    add=False
+                    break
+            if add:
+                out.append(erec)
         out = {'key':'budget-comparisons','value':out}
         file(outfile,'w').write(json.dumps(out,sort_keys=True))
 
