@@ -12,6 +12,8 @@ class prepare_compare_record(object):
             except:
                 print "%r" % line.strip()
                 raise
+            if rec['code'].startswith('0000'):
+                continue
             if rec['year'] == year:
                 if len(rec['code'])!=6:
                     continue
