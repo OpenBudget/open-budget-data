@@ -40,8 +40,8 @@ class prepare_compare_record(object):
             add = True
             for k,nk in [("net_allocated","orig"),("net_revised","rev")]:
                 try:
-                    erec["%s_%s" % (year,nk)] = rec[k]
-                    erec["%s_%s" % (year-1,nk)] = sum(x[k] for x in equivs)
+                    erec["%s_%s" % (nk,year)] = rec[k]
+                    erec["%s_%s" % (nk,year-1)] = sum(x[k] for x in equivs)
                 except Exception, e:
                     logging.warning("%s, %s" % (rec,e))
                     add=False
