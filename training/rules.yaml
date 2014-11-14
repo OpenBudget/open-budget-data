@@ -12,7 +12,7 @@ rules:
           spreadsheet_index_key: index
           convertors:
               duration: integer
-              backbrop: boolean
+              backdrop: boolean
               orphan: boolean
               content: newlines_to_br
 
@@ -21,8 +21,8 @@ rules:
       output: training-flows.sqlite
       params:
           key_fields:
-              - model
-              - field
+              - flow
+              - index
     - processor: upload
       input: training-flows.sqlite
       output: training-flows.upload
