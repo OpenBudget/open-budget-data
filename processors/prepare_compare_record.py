@@ -1,5 +1,6 @@
 import sys
 import json
+import logging
 
 class prepare_compare_record(object):
     def process(self,infile,outfile,year=2015):
