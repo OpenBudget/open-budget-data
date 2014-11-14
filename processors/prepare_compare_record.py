@@ -36,7 +36,9 @@ class prepare_compare_record(object):
                 logging.warning("no equiv for %s, value=%d" % (rec['code'],test_value))
                 continue
             erec = {'code': rec['code'],
-                    'title': rec['title'] }
+                    'title': rec['title'],
+                    'group_top': rec['group_top'],
+                    'group_full': rec['group_full'] }
             add = True
             for k,nk in [("net_allocated","orig"),("net_revised","rev")]:
                 try:
