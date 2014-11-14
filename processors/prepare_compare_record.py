@@ -2,7 +2,7 @@ import sys
 import json
 
 class prepare_compare_record(object):
-    def process(infile,outfile,year=2015):
+    def process(self,infile,outfile,year=2015):
         current_recs = []
         recs_by_code = {}
         prev_recs_by_code = {}
