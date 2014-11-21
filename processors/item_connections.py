@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
 class item_connections(object):
 
-    def process(self,input,output,ref_year=DEFAULT_YEAR,curated=[]):
+    def process(self,input_file,output_file,ref_year=DEFAULT_YEAR,curated=[]):
         all_codes = []
         h_eq = {}
         y_eq = { ref_year: {} }
