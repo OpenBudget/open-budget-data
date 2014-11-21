@@ -20,7 +20,10 @@ class aggregate_jsons_by_key(object):
             for line in file(input):
                 line = line.strip()
                 data = json.loads(line)
-                key = "/".join("%s:%s" % (field,data[field]) for field in key_fields)
+                try:
+                    key = "/".join("%s:%s" % (field,data[field]) for field in key_fields)
+                except KeyError:
+                    continue
 
                 if values.has_key(key):
                     current = values[key]
@@ -32,6 +35,8 @@ class aggregate_jsons_by_key(object):
                             current.setdefault(k,'')
                             if len(current[k]) < len(v):
                                 current[k] = v
+                        elif type(v) == list:
+                            current.setdefault(k,[]).extend(v)
                         else:
                             current[k] = v
                 else:
