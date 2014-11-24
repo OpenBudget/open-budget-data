@@ -138,7 +138,7 @@ class new_budget_csv(object):
                     group1 = row[GROUP1_COL].decode('utf8')
                     group2 = row[GROUP2_COL].decode('utf8')
                 group_top = group1
-                group_full = "%s/%s" % (group1,group2) if group1 is not None and group2 is not None else None
+                group_full = group2
 
                 key = "%s/%s" % (year,code)
                 sums.setdefault(key,{'code':code,'year':year,'title':title,'group_top':[], 'group_full':[]})
