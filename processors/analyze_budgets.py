@@ -57,7 +57,7 @@ class analyze_budgets(object):
         out = file(output,'w')
         for a in aggregator.values():
             for x in a.get_items():
-                out.write(json.dumps(x,sort_keys=True))
+                out.write(json.dumps(x,sort_keys=True)+'\n')
 
 if __name__ == "__main__":
     inputs = sys.argv[1]
