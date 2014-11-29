@@ -22,6 +22,9 @@ rules:
           - budgets-noequiv.aggregated-jsons
           - connections/budget_equivalents.jsons
       output: budgets.aggregated-jsons
+    - processor: analyze_budgets
+      input: budgets.aggregated-jsons
+      output: budgets.analyzed.aggregated-jsons
     # - processor: aggregate_jsons_by_key
     #   input:
     #       - budget_equivalents.jsons
@@ -31,7 +34,7 @@ rules:
     #           - equiv_code
     #           - year
     - processor: dump_to_db
-      input: budgets.aggregated-jsons
+      input: budgets.analyzed.aggregated-jsons
       output: budget.sqlite
       params:
           key_fields:
