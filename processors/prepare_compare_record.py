@@ -40,6 +40,8 @@ class prepare_compare_record(object):
             try:
                 erec['group_top'] = rec['group_top']
                 erec['group_full'] = rec['group_full']
+                erec['explanation'] = rec.get('explanation','')
+                erec['astyc'] = rec.get('analysis_short_term_yearly_change')
             except Exception, e:
                 logging.warning("%s, %s" % (rec,e))
                 continue

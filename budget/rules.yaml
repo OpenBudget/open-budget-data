@@ -30,7 +30,6 @@ rules:
           - budgets.aggregated-jsons
           - budget-analysis.jsons
       output: budgets.analyzed.aggregated-jsons
-
     # - processor: aggregate_jsons_by_key
     #   input:
     #       - budget_equivalents.jsons
@@ -53,7 +52,7 @@ rules:
           kind: bl
     # Comparison record
     - processor: prepare_compare_record
-      input: budgets.aggregated-jsons
+      input: budgets.analyzed.aggregated-jsons
       output: compare_record.jsons
       params:
          year: 2015
@@ -70,7 +69,7 @@ rules:
            kind: sp
     # Partition Layout
     - processor: extract_for_partition_layout
-      input: budgets.aggregated-jsons
+      input: budgets.analyzed.aggregated-jsons
       output: budget_partition_layout.jsons
       params:
           year: 2014
