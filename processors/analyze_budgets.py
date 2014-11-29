@@ -28,7 +28,7 @@ class Aggregator(object):
         return '<br/>'.join(self.explanations)
 
     def calc_short_term_yearly_change(self):
-        totals = [ sum(xx.get('net_allocated') for xx in x), sum(xx.get('net_revised') for xx in x) for x in self.short_term_history.values() ]
+        totals = [ (sum(xx.get('net_allocated') for xx in x), sum(xx.get('net_revised') for xx in x)) for x in self.short_term_history.values() ]
         totals = [ (1.0*y)/x for x,y in totals ]
         ratio = sum(totals)/len(totals)
         ratio = int(100*(ratio-1))
