@@ -20,7 +20,7 @@ class Aggregator(object):
         if explanation is not None:
             self.explantions.append(explanation)
         year = item.get('year',0)
-        if year>=2009 && year < 2015:
+        if year>=2009 and year < 2015:
             self.short_term_history.setdefault(year,[]).append(item)
         self.yearcodes.append((item['year'],item['code']))
 
