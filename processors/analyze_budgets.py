@@ -8,13 +8,13 @@ class Aggregator(object):
 
     def __init__(self):
         self.short_term_history = {}
-        self.explanations = {}
+        self.explanations = []
         self.yearcodes = []
 
     def add_item(self,item):
         explanation = item.get('explanation')
         if explanation is not None:
-            self.explantions.append(explanation)
+            self.explanations.append(explanation)
         year = item.get('year',0)
         if year>=2009 and year < 2015:
             self.short_term_history.setdefault(year,[]).append(item)
@@ -49,7 +49,7 @@ class analyze_budgets(object):
         for line in file(input):
             line = json.loads(line.strip())
             for x in line.get('equiv_code',[]):
-                aggregator.setdefault(x,Aggregator()).add_item(x)
+                aggregator.setdefault(x,Aggregator()).add_item(line)
 
         out = file(output,'w')
         for a in aggregator.values():
