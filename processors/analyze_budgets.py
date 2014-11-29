@@ -2,11 +2,7 @@ import logging
 import csv
 import field_convertors
 import json
-
-if __name__ == "__main__":
-    inputs = sys.argv[1:-1]
-    output = sys.argv[-1]
-    processor = analyze_budgets().process(inputs,output)
+import sys
 
 class Aggregator(object):
 
@@ -52,10 +48,15 @@ class analyze_budgets(object):
 
         for line in file(input):
             line = json.loads(line.strip())
-            for x in line.get('equivs',[]):
+            for x in line.get('equiv_code',[]):
                 aggregator.setdefault(x,Aggregator()).add_item(x)
 
         out = file(output,'w')
         for a in aggregator.values():
             for x in a.get_items():
                 out.write(json.dumps(x,sort_keys=True))
+
+if __name__ == "__main__":
+    inputs = sys.argv[1]
+    output = sys.argv[2]
+    processor = analyze_budgets().process(inputs,output)
