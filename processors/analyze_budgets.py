@@ -43,7 +43,7 @@ class Aggregator(object):
             yield ret
 
 class analyze_budgets(object):
-        def process(self,input,output,has_header=False,field_definition=[]):
+    def process(self,input,output,has_header=False,field_definition=[]):
 
         aggregator = {}
 
