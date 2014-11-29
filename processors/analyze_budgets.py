@@ -27,6 +27,8 @@ class Aggregator(object):
         totals = [ (sum(xx.get('net_allocated',0) for xx in x), sum(xx.get('net_revised',xx.get('net_allocated',0)) for xx in x)) for x in self.short_term_history.values() ]
         totals = [ (x,y) for x,y in totals if x>0]
         totals = [ (1.0*y)/x for x,y in totals ]
+        if len(totals) == 0:
+            return None
         ratio = sum(totals)/len(totals)
         ratio = int(100*(ratio-1))
         return ratio
