@@ -13,6 +13,7 @@ class Aggregator(object):
     def __init__(self):
         self.short_term_history = {}
         self.explanations = {}
+        self.yearcodes = []
 
     def add_item(self,item):
         explanation = item.get('explanation')
@@ -21,6 +22,7 @@ class Aggregator(object):
         year = item.get('year',0)
         if year>=2009 && year < 2015:
             self.short_term_history.setdefault(year,[]).append(item)
+        self.yearcodes.append((item['year'],item['code']))
 
     def calc_explanations(self):
         return '<br/>'.join(self.explanations)
@@ -32,11 +34,16 @@ class Aggregator(object):
         ratio = int(100*(ratio-1))
         return ratio
 
-    def get_item(self):
-        ret = {
-            'explanation': self.calc_explanations(),
-            'analysis_short_term_yearly_change': self.calc_short_term_yearly_change()
-        }
+    def get_items(self):
+        for year,code in self.yearcodes:
+            ret = {
+                'year': year,
+                'code': code,
+                'explanation': self.calc_explanations(),
+            }
+            if year >= 2014:
+                ret['analysis_short_term_yearly_change'] = self.calc_short_term_yearly_change()
+            yield ret
 
 class analyze_budgets(object):
     def process(self,input,output,has_header=False,field_definition=[]):
@@ -50,4 +57,5 @@ class analyze_budgets(object):
 
         out = file(output,'w')
         for a in aggregator.values():
-            out.write(json.dumps(a.get_item(),sort_keys=True))
+            for x in a.get_items():
+                out.write(json.dumps(x,sort_keys=True))
