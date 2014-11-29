@@ -24,7 +24,8 @@ class Aggregator(object):
         return '<br/>'.join(self.explanations)
 
     def calc_short_term_yearly_change(self):
-        totals = [ (sum(xx.get('net_allocated') for xx in x), sum(xx.get('net_revised') for xx in x)) for x in self.short_term_history.values() ]
+        totals = [ (sum(xx.get('net_allocated',0) for xx in x), sum(xx.get('net_revised',xx.get('net_allocated',0)) for xx in x)) for x in self.short_term_history.values() ]
+        totals = [ x,y for x,y in totals if x>0]
         totals = [ (1.0*y)/x for x,y in totals ]
         ratio = sum(totals)/len(totals)
         ratio = int(100*(ratio-1))
@@ -42,7 +43,7 @@ class Aggregator(object):
             yield ret
 
 class analyze_budgets(object):
-    def process(self,input,output,has_header=False,field_definition=[]):
+        def process(self,input,output,has_header=False,field_definition=[]):
 
         aggregator = {}
 
