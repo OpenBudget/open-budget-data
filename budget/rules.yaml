@@ -24,7 +24,13 @@ rules:
       output: budgets.aggregated-jsons
     - processor: analyze_budgets
       input: budgets.aggregated-jsons
+      output: budget-analysis.jsons
+    - processor: combine_budget_jsons
+      input:
+          - budgets.aggregated-jsons
+          - budget-analysis.jsons
       output: budgets.analyzed.aggregated-jsons
+
     # - processor: aggregate_jsons_by_key
     #   input:
     #       - budget_equivalents.jsons
