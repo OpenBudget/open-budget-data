@@ -27,8 +27,8 @@ rules:
       output: budget-analysis.jsons
     - processor: combine_budget_jsons
       input:
-          - budgets.aggregated-jsons
           - budget-analysis.jsons
+          - budgets.aggregated-jsons
       output: budgets.analyzed.aggregated-jsons
     # - processor: aggregate_jsons_by_key
     #   input:
