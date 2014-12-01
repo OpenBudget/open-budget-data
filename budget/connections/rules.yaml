@@ -9,6 +9,7 @@ rules:
               - budget/connections/curated.json
               - budget/connections/curated2.json
               - budget/connections/curated3.json
+              - budget/connections/curated4.json
     - processor: item_connections
       input: ../budgets-noequiv.aggregated-jsons
       output: budget_equivalents-2014.jsons
@@ -19,6 +20,7 @@ rules:
               - budget/connections/curated.json
               - budget/connections/curated2.json
               - budget/connections/curated3.json
+              - budget/connections/curated4.json
     - processor: aggregate_jsons_by_key
       input: budget_equivalents-*.jsons
       output: budget_equivalents.jsons
