@@ -11,6 +11,7 @@ canonize_integer = lambda x: int(x.replace(",",""))
 canonize_float = lambda x: float(x.replace(",",""))
 comma_separated_list = lambda x: [xx.strip() for xx in x.split(",")]
 nbsp = lambda x: x.replace(u'\u00a0', ' ')
+c_code = lambda x: re.findall('[0-9]+',x)[0]
 
 def simple_date_from_spreadsheet(datestr):
     if datestr is None: return None
