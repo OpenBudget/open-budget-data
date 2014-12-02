@@ -4,7 +4,7 @@ rules:
       delay: 600
       params:
           key: 0AuzvKVUDIVQrdHVtekd2LWh3WEpaak1mZWJwdzVVY1E
-          sheet: fields
+          sheet: 2013_2014
           num_cols: 3
           convertors:
               year: integer
