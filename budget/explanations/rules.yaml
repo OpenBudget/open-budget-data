@@ -1,7 +1,7 @@
 rules:
     - processor: spreadsheet_to_jsons
       output: budget_explanations.jsons
-      delay: 600
+      delay: 86400
       params:
           key: 1lE8yAP9-Qro8JVUS8hk-4sR-dLLZ13p4kJdvVWuos0I
           sheet: year_2014
