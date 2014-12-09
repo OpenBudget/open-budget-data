@@ -114,7 +114,7 @@ def get_groups(changes):
                             logging.debug("%s %s %s %s" % (date, len(date_reserve), num_found, i))
                         group = date_groups.send(found)
                         found = False
-                        sumvec = sum(c['_value'] for c in group)
+                        sumvec = sum(sum(c.get(x,0) for c in group)**2 for x in fields)
                         if sumvec == 0:
                             pending = group[0]['pending']
                             transfer_codes = set(x['trcode'] for x in group)
