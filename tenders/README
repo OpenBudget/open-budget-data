@@ -9,7 +9,7 @@ in entity_record.py:
 
 Scraping the entire DB
 ----------------------
-exemption_updated_records_scraper.py --scrape=- dir_to_scrape_to --update
+exemption_updated_records_scraper.py --scrape=- dir_to_scrape_to --update --date=-
 
 dir_to_scrape_to will hold the raw data, post processed data and meta data which can be used to resume the scraping if stopped
 
