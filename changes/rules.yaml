@@ -9,6 +9,7 @@ rules:
               - leading_item
               - req_code
               - budget_code
+          summarize: no
     - processor: prepare_budget_changes
       input: changes.jsons
       output: budget_changes.jsons
