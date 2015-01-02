@@ -127,9 +127,9 @@ class item_connections(object):
                 #if key.startswith(str(ref_year)):
                 for tgtkey in keys:
                     validation.setdefault(tgtkey,[]).append(key)
-                    out.setdefault((y,tgtkey.split('/')[1][:-1]),[]).append('E'+key[:-1])
+                    out.setdefault((y,tgtkey.split('/')[1][:-1]),set()).add('E'+key[:-1])
                 if len(keys)==1:
-                    out.setdefault((y,key.split('/')[1][:-1]),[]).append('E'+keys[0][:-1])
+                    out.setdefault((y,key.split('/')[1][:-1]),set()).add('E'+keys[0][:-1])
             for k,v in validation.iteritems():
                 if len(v)>1:
                     for i in range(len(v)):
@@ -143,7 +143,7 @@ class item_connections(object):
                 year, code = k
                 rec = { 'year': year,
                         'code': code,
-                        'equiv_code': v }
+                        'equiv_code': list(v) }
                 output.write(json.dumps(rec,sort_keys=True)+"\n")
             # for tgt_year, eqs in y_eq.iteritems():
             #     for key, keys in eqs.iteritems():
