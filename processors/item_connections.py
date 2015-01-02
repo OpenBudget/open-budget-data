@@ -1,13 +1,10 @@
 import json
+import sys
+
 
 KEY = "%s/%s-"
 DEFAULT_YEAR = 2015
 
-if __name__ == "__main__":
-    key_fields = sys.argv[1]
-    inputs = sys.argv[2:-1]
-    output = sys.argv[-1]
-    processor = item_connections().process(inputs,output,key_fields)
 
 # if __name__ == "__main__":
 #     process("../budgets-noequiv.aggregated-jsons","budget_equivalents.jsons")
@@ -127,10 +124,12 @@ class item_connections(object):
         for y,eqs in y_eq.iteritems():
             validation = {}
             for key,keys in eqs.iteritems():
-                if key.startswith(str(ref_year)):
-                    for tgtkey in keys:
-                        validation.setdefault(tgtkey,[]).append(key)
-                        out.setdefault((y,tgtkey.split('/')[1][:-1]),[]).append('E'+key[:-1])
+                #if key.startswith(str(ref_year)):
+                for tgtkey in keys:
+                    validation.setdefault(tgtkey,[]).append(key)
+                    out.setdefault((y,tgtkey.split('/')[1][:-1]),[]).append('E'+key[:-1])
+                if len(keys)==1:
+                    out.setdefault((y,key.split('/')[1][:-1]),[]).append('E'+keys[0][:-1])
             for k,v in validation.iteritems():
                 if len(v)>1:
                     for i in range(len(v)):
@@ -171,3 +170,9 @@ class item_connections(object):
             title = title.encode('utf8')
             #print "T: %r,%r,%r" % (year,code,title)
             output.write('%s,"C%s","%s",%s\n' % (year,str(code),title.replace('"','""'),value))
+
+if __name__ == "__main__":
+    inputs = sys.argv[1]
+    output = sys.argv[2]
+    curated = sys.argv[3:]
+    processor = item_connections().process(inputs,output,ref_year=2015,curated=curated)
