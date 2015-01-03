@@ -119,7 +119,7 @@ class new_budget_csv(object):
                 title = row[title_col].decode('utf8')
                 net_allocated = get_from(row,NET_ALLOC_COL)
                 gross_allocated = get_from(row,GROSS_ALLOC_COL,net_allocated)
-                gross_allocated = get_from(row,NET_REVISED_COL) if not new_year else net_allocated
+                net_revised = get_from(row,NET_REVISED_COL) if not new_year else net_allocated
                 gross_revised = get_from(row,GROSS_REVISED_COL,net_revised) if not new_year else gross_allocated
                 net_used = get_from(row,USED_COL)
 
