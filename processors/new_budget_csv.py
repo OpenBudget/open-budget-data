@@ -142,7 +142,8 @@ class new_budget_csv(object):
                     active = True
                 all_values = [net_allocated,gross_allocated,gross_allocated,gross_revised,net_used,dedicated_allocated,commitment_allocated,personnel_allocated,contractors_allocated,amounts_allocated,dedicated_revised,commitment_revised,personnel_revised,contractors_revised,amounts_revised]
                 all_zeros = sum(abs(x) for x in all_values if x is not None) == 0
-                if all_zeros and not active and year in new_years:
+                if all_zeros and not active and year not in new_years:
+                    print "SKIPPING %s/%s - NOT ACTIVE" % (year,code)
                     continue
 
                 group1 = group2 = None
