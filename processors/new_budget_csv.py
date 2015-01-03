@@ -101,6 +101,8 @@ class new_budget_csv(object):
 
                 USED_COL = indexof(row,u'ביצוע מזומן')
 
+                ACTIVE_COL = indexof(row,u'תקנה פעילה / פש"ח')
+
                 GROUP1_COL = indexof(row,u'שם רמה 1')
                 GROUP2_COL = indexof(row,u'שם רמה 2')
 
@@ -117,7 +119,7 @@ class new_budget_csv(object):
                 title = row[title_col].decode('utf8')
                 net_allocated = get_from(row,NET_ALLOC_COL)
                 gross_allocated = get_from(row,GROSS_ALLOC_COL,net_allocated)
-                net_revised = get_from(row,NET_REVISED_COL) if not new_year else net_allocated
+                gross_allocated = get_from(row,NET_REVISED_COL) if not new_year else net_allocated
                 gross_revised = get_from(row,GROSS_REVISED_COL,net_revised) if not new_year else gross_allocated
                 net_used = get_from(row,USED_COL)
 
@@ -132,6 +134,12 @@ class new_budget_csv(object):
                 personnel_revised = get_from(row,PERSONNEL_REVISED_COL)
                 contractors_revised = get_from(row,CONTRACTORS_REVISED_COL)
                 amounts_revised = get_from(row,AMOUNTS_REVISED_COL)
+
+                active = get_from(row,ACTIVE_COL).decode('utf8') != u'פש"ח'
+                all_values = [net_allocated,gross_allocated,gross_allocated,gross_revised,net_used,dedicated_allocated,commitment_allocated,personnel_allocated,contractors_allocated,amounts_allocated,dedicated_revised,commitment_revised,personnel_revised,contractors_revised,amounts_revised]
+                all_zeros = sum(abs(x) for x in values)
+                if all_zeros and not active and year in new_years:
+                    continue
 
                 group1 = group2 = None
                 if GROUP1_COL is not None and GROUP2_COL is not None:

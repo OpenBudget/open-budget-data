@@ -32,7 +32,7 @@ class spreadsheet_to_jsons(object):
                     data = urllib2.urlopen(URL).read()[2:-2] # remove JavaScript handler
                     break
                 except Exception,e:
-                    logging.error("Failed to open url, retries=%d" % retries, e)
+                    logging.error("Failed to open url, retries=%d (%s)" % (retries, str(e)))
                 time.sleep(3)
                 retries = retries - 1
                 if retries == 0:
