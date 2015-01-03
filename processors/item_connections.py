@@ -128,8 +128,10 @@ class item_connections(object):
                 for tgtkey in keys:
                     validation.setdefault(tgtkey,[]).append(key)
                     out.setdefault((y,tgtkey.split('/')[1][:-1]),set()).add('E'+key[:-1])
-                if len(keys)==1:
-                    out.setdefault((y,key.split('/')[1][:-1]),set()).add('E'+keys[0][:-1])
+                for y2 in range(1992,2020):
+                    yearly_keys = [ k for k in keys if k.startswith(str(y2))]
+                    if len(yearly_keys)==1:
+                        out.setdefault((y,key.split('/')[1][:-1]),set()).add('E'+yearly_keys[0][:-1])
             for k,v in validation.iteritems():
                 if len(v)>1:
                     for i in range(len(v)):
