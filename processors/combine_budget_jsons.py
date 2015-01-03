@@ -72,4 +72,6 @@ class combine_budget_jsons(object):
         for k in keys:
             if alldata[k].get('title') is None:
                 continue
+            if alldata[k].get('net_allocated') is None:
+                continue
             out.write( json.dumps(alldata[k],sort_keys=True)+'\n' )
