@@ -7,11 +7,6 @@ import sys
 import hashlib
 import gzip
 
-if __name__ == "__main__":
-    key_fields = sys.argv[1]
-    inputs = sys.argv[2:-1]
-    output = sys.argv[-1]
-    processor = dump_to_db().process(inputs,output,key_fields)
 
 class dump_to_db(object):
 
@@ -53,3 +48,9 @@ class dump_to_db(object):
 
         conn.commit()
         conn.close()
+
+if __name__ == "__main__":
+    input = sys.argv[1]
+    output = sys.argv[2]
+    key_fields = sys.argv[3:]
+    processor = dump_to_db().process(input,output,key_fields)

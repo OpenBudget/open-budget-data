@@ -3,7 +3,7 @@ import sys
 
 
 KEY = "%s/%s-"
-DEFAULT_YEAR = 2015
+DEFAULT_YEARS = [2014,2015]
 
 
 # if __name__ == "__main__":
@@ -11,10 +11,10 @@ DEFAULT_YEAR = 2015
 
 class item_connections(object):
 
-    def process(self,input_file,output_file,ref_year=DEFAULT_YEAR,curated=[]):
+    def process(self,input_file,output_file,ref_years=DEFAULT_YEARS,curated=[]):
         all_codes = []
         h_eq = {}
-        y_eq = { ref_year: {} }
+        y_eq = { ref_year: {} for ref_year in ref_years }
         code_titles = {}
         title_for_code = {}
 
@@ -25,7 +25,7 @@ class item_connections(object):
                 year = line['year']
                 value = line.get('net_revised',0) + line.get('gross_revised',0)
                 test_value = sum(line.get(x,0)**2 for x in ['net_allocated','gross_allocated','commitment_allocated','net_used'])
-                if test_value == 0 and year != ref_year:
+                if test_value == 0 and year not in ref_years:
                     continue
                 title = line.get('title')
                 if title is None:
@@ -35,7 +35,7 @@ class item_connections(object):
                     h_eq.setdefault(KEY % (year,parent_code),[]).append(KEY % (year,code))
                 code_titles.setdefault((code,title),[]).append(year)
                 title_for_code[(code,year)] = (title,value)
-                if year == ref_year:
+                if year in ref_years:
                     all_codes.append(KEY % (year,code))
 
         for key,years in code_titles.iteritems():
@@ -59,29 +59,29 @@ class item_connections(object):
 
         all_codes.sort(reverse=True)
         missing_links = {}
-        target_years = range(1992,ref_year+1)
+        target_years = range(1992,max(ref_years)+1)
         target_years.sort(reverse=True)
         for target_year in target_years:
             for key in all_codes:
                 go_on = True
                 equivs = [ key ]
-                #print "KK %s,%d" % (key,target_year)
+                print "KK %s,%d" % (key,target_year)
                 bad_keys = []
                 while go_on and equivs is not None:
-                    #print "EEE %r" % equivs
+                    print "EEE %r" % equivs
                     go_on = False
                     new_equivs = []
                     failed = False
                     for k in equivs:
                         year = int(k.split("/")[0])
                         if year == target_year:
-                            #print k,"F"
+                            print k,"F"
                             new_equivs.append(k)
                             continue
                         got_year = False
-                        for test_year in range(target_year,ref_year):
+                        for test_year in range(target_year,max(ref_years)):
                             if y_eq[test_year].has_key(k):
-                                #print k,"Y"
+                                print k,"Y"
                                 new_equivs.extend(y_eq[test_year][k])
                                 go_on = True
                                 got_year = True
@@ -90,12 +90,12 @@ class item_connections(object):
                             continue
                         bad_keys.append(k)
                         if h_eq.has_key(k):
-                            #print k,"H"
+                            print k,"H"
                             new_equivs.extend(h_eq.get(k))
                             go_on = True
                             continue
                         failed = True
-                        #print k,"?"
+                        print k,"?"
 
                     if failed:
                         new_equivs = None
@@ -112,7 +112,7 @@ class item_connections(object):
                         year,code = bad_key.split('/')
                         code = code[:-1]
                         year = int(year)
-        		        #print "MISSING: %s -> %s (%r)" % (key, bad_key, equivs)
+                        print "MISSING: %s -> %s (%r)" % (key, bad_key, equivs)
                         assert(code!='')
                         if missing_links.has_key(code):
                             if missing_links[code] < year:
@@ -124,6 +124,7 @@ class item_connections(object):
         for y,eqs in y_eq.iteritems():
             validation = {}
             for key,keys in eqs.iteritems():
+                print "XXXXXXX %r %r" % (key,keys)
                 #if key.startswith(str(ref_year)):
                 for tgtkey in keys:
                     validation.setdefault(tgtkey,[]).append(key)
@@ -177,4 +178,4 @@ if __name__ == "__main__":
     inputs = sys.argv[1]
     output = sys.argv[2]
     curated = sys.argv[3:]
-    processor = item_connections().process(inputs,output,ref_year=2015,curated=curated)
+    processor = item_connections().process(inputs,output,ref_years=[2014,2015],curated=curated)
