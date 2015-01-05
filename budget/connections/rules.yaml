@@ -3,8 +3,8 @@ rules:
       input: ../budgets-noequiv.aggregated-jsons
       output: budget_equivalents-2015.jsons
       params:
-          ref_year: 
-	      - 2015
+          ref_year:
+	             - 2015
           curated:
               - budget/connections/2013-2012-conversion.json
               - budget/connections/curated.json
@@ -15,8 +15,8 @@ rules:
       input: ../budgets-noequiv.aggregated-jsons
       output: budget_equivalents-2014.jsons
       params:
-          ref_year: 
-	      - 2014
+          ref_year:
+	             - 2014
           curated:
               - budget/connections/2013-2012-conversion.json
               - budget/connections/curated.json
