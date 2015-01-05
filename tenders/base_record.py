@@ -155,8 +155,14 @@ class base_record:
         print "loading %s db %s ..." % (cls.__name__, cls.db_filename),
         sys.stdout.flush()
         
-        for record in iter_json_records( cls.db_filename ):
+        for i, record in enumerate( iter_json_records( cls.db_filename ) ):
             
+            # if 'last_update_date' in record:
+            #     continue
+
+            #if i > 10:
+            #    break
+
             record = cls(record)
 
             if record.exists():

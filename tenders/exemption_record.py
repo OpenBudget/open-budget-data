@@ -14,13 +14,15 @@ class exemption_record(base_record.base_record):
         base_record.base_record.__init__( self, record )
 
     def has_updated_since( self, since_date ):
-        for h in self['history']:
-            curr_date = h['date']
-            if curr_date == '-':
-                continue
-            if numerate_date(curr_date) >= numerate_date(since_date):
-                return True
-        return False
+        # for h in self['history']:
+        #     curr_date = h['date']
+        #     if curr_date == '-':
+        #         continue
+        #     if numerate_date(curr_date) >= numerate_date(since_date):
+        #         return True
+        # return False
+
+        return numerate_date(self['last_update_date']) >= numerate_date(since_date)
 
     @base_record.connected_to_db
     def calculate_field( self, field_name ):
@@ -137,6 +139,8 @@ def csv_line( l ):
     return [csv_field(x) for x in l]
 
 def numerate_date( d ):
+    if d is None:
+        return None
     if d == '-':
         return None
     if type(d) in [int, long, float]:

@@ -53,11 +53,22 @@ class entity_record(base_record.base_record):
 
     @base_record.connected_to_db
     def calculate_field( self, field_name ):
+        from exemption_record import exemption_record
+
         if field_name == 'exemption_count':
             self['exemption_count'] = len(self['exemptions'])
 
+        elif field_name == 'missing_volume_exemption_count':
+
+            count = 0
+            for publication_id in self['exemptions']:
+                r = exemption_record.get_record( publication_id=publication_id )
+                if (r['volume'] is None) or (r['volume'] == 0):
+                    count += 1
+
+            self['missing_volume_exemption_count'] = count
+
         elif field_name == 'exemption_volume':
-            from exemption_record import exemption_record
 
             volume = 0
             for publication_id in self['exemptions']:
@@ -65,6 +76,19 @@ class entity_record(base_record.base_record):
                 volume += r['volume'] if r['volume'] is not None else 0
 
             self['exemption_volume'] = volume
+
+        elif field_name == 'exemption_offices':
+            from exemption_record import exemption_record
+
+            ret = {}
+
+            for publication_id in self['exemptions']:
+                r = exemption_record.get_record( publication_id=publication_id )
+                ret.setdefault( r['publisher'], 0 )
+                ret[r['publisher']] += 1
+
+            self['exemption_offices'] = ret
+
 
         else:
             raise KeyError( 'unknown field %s' % field_name )

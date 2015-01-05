@@ -8,12 +8,17 @@ from post_processing import field_to_int, zero_is_none, iter_records, add_histor
 import os
 import time
 import json
-
+from datetime import datetime, timedelta
 
 # scraper
 class publisher_updated_scraper(exemption_tables_scraper.publisher_scraper):
 
     def __init__( self, updated_since, *p, **d ):
+
+        if updated_since == 'yesterday':
+            yesterday = datetime.now() - timedelta(days=2)
+            updated_since = yesterday.strftime('%d/%m/%y')
+
         self.scrape_updated_since = numerate_date( updated_since )
 
         exemption_tables_scraper.publisher_scraper.__init__( self, *p, **d )
