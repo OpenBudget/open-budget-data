@@ -124,7 +124,7 @@ class item_connections(object):
         for y,eqs in y_eq.iteritems():
             validation = {}
             for key,keys in eqs.iteritems():
-                print "XXXXXXX %r %r" % (key,keys)
+                #print "XXXXXXX %r %r" % (key,keys)
                 #if key.startswith(str(ref_year)):
                 for tgtkey in keys:
                     validation.setdefault(tgtkey,[]).append(key)
