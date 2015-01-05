@@ -4,7 +4,7 @@ rules:
       output: budget_equivalents-2015.jsons
       params:
           ref_year:
-	             - 2015
+              - 2015
           curated:
               - budget/connections/2013-2012-conversion.json
               - budget/connections/curated.json
@@ -16,7 +16,7 @@ rules:
       output: budget_equivalents-2014.jsons
       params:
           ref_year:
-	             - 2014
+              - 2014
           curated:
               - budget/connections/2013-2012-conversion.json
               - budget/connections/curated.json

@@ -51,7 +51,7 @@ class item_connections(object):
                 presets = json.load(preset_file)
                 for preset in presets:
                     key,keys = preset
-                    print key, keys
+                    #print key, keys
                     tgt_year = list(set(k[0] for k in keys))
                     assert(len(tgt_year)) == 1
                     tgt_year = tgt_year[0]
@@ -65,23 +65,23 @@ class item_connections(object):
             for key in all_codes:
                 go_on = True
                 equivs = [ key ]
-                print "KK %s,%d" % (key,target_year)
+                #print "KK %s,%d" % (key,target_year)
                 bad_keys = []
                 while go_on and equivs is not None:
-                    print "EEE %r" % equivs
+                    #print "EEE %r" % equivs
                     go_on = False
                     new_equivs = []
                     failed = False
                     for k in equivs:
                         year = int(k.split("/")[0])
                         if year == target_year:
-                            print k,"F"
+                            #print k,"F"
                             new_equivs.append(k)
                             continue
                         got_year = False
                         for test_year in range(target_year,max(ref_years)):
                             if y_eq[test_year].has_key(k):
-                                print k,"Y"
+                                #print k,"Y"
                                 new_equivs.extend(y_eq[test_year][k])
                                 go_on = True
                                 got_year = True
@@ -90,12 +90,12 @@ class item_connections(object):
                             continue
                         bad_keys.append(k)
                         if h_eq.has_key(k):
-                            print k,"H"
+                            #print k,"H"
                             new_equivs.extend(h_eq.get(k))
                             go_on = True
                             continue
                         failed = True
-                        print k,"?"
+                        #print k,"?"
 
                     if failed:
                         new_equivs = None
@@ -112,7 +112,7 @@ class item_connections(object):
                         year,code = bad_key.split('/')
                         code = code[:-1]
                         year = int(year)
-                        print "MISSING: %s -> %s (%r)" % (key, bad_key, equivs)
+                        #print "MISSING: %s -> %s (%r)" % (key, bad_key, equivs)
                         assert(code!='')
                         if missing_links.has_key(code):
                             if missing_links[code] < year:
