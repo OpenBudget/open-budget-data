@@ -48,7 +48,7 @@ rules:
     - processor: fix_changeline_budget_titles
       input:
           - changegroups.jsons
-          - ../budget/budgets.jsons
+          - ../budget/budgets.aggregated-jsons
       output: changegroups-fixed-titles.jsons
     - processor: dump_to_db
       input: changegroups-fixed-titles.jsons
