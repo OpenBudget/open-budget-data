@@ -17,6 +17,8 @@ class prepare_budget_changes(object):
             year = data['year']
             if year not in new_years:
                 continue
+            if data.get('date/approval') is None:
+                continue
             for l in range(2,10,2):
                 rec = {
                     'year': year,
