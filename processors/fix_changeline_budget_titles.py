@@ -122,7 +122,7 @@ class fix_changeline_budget_titles(object):
                     group['titles'] = [map(title,minus_transfers),map(title,plus_transfers)]
 
                 group['changes'].sort(key=lambda x: int("1"+x['budget_code']))
-                group['equiv_code'] = set(reduce(lambda x,y:x+y,(x.get('equiv_code',[]) for x in group['changes']),[]))
+                group['equiv_code'] = list(set(reduce(lambda x,y:x+y,(x.get('equiv_code',[]) for x in group['changes']),[])))
 
             outfile.write(json.dumps(line,sort_keys=True)+"\n")
         logging.info("updated %d entries" % changed_num)
