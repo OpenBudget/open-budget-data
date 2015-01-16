@@ -74,7 +74,7 @@ DataURL = "http://tmichot.gov.il/ibi_apps/WFServlet?IBIF_webapp=/ibi_apps&IBIC_s
 CodesURL = "http://tmichot.gov.il/ibi_apps/WFServlet?IBIF_ex=runtrig&TRIGGER0=1&TRIGGER1=suppe_trg_lst_cc_commit&SW_CURROBJ=COMP_CODE&APPID=supp_ext_app&LSTFRMID=suppe_notif_item_all6&FRAMEPCT=0&DO_fex=suppe_notif_item_all6&SW_CLICKED=&LSMYEAR=%(year)s&COMP_CODE=%(hcode)s&NOTTYPE_LIST=FOC_NONE&NOTTYPE=FOC_NONE&LSMCOMMITXT=&LSCOMMIT_LIST=FOC_NONE&LSCOMMIT=FOC_NONE&OUTPUT=HTML&LSMYEAR_DISPLAY=%(year)s&COMP_CODE_DISPLAY=%%E4%%EE%%F9%%F8%%E3+%%EC%%E1%%E8%%E7%%E5%%EF+%%F4%%F0%%E9%%ED&NOTTYPE_DISPLAY=%%E4%%EB%%EC&LSCOMMIT_DISPLAY=%%E4%%EB%%EC&OUTPUT_DISPLAY=%%E4%%F6%%E2%%FA+%%E3%%E5%%E7&SW_INITIAL=N&RAND=0.9564581164158881"
 CodesRE = re.compile('set1\("([0-9]+)',re.M)
 
-class scrate_supports(object):
+class scrape_supports(object):
 
     def process(self,input,output,year):
         subprocess.Popen(['ssh','adamk@budget.msh.gov.il','-p','27628','-ND','127.0.0.1:55555'])
