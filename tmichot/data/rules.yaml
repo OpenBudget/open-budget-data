@@ -1,4 +1,14 @@
 rules:
+    - processor: scrape_supports
+      delay: 86400
+      output: tmichot2014.csv
+      params:
+          year: 2014
+    - processor: scrape_supports
+      delay: 86400
+      output: tmichot2015.csv
+      params:
+          year: 2015
     - processor: csv_to_jsons
       input: tmichot20*.csv
       output: /.csv/.jsons/
