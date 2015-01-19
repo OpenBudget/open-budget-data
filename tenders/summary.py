@@ -163,15 +163,19 @@ def change_history( curr_exemption_record ):
     #s += table_data( ['', u'מ:', u'ל:'], 'th' )
     for h in curr_exemption_record['history']:
         if h['field'] == 'creation':
-            s += tr(table_data( [h['date'], u'נוצרה הרשומה',''], 'td' ))
+            s += tr(table_data( [h['date'], u'נוצרה הרשומה','',''], 'td' ))
         elif h['field'] == 'decision':
-            s += tr(table_data( [h['date'], u'מ' + h['from'], u'ל' + h['to']], 'td' ))
+            s += tr(table_data( [h['date'], u'החלטה', u'מ ' + h['from'], u'ל ' + h['to']], 'td' ))
         elif h['field'] == 'volume':
-            s += tr(table_data( [h['date'], u'מ ' + money_str(h['from']), u'ל ' + money_str(h['to'])], 'td' ))
+            s += tr(table_data( [h['date'], u'היקף', u'מ ' + money_str(h['from']), u'ל ' + money_str(h['to'])], 'td' ))
         elif h['field'] == 'documents':
             s += tr(table_data( [h['date'], u'עודכנו מסמכים',''], 'td' ))
         elif h['field'] == 'description':
             s += tr(table_data( [h['date'], u'השתנה תיאור ההתקשרות', ''], 'td' ))
+        elif h['field'] == 'start_date':
+            s += tr(table_data( [h['date'], u'תאריך ההתחלה', u'מ ' + h['from'], u'ל ' + h['to']], 'td' ))
+        elif h['field'] == 'end_date':
+            s += tr(table_data( [h['date'], u'תאריך הסיום', u'מ ' + h['from'], u'ל ' + h['to']], 'td' ))
     s += "</table>"
     return s
 
@@ -201,7 +205,8 @@ def table( s, **args ):
 
 def exemption_record_desc( summary_record ):
     rows = ""
-    rows += tr( th(u'מספר') + td('<a href='+summary_record['exemption_record']['url']+'>'+ str(summary_record['exemption_record']['publication_id']) +'</a>') )
+    rows += tr( th(u'פרטי ההתקשרות', colspan='2') )
+    rows += tr( th(u'מספר פרסום במנו"ף') + td('<a href='+summary_record['exemption_record']['url']+'>'+ str(summary_record['exemption_record']['publication_id']) +'</a>') )
     rows += tr( th(u'היקף') + td(money_str(summary_record['exemption_record']['volume'])) )
     rows += tr( th(u'תקנה / שלב') + td(summary_record['exemption_record']['regulation'] + ' / ' + summary_record['exemption_record']['decision']) )
     rows += tr( th(u'תקופת התקשרות') + td(summary_record['exemption_record']['start_date'] + ' - ' + summary_record['exemption_record']['end_date']) )
@@ -212,16 +217,52 @@ def exemption_record_desc( summary_record ):
     if h is not None:
         rows += tr( th(u'היסטוריית שינויים', valign='top') + td(h) )
     
+    docs_str = ''
+    for doc in summary_record['exemption_record']['documents']:
+        docs_str += '<a href=' + doc['link'].encode('utf8')+ '>'+ doc['description'].encode('utf8') +'</a><br>'
+    rows += tr( th(u'מסמכים') + td(docs_str) )
+
     return table( id='nice_table', s=(rows) )
 
 def money_str( n ):
+    if (n == 0) or (n is None):
+        return u'לא צויין'
+
     s = u''
     while n > 0:
-        s = unicode(n % 1000) + s
+        part = n % 1000
         n /= 1000
         if n > 0:
+            s = unicode('%03d' % part) + s
             s = ',' + s
+        else:
+            s = unicode(part) + s
     return s + u' ש"ח'
+
+def supplier_offices( summary_record, field_name ):
+    ret = []
+    for office_name in summary_record['entity_record'][field_name]:
+        count = len(summary_record['entity_record'][field_name][office_name])
+
+        accepted = len([r for r in summary_record['entity_record'][field_name][office_name] if r['decision'] != u'טרום החלטת ועדה'])
+
+        if count == accepted:
+            curr = (u'%s (%d) <font size=1>' % (office_name, count)).encode('utf8')
+        elif accepted == 0:
+            curr = (u'%s (%d טרם אושרו) <font size=1>' % (office_name, count)).encode('utf8')
+        else:
+            curr = (u'%s (%d, %d טרם אושרו) <font size=1>' % (office_name, count, count - accepted)).encode('utf8')
+
+
+        for i, r in enumerate(sorted(summary_record['entity_record'][field_name][office_name], 
+                                     key=lambda x:x['publication_id'] ) ):
+
+            #lambda x:numerate_date(x['start_date'])
+            curr += '<a href='+r['url'].encode('utf8')+'>'+ str(i+1) +'</a> '
+        curr += '</font>'
+
+        ret.append(curr)
+    return '<br>'.join( ret )
 
 def supplier_desc( summary_record ):
     volume_str = money_str(summary_record['entity_record']['exemption_volume'])
@@ -229,10 +270,12 @@ def supplier_desc( summary_record ):
         volume_str += u' (לא כולל %d רשומות ללא סכום)' % (summary_record['entity_record']['missing_volume_exemption_count'])
 
     ret = table( id='nice_table', s=(
+        tr( th(u'פרטי הספק', colspan='2') ) + 
         tr( th(u'ספק') + td(supplier_str(summary_record['exemption_record'])) ) + 
         tr( th(u'סה"כ בקשות / הודעות פטור עבור ספק') + td(str(summary_record['entity_record']['exemption_count'])) ) + 
         tr( th(u'סה"כ היקף עבור ספק') + td(volume_str) ) + 
-        tr( th(u'משרדים', valign='top') + td( '<br>'.join(['%s (%d)' % (k,v) for k,v in summary_record['entity_record']['exemption_offices'].iteritems()]) ) )
+        tr( th(u'משרדים', valign='top') + td( supplier_offices(summary_record, 'exemption_offices') ) ) +
+        tr( th(u'משרדים החל מ 2014', valign='top') + td( supplier_offices(summary_record, 'exemption_offices_2014') ) )
     ) )
     return ret
 
@@ -257,21 +300,22 @@ def exemption_records_since_summary_html( filename, since_date ):
 
 
         f.write( 
-            tr( td( colspan=5, align='right', bgcolor='grey',
+            tr( td( colspan=3, align='right', bgcolor='grey',
                     s='')))
 
         f.write( 
-            tr( td( colspan=5, align='right', 
-                    s='<br><br>'+tag( tag='b', s=summary_record['exemption_record']['description'].encode('utf8').replace('\n', '<br>') ))))
+            tr( td( colspan=3, align='right', 
+                    s='<br><br>'+tag( tag='b', s=(summary_record['exemption_record']['publisher'].encode('utf8') + ':<br>' +
+                                                  summary_record['exemption_record']['description'].encode('utf8').replace('\n', '<br>')) ))))
 
         f.write( 
             tr( valign='top', 
                 s=(
-                    td( supplier_desc(summary_record) ) +
+                    td( exemption_record_desc(summary_record), width='20' ) +
                     td( '', bgcolor='grey', width='2' ) + 
-                    td( exemption_record_desc(summary_record) ) +
-                    td( '', bgcolor='grey', width='2' ) + 
-                    td( office_desc(summary_record) )# + 
+                    td( supplier_desc(summary_record), width='60' )# +
+                    #td( '', bgcolor='grey', width='2' )# + 
+                    #td( office_desc(summary_record) )# + 
                     #td('', width='40%') 
                )
             )
@@ -284,5 +328,5 @@ def exemption_records_since_summary_html( filename, since_date ):
 
 
 if __name__ == "__main__":
-    exemption_records_since_summary_html( '1.html', '4/1/2015' )
+    exemption_records_since_summary_html( '1.html', '18/1/2015' )
 
