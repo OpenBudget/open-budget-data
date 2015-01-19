@@ -1,0 +1,79 @@
+rules:
+    - processor: download_shitty_csv
+      output: companies.csv
+      delay: 86400
+      params:
+          url: "http://index.justice.gov.il/DataGov/Corporations/Companies.csv"
+    - processor: download_shitty_csv
+      output: associations.csv
+      delay: 86400
+      params:
+          url: "http://index.justice.gov.il/DataGov/Corporations/Associations.csv"
+    - processor: csv_to_jsons
+      input: associations.csv
+      output: associations.jsons
+      params:
+          has_header: true
+          field_definition:
+            - field_name: id
+              field_title: Association_Number
+            - field_name: kind
+              value: 'association'
+            - field_name: name
+              field_title: Association_Name
+              convertor: win_decoder
+            - field_name: creation_date
+              field_title: Association_Registration_Date
+              convertor: reg_date
+    - processor: csv_to_jsons
+      input: companies.csv
+      output: companies.jsons
+      params:
+          has_header: true
+          field_definition:
+            - field_name: id
+              field_title: Company_Number
+            - field_name: kind
+              value: 'company'
+            - field_name: name
+              field_title: Company_Name
+              convertor: win_decoder
+            - field_name: creation_date
+              field_title: Company_Registration_Date
+              convertor: reg_date
+    - processor: concat
+      input:
+          - associations.jsons
+          - companies.jsons
+          - municipalities.jsons
+      output: entities.jsons
+    - processor: process_entities
+      input:
+          - entities.jsons
+          - ../tmichot/data/tmichot.jsons
+      output: used_entities.tmichot.jsons
+      params:
+          name_key: recipient
+          processed_file: tmichot/data/tmichot.processed.jsons
+          id_keys:
+              - year
+              - code
+              - recipient
+              - kind
+    - processor: concat
+      input:
+          - used_entities.tmichot.jsons
+      output: used_entities.jsons
+    - processor: dump_to_db
+      input: used_entities.jsons
+      output: used_entities.sqlite
+      params:
+        key_fields:
+          - id
+          - name
+          - kind
+    - processor: upload
+      input: used_entities.sqlite
+      output: used_entities.upload
+      params:
+          kind: en

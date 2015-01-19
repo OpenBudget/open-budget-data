@@ -5,7 +5,8 @@ import yaml
 import logging
 import time
 
-processor_order = [ 'spreadsheet_to_jsons',
+processor_order = [ 'download_shitty_csv',
+                    'spreadsheet_to_jsons',
                     'download_pending_changes',
                     'scrape_supports',
                     'new_budget_csv',
@@ -24,15 +25,15 @@ processor_order = [ 'spreadsheet_to_jsons',
                     'fix_support_budget_titles',
                     'make_search_prefixes',
                     'dump_to_db',
-                    'join',
+                    'process_entities',
                     'upload',
 		            'rss',
                     'extract_for_partition_layout',
                     'prepare_compare_record']
 processor_order = dict( (e,i) for i,e in enumerate(processor_order) )
 
-def collect_processors():
-    current_path = "." # os.path.abspath(".")
+def collect_processors(start_here):
+    current_path = start_here
     for dirpath, dirnames, filenames in os.walk(current_path):
         processors = [ f for f in filenames if f.endswith("yaml") ]
         for processor in processors:
@@ -127,9 +128,12 @@ if __name__ == "__main__":
     APIKEY = None
     if len(sys.argv) > 1:
         APIKEY = sys.argv[1]
+    start_here = '.'
+    if len(sys.argv) > 2:
+        start_here = sys.argv[2]
     has_logging = False
     priorities = list
-    processors = list( collect_processors() )
+    processors = list( collect_processors(start_here) )
     while True:
         relevant = [ p for p in processors if is_relevant_processor(p) ]
         relevant.sort( key=lambda p: processor_order[p['processor']] )
