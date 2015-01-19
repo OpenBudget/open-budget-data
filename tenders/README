@@ -1,0 +1,25 @@
+Configuring the default db path
+-------------------------------
+in exemption_record.py:
+    db_filename = 'db/exemption.json'
+
+in entity_record.py:
+    db_filename = 'db/entity.json'
+
+
+Scraping the entire DB
+----------------------
+exemption_updated_records_scraper.py --scrape=- dir_to_scrape_to --update --date=-
+
+dir_to_scrape_to will hold the raw data, post processed data and meta data which can be used to resume the scraping if stopped
+
+the directory can be deleted after the update
+
+
+Scraping the changes since a date
+---------------------------------
+exemption_updated_records_scraper.py --scrape=20/1/2014 dir_to_scrape_to --update
+
+will scrape all the changes since 20/1/2014, including 20/1/2014
+
+
