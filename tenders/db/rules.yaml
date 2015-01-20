@@ -1,0 +1,21 @@
+rules:
+    - processor: aggregate_jsons_by_key
+      input:
+          - exemption.json
+          - exemption.processed.jsons
+      output: exemption.aggregated-jsons
+      params:
+          key_fields:
+              - publication_id
+          summarize: no
+    - processor: dump_to_db
+      input: exemption.aggregated-jsons
+      output: exemption.sqlite
+      params:
+          key_fields:
+              - publication_id
+    - processor: upload
+      input: exemption.sqlite
+      output: exemption.upload
+      params:
+          kind: mr

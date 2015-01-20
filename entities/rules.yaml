@@ -61,9 +61,20 @@ rules:
               - recipient
               - kind
               - title
+    - processor: process_entities
+      input:
+          - entities.jsons
+          - ../tenders/db/exemption.json
+      output: used_entities.exemptions.jsons
+      params:
+          name_key: supplier
+          processed_file: tenders/db/exemption.processed.jsons
+          id_keys:
+              - publication_id
     - processor: aggregate_jsons_by_key
       input:
           - used_entities.tmichot.jsons
+          - used_entities.exemptions.jsons
       output: used_entities.jsons
       params:
           key_fields:
