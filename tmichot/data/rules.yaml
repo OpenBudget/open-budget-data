@@ -59,6 +59,7 @@ rules:
               - code
               - recipient
               - kind
+              - title
           summarize: no
     - processor: dump_to_db
       input: tmichot.aggregated-jsons

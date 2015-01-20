@@ -60,6 +60,7 @@ rules:
               - code
               - recipient
               - kind
+              - title
     - processor: concat
       input:
           - used_entities.tmichot.jsons
