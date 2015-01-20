@@ -61,10 +61,15 @@ rules:
               - recipient
               - kind
               - title
-    - processor: concat
+    - processor: aggregate_jsons_by_key
       input:
           - used_entities.tmichot.jsons
       output: used_entities.jsons
+      params:
+          key_fields:
+              - id
+              - kind
+          summarize: no
     - processor: dump_to_db
       input: used_entities.jsons
       output: used_entities.sqlite
