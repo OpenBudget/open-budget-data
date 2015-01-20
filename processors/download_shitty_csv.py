@@ -3,6 +3,7 @@ import requesocks as requests
 import re
 import logging
 import subprocess
+import time
 
 class download_shitty_csv(object):
 
