@@ -8,20 +8,20 @@ class Aggregator(object):
 
     def __init__(self):
         self.short_term_history = {}
-        self.explanations = []
+        self.explanations = set()
         self.yearcodes = []
 
     def add_item(self,item):
         explanation = item.get('explanation')
         if explanation is not None:
-            self.explanations.append(explanation)
+            self.explanations.add(explanation)
         year = item.get('year',0)
         if year>=2009 and year < 2015:
             self.short_term_history.setdefault(year,[]).append(item)
         self.yearcodes.append((item['year'],item['code']))
 
     def calc_explanations(self):
-        return '<br/>'.join(self.explanations)
+        return '<br/>'.join(list(self.explanations))
 
     def calc_short_term_yearly_change(self):
         totals = [ (sum(xx.get('net_allocated',0) for xx in x), sum(xx.get('net_revised',xx.get('net_allocated',0)) for xx in x)) for x in self.short_term_history.values() ]
