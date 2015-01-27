@@ -20,6 +20,7 @@ class process_entities(object):
                     u"(ע''ר)",
                     u'בע"מ (חל"צ)',
                     u'(ער)',
+                    u'(חלצ)',
                   ]
     def __init__(self):
         self.CLEAN_PREFIXES = set()
