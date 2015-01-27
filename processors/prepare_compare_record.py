@@ -21,7 +21,7 @@ class prepare_compare_record(object):
                 current_recs.append(rec)
                 recs_by_code[rec['code']] = rec
             elif rec['year'] == year-1:
-                for equiv in rec.get('equiv_code',[]):
+                for equiv in set(rec.get('equiv_code',[])):
                     if len(equiv) == 12:
                         prev_recs_by_code.setdefault(equiv,[]).append(rec)
         # print current_recs[:10]
@@ -49,7 +49,7 @@ class prepare_compare_record(object):
             for k,nk in [("net_allocated","orig"),("net_revised","rev")]:
                 try:
                     erec["%s_%s" % (nk,year)] = rec[k]
-                    erec["%s_%s" % (nk,year-1)] = sum(x[k] for x in set(equivs))
+                    erec["%s_%s" % (nk,year-1)] = sum(x[k] for x in equivs)
                 except Exception, e:
                     logging.warning("%s, %s" % (rec,e))
                     add=False
