@@ -76,11 +76,10 @@ CodesRE = re.compile('set1\("([0-9]+)',re.M)
 
 class scrape_supports(object):
 
-    def process(self,input,output,year):
-        subprocess.Popen(['ssh','adamk@budget.msh.gov.il','-p','27628','-ND','127.0.0.1:55555'])
-        time.sleep(10)
+    def process(self,input,output,year,PROXY=None):
         session = requests.session()
-        session.proxies = {'http': 'socks5://127.0.0.1:55555'}
+        if PROXY is not None:
+            session.proxies = {'http': PROXY}
 
         out = csv.writer(file(output,"w"))
         for hcode, title in codes:

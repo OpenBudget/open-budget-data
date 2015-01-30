@@ -9,6 +9,7 @@ processor_order = [ 'download_shitty_csv',
                     'spreadsheet_to_jsons',
                     'download_pending_changes',
                     'scrape_supports',
+                    'scrape_exemptions',
                     'new_budget_csv',
                     'rar_to_zip',
                     'combine_budget_jsons',
@@ -24,8 +25,8 @@ processor_order = [ 'download_shitty_csv',
                     'fix_changeline_budget_titles',
                     'fix_support_budget_titles',
                     'make_search_prefixes',
-                    'dump_to_db',
                     'process_entities',
+                    'dump_to_db',
                     'upload',
 		            'rss',
                     'extract_for_partition_layout',
@@ -100,6 +101,13 @@ def run_processor(processor,apikey):
         logging.info("%s(%s) %s << %s" % (processor_classname,
                                          ", ".join("%s=%s" % i for i in params.iteritems()), output,
                                          " + ".join(inputs) if type(inputs)==list else inputs))
+        use_proxy = params.get('use_proxy',False)
+        if use_proxy:
+            logging.info('Setting up proxy...')
+            local_address = '127.0.0.1:55555'
+            proxy = subprocess.Popen(['ssh','adamk@budget.msh.gov.il','-p','27628','-ND',local_address])
+            time.sleep(10)
+            params['PROXY'] = local_address
         try:
             processor_obj.process(inputs,output,**params)
         except Exception,e:
@@ -108,6 +116,11 @@ def run_processor(processor,apikey):
             if os.path.exists(output):
                 os.unlink(output)
             raise
+        finally:
+            if use_proxy:
+                logging.info('Tearing down proxy...')
+                proxy.kill()
+                proxy.wait()
 
 def setup_logging():
     root = logging.getLogger()

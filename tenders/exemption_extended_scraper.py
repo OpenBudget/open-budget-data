@@ -9,7 +9,7 @@ import json
 import os
 import copy
 import shutil
-import requests
+import requesocks as requests
 from scrapy.selector import Selector
 from post_processing import field_to_int, zero_is_none, iter_records, empty_str_is_none
 from exemption_record import exemption_json_to_csv, update_data, exemption_record
@@ -37,6 +37,9 @@ class extended_data_scraper(base_scraper.base_scraper):
 class extended_data_web_page:
     def __init__( self, rate_limit=None ):
         self.session = requests.Session()
+        proxy = os.environ.get('PROXY')
+        if proxy is not None:
+            self.session.proxies = {'http': proxy}
         self.rate_limit = rate_limit
         self.publication_id = None
 
@@ -66,7 +69,7 @@ class extended_data_web_page:
             ret['publication_id'] = self.publication_id
 
         found_fields = 0
-            
+
         for field_name, xpath in [('description', '//*[@id="ctl00_PlaceHolderMain_lbl_PublicationName"]'),
                                   ('supplier_id', '//*[@id="ctl00_PlaceHolderMain_lbl_SupplierNum"]'),
                                   ('supplier', '//*[@id="ctl00_PlaceHolderMain_lbl_SupplierName"]'),
@@ -109,7 +112,7 @@ class extended_data_web_page:
         #print 'parsed exended data in %f secs' % (time.time() - start_time)
 
         return ret
-        
+
 # post processing
 def format_documents_time( record ):
     for d in record['documents']:
@@ -131,7 +134,7 @@ def post_processing( input, output ):
     print "post processing %s into %s..." % (input, output)
 
     processed_file = open( output, 'w' )
-    
+
     for record in iter_records(input):
         post_process_record( record )
         processed_file.write( json.dumps(record) + '\n' )
@@ -160,7 +163,7 @@ class text_table:
             ret += s + "\n"
 
         return ret
-    
+
 
 def show_stats( base_path ):
     t = text_table()
@@ -174,7 +177,7 @@ def show_stats( base_path ):
     t.add_row( [0, s.state['pages_scraped'], s.state['exceptions'], '%.2f' % s.state['work_time'], avg] )
 
     print t
-    
+
 
 if __name__ == "__main__":
     from optparse import OptionParser
@@ -212,5 +215,3 @@ if __name__ == "__main__":
 
     if options.stats:
         show_stats( base_path )#, options.exemption_records )
-
-
