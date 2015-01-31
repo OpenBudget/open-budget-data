@@ -4,6 +4,7 @@ import glob
 import yaml
 import logging
 import time
+import subprocess
 
 processor_order = [ 'download_shitty_csv',
                     'spreadsheet_to_jsons',
