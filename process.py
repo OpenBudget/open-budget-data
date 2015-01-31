@@ -101,7 +101,7 @@ def run_processor(processor,apikey):
         logging.info("%s(%s) %s << %s" % (processor_classname,
                                          ", ".join("%s=%s" % i for i in params.iteritems()), output,
                                          " + ".join(inputs) if type(inputs)==list else inputs))
-        use_proxy = params.get('use_proxy',False)
+        use_proxy = processor.get('use_proxy',False)
         if use_proxy:
             logging.info('Setting up proxy...')
             local_address = '127.0.0.1:55555'
