@@ -79,7 +79,7 @@ class scrape_supports(object):
     def process(self,input,output,year,PROXY=None):
         session = requests.session()
         if PROXY is not None:
-            session.proxies = {'http': PROXY}
+            session.proxies = {'http': 'socks5://'+PROXY}
 
         out = csv.writer(file(output,"w"))
         for hcode, title in codes:

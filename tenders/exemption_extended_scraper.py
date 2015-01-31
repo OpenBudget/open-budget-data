@@ -39,7 +39,7 @@ class extended_data_web_page:
         self.session = requests.Session()
         proxy = os.environ.get('PROXY')
         if proxy is not None:
-            self.session.proxies = {'http': proxy}
+            self.session.proxies = {'http': 'socks5://'+proxy)}
         self.rate_limit = rate_limit
         self.publication_id = None
 
