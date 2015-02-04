@@ -7,12 +7,10 @@ import time
 
 class download_shitty_csv(object):
 
-    def process(self,input,output,url=""):
+    def process(self,input,output,url="",PROXY=None):
 
-        subprocess.Popen(['ssh','adamk@budget.msh.gov.il','-p','27628','-ND','127.0.0.1:55555'])
-        time.sleep(10)
         session = requests.session()
-        session.proxies = {'http': 'socks5://127.0.0.1:55555'}
+        session.proxies = {'http': 'socks5://'+PROXY}
 
         repl1 = re.compile(",[\r\n\t ]+(?=[^5])")
         repl2 = re.compile("[\r\n\t ]+,")

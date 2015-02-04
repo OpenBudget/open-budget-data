@@ -2,11 +2,13 @@ rules:
     - processor: download_shitty_csv
       output: companies.csv
       delay: 86400
+      use_proxy: yes
       params:
           url: "http://index.justice.gov.il/DataGov/Corporations/Companies.csv"
     - processor: download_shitty_csv
       output: associations.csv
       delay: 86400
+      use_proxy: yes
       params:
           url: "http://index.justice.gov.il/DataGov/Corporations/Associations.csv"
     - processor: csv_to_jsons
@@ -55,6 +57,7 @@ rules:
       params:
           name_key: recipient
           processed_file: tmichot/data/tmichot.processed.jsons
+          non_processed_file: tmichot/data/tmichot.nonprocessed.txt
           id_keys:
               - year
               - code
@@ -67,8 +70,10 @@ rules:
           - ../tenders/db/exemption.json
       output: used_entities.exemptions.jsons
       params:
+          id_key: supplier_id
           name_key: supplier
           processed_file: tenders/db/exemption.processed.jsons
+          non_processed_file: tenders/db/exemption.nonprocessed.txt
           id_keys:
               - publication_id
     - processor: aggregate_jsons_by_key

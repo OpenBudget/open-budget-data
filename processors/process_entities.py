@@ -34,24 +34,31 @@ class process_entities(object):
                 return word[:-len(p)]
         return word
 
-    def process(self,inputs,outputs,name_key=None, processed_file=None, id_keys=None ):
+    def process(self,inputs,outputs,name_key=None, processed_file=None, non_processed_file=None, id_keys=None, id_key=None ):
         entities_file, match_file = inputs
         used_entities_file = outputs
 
         entities = []
         for line in file(entities_file):
             entities.append(json.loads(line))
+        entity_by_id = {}
+        if id_key is not None:
+            entity_by_id = dict((e[id_key],e) for e in entities if id_key in e.keys())
         entities.sort(key=lambda x:self.clean(x['name']))
         entity_names = [self.clean(x['name']) for x in entities]
 
         processed_file = file(processed_file,'w')
+        non_processed_file = file(non_processed_file,'w')
         used_entities_file = file(used_entities_file,'w')
         matches = 0
         for line in file(match_file):
             line = json.loads(line)
-            match_value = self.clean(line.get(name_key))
             found = None
-            if match_value is not None:
+            if id_key is not None:
+                match_value = line.get(id_key)
+                found = entity_by_id.get(match_value)
+            match_value = self.clean(line.get(name_key))
+            if found is None and match_value is not None:
                 i = bisect.bisect_left(entity_names, match_value)
                 if i != len(entity_names):
                     found = entities[i]
@@ -66,4 +73,6 @@ class process_entities(object):
                     rec['entity_id'] = found['id']
                     used_entities_file.write(json.dumps(found,sort_keys=True)+"\n")
                     processed_file.write(json.dumps(rec,sort_keys=True)+"\n")
+                    continue
+            non_processed_file.write(match_value.encode('utf8')+"\n")
         logging.debug("matched %d entities" % matches)
