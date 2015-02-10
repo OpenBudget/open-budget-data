@@ -29,9 +29,15 @@ class process_entities(object):
                 self.CLEAN_PREFIXES.add(" "+w[:i])
 
     def clean(self,word):
-        for p in self.CLEAN_PREFIXES:
-            if word.endswith(p):
-                return word[:-len(p)]
+        done = False
+        while not done:
+            done = True
+            for p in self.CLEAN_PREFIXES:
+                if word.endswith(p):
+                    word = word[:-len(p)]
+                    done = False
+                    break
+        word = word.replace('"','').replace("'",'')
         return word
 
     def process(self,inputs,outputs,name_key=None, processed_file=None, non_processed_file=None, id_keys=None, id_key=None ):
