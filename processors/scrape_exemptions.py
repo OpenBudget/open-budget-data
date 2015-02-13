@@ -1,6 +1,7 @@
 #encoding: utf8
 import os
 import subprocess
+import logging
 
 class scrape_exemptions(object):
 
@@ -13,5 +14,11 @@ class scrape_exemptions(object):
                                   'exemption_updated_records_scraper.py',
                                   '--scrape=%s' % since,
                                   'intermediates','--update'],
-                                  cwd='tenders',env=env)
-        scraper.wait()
+                                  cwd='tenders',env=env,
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.PIPE)
+        stdout, stderr = scraper.communicate()
+        for x in stdout.split('\n'):
+            logging.debug(x)
+        for x in stderr.split('\n'):
+            logging.error(x)

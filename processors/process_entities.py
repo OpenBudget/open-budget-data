@@ -20,6 +20,8 @@ class process_entities(object):
                     u"(ע''ר)",
                     u'בע"מ (חל"צ)',
                     u'(ער)',
+                    u'{ער}',
+                    u'}ער{',
                     u'(חלצ)',
                   ]
     def __init__(self):
