@@ -14,7 +14,7 @@ class scrape_exemptions(object):
                                   'exemption_updated_records_scraper.py',
                                   '--scrape=%s' % since,
                                   'intermediates','--update'],
-                                  cwd='tenders',env=env,
+                                  cwd='tenders',env=env, shell=True,
                                   stdout=subprocess.PIPE,
                                   stderr=subprocess.PIPE)
         stdout, stderr = scraper.communicate()
