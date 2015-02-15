@@ -19,7 +19,7 @@ class spreadsheet_to_jsons(object):
                 sheets = [ sheet ]
             else:
                 sheets = sheet
-        out = file(output,'w')
+        out = None
         for sheet in sheets:
             sheetp = "sheet=%s&" % sheet if sheet is not None else ""
             columns = ",".join([ chr(65+i) for i in range(num_cols) ])
@@ -29,7 +29,8 @@ class spreadsheet_to_jsons(object):
             retries = 3
             while retries > 0:
                 try:
-                    data = requests.get(URL).text[2:-2] # remove JavaScript handler
+                    user_agent = {'User-agent': 'Mozilla/5.0'}
+                    data = requests.get(URL,headers=user_agent).text[2:-2] # remove JavaScript handler
                     break
                 except Exception,e:
                     logging.error("Failed to open url, retries=%d (%s)" % (retries, str(e)))
@@ -54,5 +55,7 @@ class spreadsheet_to_jsons(object):
             if spreadsheet_index_key is not None:
                 for i,row in enumerate(rows):
                     row[spreadsheet_index_key] = i
+            if len(rows) > 0 and out is None:
+                out = file(output,'w')
             for row in rows:
                 out.write(json.dumps(row,sort_keys=True)+"\n")
