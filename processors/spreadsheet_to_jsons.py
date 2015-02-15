@@ -38,7 +38,7 @@ class spreadsheet_to_jsons(object):
                     logging.error("Failed to open url, retries=%d (%s)" % (retries, str(e)))
                 time.sleep(10)
                 retries = retries - 1
-                assert(retries >= 0)
+                assert(retries > 0)
             data = json.loads(data)
 
             header = [x['label'] for x in data['table']['cols']]
