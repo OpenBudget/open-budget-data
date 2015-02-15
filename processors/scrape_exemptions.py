@@ -2,6 +2,7 @@
 import os
 import subprocess
 import logging
+import shutil
 
 class scrape_exemptions(object):
 
@@ -9,12 +10,15 @@ class scrape_exemptions(object):
         env = os.environ.copy()
         if PROXY is not None:
             env['PROXY'] = PROXY
+        output_dir = 'intermediates'
+        cwd = 'tenders'
+        shutil.rmtree(os.path.join(cwd,output_dir))        
         scraper = subprocess.Popen(['/usr/bin/env',
                                   'python',
                                   'exemption_updated_records_scraper.py',
                                   '--scrape=%s' % since,
-                                  'intermediates','--update'],
-                                  cwd='tenders',env=env, shell=True,
+                                  output_dir,'--update'],
+                                  cwd=cwd,env=env,
                                   stdout=subprocess.PIPE,
                                   stderr=subprocess.PIPE)
         stdout, stderr = scraper.communicate()
