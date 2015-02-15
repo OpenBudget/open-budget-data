@@ -30,14 +30,15 @@ class spreadsheet_to_jsons(object):
             while retries > 0:
                 try:
                     user_agent = {'User-agent': 'Mozilla/5.0'}
-                    data = requests.get(URL,headers=user_agent).text[2:-2] # remove JavaScript handler
+                    data = requests.get(URL,headers=user_agent) # remove JavaScript handler
+                    print data
+                    data = data.text[2:-2]
                     break
                 except Exception,e:
                     logging.error("Failed to open url, retries=%d (%s)" % (retries, str(e)))
                 time.sleep(10)
                 retries = retries - 1
-                if retries == 0:
-                    return
+                assert(retries >= 0)
             data = json.loads(data)
 
             header = [x['label'] for x in data['table']['cols']]
