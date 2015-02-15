@@ -10,7 +10,7 @@ class ids_from_exemptions(object):
         out = file(output,'w')
         for line in file(input):
             data = json.loads(line)
-            id = data.get('supplier_id','').strip()
+            id = str(data.get('supplier_id','')).strip()
             name = data.get('supplier','').strip()
             if id != '' and name != '':
                 ret = {'id':id,'name':name}
