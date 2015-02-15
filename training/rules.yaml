@@ -7,6 +7,11 @@ rules:
           sheet:
               - main
               - calcalist
+              - en
+              - ar
+              - test
+              - animals
+              - en-animals
           num_cols: 9
           spreadsheet_name_key: flow
           spreadsheet_index_key: index
