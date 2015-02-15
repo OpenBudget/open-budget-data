@@ -13,7 +13,7 @@ rules:
           url: "http://index.justice.gov.il/DataGov/Corporations/Associations.csv"
     - processor: spreadsheet_to_jsons
       output: curated.jsons
-      delay: 3600
+      delay: 86400
       params:
           key: 1NmtnUgNZRNKKBiIjFsqbyiNdUPeI_FOZ3ZQhVZsdMXs
           sheet: ids

@@ -1,7 +1,7 @@
 rules:
     - processor: spreadsheet_to_jsons
       output: training-flows.jsons
-      delay: 3600
+      delay: 86400
       params:
           key: 1YizUPoQ71fEYTjato6inBDLOBb-nYbVvy5_hDIrsSKM
           sheet:
