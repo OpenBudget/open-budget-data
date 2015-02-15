@@ -1,6 +1,6 @@
 import logging
 import json
-import urllib2
+import requests
 import time
 import field_convertors
 
@@ -29,7 +29,7 @@ class spreadsheet_to_jsons(object):
             retries = 3
             while retries > 0:
                 try:
-                    data = urllib2.urlopen(URL).read()[2:-2] # remove JavaScript handler
+                    data = requests.get(URL).text[2:-2] # remove JavaScript handler
                     break
                 except Exception,e:
                     logging.error("Failed to open url, retries=%d (%s)" % (retries, str(e)))
