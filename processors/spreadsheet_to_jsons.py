@@ -29,7 +29,7 @@ class spreadsheet_to_jsons(object):
             retries = 3
             while retries > 0:
                 try:
-                    user_agent = {'User-agent': 'Mozilla/5.0'}
+                    user_agent = {'User-agent': 'Mozilla/5.0', 'Connection':'Close'}
                     data = requests.get(URL,headers=user_agent) # remove JavaScript handler
                     print data
                     data = data.text[2:-2]
