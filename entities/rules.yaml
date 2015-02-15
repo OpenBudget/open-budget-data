@@ -99,7 +99,6 @@ rules:
       params:
           key_fields:
               - id
-              - kind
           summarize: no
     - processor: dump_to_db
       input: used_entities.jsons
@@ -108,7 +107,6 @@ rules:
         key_fields:
           - id
           - name
-          - kind
     - processor: upload
       input: used_entities.sqlite
       output: used_entities.upload
