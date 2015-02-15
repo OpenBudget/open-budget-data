@@ -34,7 +34,7 @@ class spreadsheet_to_jsons(object):
                     break
                 except Exception,e:
                     logging.error("Failed to open url, retries=%d (%s)" % (retries, str(e)))
-                time.sleep(3)
+                time.sleep(10)
                 retries = retries - 1
                 if retries == 0:
                     return
