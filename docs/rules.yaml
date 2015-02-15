@@ -1,7 +1,7 @@
 rules:
     - processor: spreadsheet_to_jsons
       output: model-documentation.jsons
-      delay: 60
+      delay: 86400
       params:
           key: 1OJ9jRN0PJx_pN4iRsdWY2PG1mKfzT1tvuZPDcWwxnIc
           sheet: fields
