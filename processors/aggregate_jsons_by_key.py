@@ -40,7 +40,7 @@ class aggregate_jsons_by_key(object):
                                 current[k] = v
                         elif type(v) == list:
                             current.setdefault(k,[]).extend(v)
-                        else if v is not None:
+                        elif v is not None:
                             current[k] = v
                 else:
                     keys.append(key)
