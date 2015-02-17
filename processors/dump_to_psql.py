@@ -16,7 +16,7 @@ class dump_to_psql(object):
         c = conn.cursor()
         c.execute("""DROP TABLE if exists %s;""" % table)
         c.execute("""CREATE TABLE %s
-                     (%s);""" % (table,",".join("%s %s" % x for x in field_definitions)))
+                     (%s);""" % (table,",".join("%s %s" % (x[0],x[1]) for x in field_definitions)))
 
         fields = dict(field_definitions)
         if input.endswith('.gz'):
