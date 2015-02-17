@@ -65,6 +65,8 @@ class process_entities(object):
             if id_key is not None:
                 match_value = line.get(id_key)
                 found = entity_by_id.get(match_value)
+                if found is None:
+
             match_value = self.clean(line.get(name_key))
             if found is None and match_value is not None:
                 i = bisect.bisect_left(entity_names, match_value)
@@ -77,6 +79,7 @@ class process_entities(object):
                     rec = {}
                     for id_key in id_keys:
                         rec[id_key] = line[id_key]
+                    if found.get('kind') is None: continue
                     rec['entity_kind'] = found['kind']
                     rec['entity_id'] = found['id']
                     used_entities_file.write(json.dumps(found,sort_keys=True)+"\n")

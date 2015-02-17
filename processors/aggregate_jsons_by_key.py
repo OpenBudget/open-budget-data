@@ -44,7 +44,9 @@ class aggregate_jsons_by_key(object):
                             current[k] = v
                 else:
                     keys.append(key)
-                    values[key] = data
+                    filt_data = dict((k,v) for k,v in data.iteritems() if v is not None)
+                    if len(filt_data) > 0:
+                        values[key] = filt_data
 
         out = file(output,"w")
         for key in keys:
