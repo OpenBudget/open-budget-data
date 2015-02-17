@@ -29,9 +29,6 @@ class dump_to_psql(object):
             data = json.loads(line)
             values = [data.get(field) for field,typ in field_definition]
             to_insert.append(values)
-            else:
-                if current[0] != line:
-                    to_update.append( (time.time(), line, 1, key))
         c.executemany("""INSERT INTO %s VALUES(%s)""" % (table,",".join(["?"]*len(field_definition))), to_insert)
         os.utime(output, None)
 
