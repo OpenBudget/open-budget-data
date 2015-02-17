@@ -65,7 +65,6 @@ class process_entities(object):
             if id_key is not None:
                 match_value = line.get(id_key)
                 found = entity_by_id.get(match_value)
-                if found is None:
 
             match_value = self.clean(line.get(name_key))
             if found is None and match_value is not None:
