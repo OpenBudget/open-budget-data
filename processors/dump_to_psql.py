@@ -29,7 +29,7 @@ class dump_to_psql(object):
             data = json.loads(line)
             values = [data.get(field) for field,typ in field_definitions]
             to_insert.append(values)
-        c.executemany("""INSERT INTO %s VALUES(%s)""" % (table,",".join(["?"]*len(field_definitions))), to_insert)
+        c.executemany("""INSERT INTO %s VALUES(%s)""" % (table,",".join([r"%s"]*len(field_definitions))), to_insert)
         os.utime(output, None)
 
         logging.debug("TABLE %s got %s records" % (table,len(to_insert)))
