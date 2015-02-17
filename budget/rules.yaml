@@ -50,6 +50,66 @@ rules:
       output: budget.upload
       params:
           kind: bl
+    - processor: dump_to_psql
+      input: budgets.analyzed.aggregated-jsons
+      output: budget.psql
+      params:
+          table: budget
+          field_definitions:
+              -
+                  - code
+                  - text
+              -
+                  - year
+                  - integer
+              -
+                  - title
+                  - text
+              -
+                  - net_allocated
+                  - integer
+              -
+                  - net_revised
+                  - integer
+              -
+                  - net_used
+                  - integer
+              -
+                  - gross_allocated
+                  - integer
+              -
+                  - gross_revised
+                  - integer
+              -
+                  - personnel_allocated
+                  - numeric
+              -
+                  - personnel_revised
+                  - numeric
+              -
+                  - commitment_allocated
+                  - integer
+              -
+                  - commitment_revised
+                  - integer
+              -
+                  - amounts_allocated
+                  - integer
+              -
+                  - amounts_revised
+                  - integer
+              -
+                  - contractors_allocated
+                  - integer
+              -
+                  - contractors_revised
+                  - integer
+              -
+                  - dedicated_allocated
+                  - integer
+              -
+                  - dedicated_revised
+                  - integer
     # Comparison record
     - processor: prepare_compare_record
       input: budgets.analyzed.aggregated-jsons
