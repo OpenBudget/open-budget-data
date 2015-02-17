@@ -14,7 +14,7 @@ class dump_to_psql(object):
 
         conn = psycopg2.connect('dbname=obudget')
         c = conn.cursor()
-        c.execute("""DROP TABLE %s;""")
+        c.execute("""DROP TABLE %s;""" % table)
         c.execute("""CREATE TABLE %s
                      (%s);""" % (table,",".join("%s %s" % x for x in field_definitions)))
 
