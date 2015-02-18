@@ -14,6 +14,63 @@ rules:
       params:
           key_fields:
               - publication_id
+    - processor: dump_to_psql
+      input: tmichot.aggregated-jsons
+      output: tmichot.psql
+      params:
+          table: supports
+          field_definitions:
+              -
+                  - publication_id
+                  - integer
+              -
+                  - publisher
+                  - text
+              -
+                  - regulation
+                  - text
+              -
+                  - supplier
+                  - text
+              -
+                  - supplier_id
+                  - text
+              -
+                  - start_date
+                  - text
+              -
+                  - end_date
+                  - text
+              -
+                  - claim_date
+                  - text
+              -
+                  - last_update_date
+                  - text
+              -
+                  - contact
+                  - text
+              -
+                  - contact_email
+                  - text
+              -
+                  - description
+                  - text
+              -
+                  - volume
+                  - integer
+              -
+                  - reason
+                  - text
+              -
+                  - decision
+                  - text
+              -
+                  - url
+                  - text
+              -
+                  - subjects
+                  - text[]
     - processor: upload
       input: exemption.sqlite
       output: exemption.upload
