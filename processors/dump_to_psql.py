@@ -12,7 +12,7 @@ class dump_to_psql(object):
 
     def process(self,input,output,table,field_definitions):
 
-        good_field_definitions = [(x[0].replace('/','_'),x[1]) for x in field_definitions )
+        good_field_definitions = [(x[0].replace('/','_'),x[1]) for x in field_definitions]
 
         conn = psycopg2.connect('dbname=obudget')
         c = conn.cursor()
