@@ -12,14 +12,15 @@ class dump_to_psql(object):
 
     def process(self,input,output,table,field_definitions):
 
+        good_field_definitions = [(x[0].replace('/','_'),x[1]) for x in field_definitions )
+
         conn = psycopg2.connect('dbname=obudget')
         c = conn.cursor()
         c.execute("""DROP TABLE if exists %s;""" % table)
         c.execute("""CREATE TABLE %s
-                     (%s);""" % (table,",".join("%s %s" % (x[0],x[1]) for x in field_definitions)))
+                     (%s);""" % (table,",".join("%s %s" % (x[0],x[1]) for x in good_field_definitions)))
         c.execute("""grant select ON %s to redash_reader;""" % table)
 
-        fields = dict(field_definitions)
         if input.endswith('.gz'):
             infile = gzip.GzipFile(input)
         else:
