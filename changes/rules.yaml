@@ -34,6 +34,66 @@ rules:
               - leading_item
               - req_code
               - budget_code
+    - processor: dump_to_psql
+      input: changes-fixed-titles.jsons
+      output: changes.psql
+      params:
+          table: changes
+          field_definitions:
+            -
+                - year
+                - integer
+            -
+                - leading_item
+                - integer
+            -
+                - req_code
+                - integer
+            -
+                - req_title
+                - text
+            -
+                - change_code
+                - integer
+            -
+                - change_title
+                - text
+            -
+                - change_type_id
+                - integer
+            -
+                - change_type_name
+                - text
+            -
+                - committee_id
+                - integer
+            -
+                - budget_code
+                - text
+            -
+                - budget_title
+                - text
+            -
+                - net_expense_diff
+                - integer
+            -
+                - gross_expense_diff
+                - integer
+            -
+                - allocated_income_diff
+                - integer
+            -
+                - commitment_limit_diff
+                - integer
+            -
+                - personnel_max_diff
+                - numeric
+            -
+                - date/approval
+                - text
+            -
+                - date/pending
+                - text
     - processor: upload
       input: changes.sqlite
       output: changes.upload
