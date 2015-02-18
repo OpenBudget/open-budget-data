@@ -110,6 +110,16 @@ rules:
               -
                   - dedicated_revised
                   - integer
+              -
+                  - equiv_code
+                  - text[]
+              -
+                  - group_full
+                  - text[]
+              -
+                  - group_top
+                  - text[]
+                  
     # Comparison record
     - processor: prepare_compare_record
       input: budgets.analyzed.aggregated-jsons

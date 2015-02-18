@@ -94,6 +94,9 @@ rules:
             -
                 - date/pending
                 - text
+            -
+                - equiv_code
+                - text[]
     - processor: upload
       input: changes.sqlite
       output: changes.upload
