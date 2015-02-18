@@ -73,6 +73,39 @@ rules:
               - code
               - recipient
               - kind
+    - processor: dump_to_psql
+      input: tmichot.aggregated-jsons
+      output: tmichot.psql
+      params:
+          table: supports
+          field_definitions:
+              -
+                  - year
+                  - integer
+              -
+                  - subject
+                  - text
+              -
+                  - code
+                  - text
+              -
+                  - recipient
+                  - text
+              -
+                  - kind
+                  - text
+              -
+                  - title
+                  - text
+              -
+                  - num_used
+                  - integer
+              -
+                  - amount_allocated
+                  - integer
+              -
+                  - amount_supported
+                  - integer
     - processor: upload
       input: tmichot.sqlite
       output: tmichot.upload
