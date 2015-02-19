@@ -12,6 +12,6 @@ class ids_from_exemptions(object):
             data = json.loads(line)
             id = str(data.get('supplier_id','')).strip()
             name = data.get('supplier','').strip()
-            if id != '' and name != '':
+            if id != '' and name != '' and len(id)>7:
                 ret = {'id':id,'name':name,'kind':''}
                 out.write(json.dumps(ret,sort_keys=True)+'\n')
