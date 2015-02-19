@@ -102,10 +102,10 @@ rules:
                   - integer
               -
                   - amount_allocated
-                  - integer
+                  - bigint
               -
                   - amount_supported
-                  - integer
+                  - bigint
     - processor: upload
       input: tmichot.sqlite
       output: tmichot.upload

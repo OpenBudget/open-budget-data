@@ -15,14 +15,14 @@ rules:
           key_fields:
               - publication_id
     - processor: dump_to_psql
-      input: tmichot.aggregated-jsons
-      output: tmichot.psql
+      input: exemption.aggregated-jsons
+      output: exemption.psql
       params:
-          table: supports
+          table: exemption
           field_definitions:
               -
                   - publication_id
-                  - integer
+                  - bigint
               -
                   - publisher
                   - text
@@ -58,7 +58,7 @@ rules:
                   - text
               -
                   - volume
-                  - integer
+                  - bigint
               -
                   - reason
                   - text

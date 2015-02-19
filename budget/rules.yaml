@@ -67,19 +67,19 @@ rules:
                   - text
               -
                   - net_allocated
-                  - integer
+                  - bigint
               -
                   - net_revised
-                  - integer
+                  - bigint
               -
                   - net_used
-                  - integer
+                  - bigint
               -
                   - gross_allocated
-                  - integer
+                  - bigint
               -
                   - gross_revised
-                  - integer
+                  - bigint
               -
                   - personnel_allocated
                   - numeric
@@ -88,10 +88,10 @@ rules:
                   - numeric
               -
                   - commitment_allocated
-                  - integer
+                  - bigint
               -
                   - commitment_revised
-                  - integer
+                  - bigint
               -
                   - amounts_allocated
                   - integer
@@ -106,10 +106,10 @@ rules:
                   - integer
               -
                   - dedicated_allocated
-                  - integer
+                  - bigint
               -
                   - dedicated_revised
-                  - integer
+                  - bigint
               -
                   - equiv_code
                   - text[]
@@ -119,7 +119,7 @@ rules:
               -
                   - group_top
                   - text[]
-                  
+
     # Comparison record
     - processor: prepare_compare_record
       input: budgets.analyzed.aggregated-jsons

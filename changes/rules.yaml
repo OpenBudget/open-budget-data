@@ -75,16 +75,16 @@ rules:
                 - text
             -
                 - net_expense_diff
-                - integer
+                - bigint
             -
                 - gross_expense_diff
-                - integer
+                - bigint
             -
                 - allocated_income_diff
-                - integer
+                - bigint
             -
                 - commitment_limit_diff
-                - integer
+                - bigint
             -
                 - personnel_max_diff
                 - numeric
