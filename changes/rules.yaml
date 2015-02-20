@@ -89,11 +89,11 @@ rules:
                 - personnel_max_diff
                 - numeric
             -
-                - date/approval
+                - date
                 - text
             -
-                - date/pending
-                - text
+                - pending
+                - boolean
             -
                 - equiv_code
                 - text[]

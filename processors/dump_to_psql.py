@@ -7,6 +7,14 @@ import sys
 import hashlib
 import gzip
 import psycopg2
+import datetime
+
+def convert(val,typ):
+    if typ=="date" and val is not None:
+        val = [int(x) for x in val.split('/')]
+        val.reverse()
+        val = datetime.date(*val)
+    return val
 
 class dump_to_psql(object):
 
@@ -29,7 +37,7 @@ class dump_to_psql(object):
         for line in infile:
             line = line.strip()
             data = json.loads(line)
-            values = [data.get(field) for field,typ in field_definitions]
+            values = [convert(data.get(field),typ) for field,typ in field_definitions]
             to_insert.append(values)
         c.executemany("""INSERT INTO %s VALUES(%s)""" % (table,",".join([r"%s"]*len(field_definitions))), to_insert)
 

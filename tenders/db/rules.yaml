@@ -37,16 +37,16 @@ rules:
                   - text
               -
                   - start_date
-                  - text
+                  - date
               -
                   - end_date
-                  - text
+                  - date
               -
                   - claim_date
-                  - text
+                  - date
               -
                   - last_update_date
-                  - text
+                  - date
               -
                   - contact
                   - text
