@@ -12,7 +12,11 @@ class scrape_exemptions(object):
             env['PROXY'] = PROXY
         output_dir = 'intermediates'
         cwd = 'tenders'
-        shutil.rmtree(os.path.join(cwd,output_dir))        
+        try:
+            shutil.rmtree(os.path.join(cwd,output_dir))
+        except:
+            logging.debug("Didn't delete old dir, whatever")
+            pass
         scraper = subprocess.Popen(['/usr/bin/env',
                                   'python',
                                   'exemption_updated_records_scraper.py',
