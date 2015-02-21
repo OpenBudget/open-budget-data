@@ -11,9 +11,12 @@ import datetime
 
 def convert(val,typ):
     if typ=="date" and val is not None:
-        val = [int(x) for x in val.split('/')]
-        val.reverse()
-        val = datetime.date(*val)
+        if val.strip() != ''
+            val = [int(x) for x in val.split('/')]
+            val.reverse()
+            val = datetime.date(*val)
+        else:
+            val = None
     return val
 
 class dump_to_psql(object):
