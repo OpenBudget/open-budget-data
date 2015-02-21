@@ -14,6 +14,7 @@ class scrape_exemptions(object):
         cwd = 'tenders'
         try:
             shutil.rmtree(os.path.join(cwd,output_dir))
+            os.mkdir(os.path.join(cwd,output_dir))
         except:
             logging.debug("Didn't delete old dir, whatever")
             pass

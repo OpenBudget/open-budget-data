@@ -71,6 +71,12 @@ rules:
               -
                   - subjects
                   - text[]
+              -
+                  - entity_id
+                  - text
+              -
+                  - entity_kind
+                  - text
     - processor: upload
       input: exemption.sqlite
       output: exemption.upload
