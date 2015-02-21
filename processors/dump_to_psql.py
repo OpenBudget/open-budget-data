@@ -46,6 +46,13 @@ class dump_to_psql(object):
 
         logging.debug("TABLE %s got %s records" % (table,len(to_insert)))
 
+            conn.commit()
+
+        for f in good_field_definitions:
+            fieldname = f[0]
+            c.execute("""create index {0}_{1}_idx_asc on {0}({1} asc);""".format(table,fieldname))
+            c.execute("""create index {0}_{1}_idx_desc on {0}({1} desc);""".format(table,fieldname))
+
         conn.commit()
         conn.close()
 
