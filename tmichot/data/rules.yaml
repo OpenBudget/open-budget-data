@@ -106,6 +106,12 @@ rules:
               -
                   - amount_supported
                   - bigint
+              -
+                  - entity_id
+                  - text
+              -
+                  - entity_kind
+                  - text
     - processor: upload
       input: tmichot.sqlite
       output: tmichot.upload
