@@ -46,7 +46,7 @@ class dump_to_psql(object):
 
         logging.debug("TABLE %s got %s records" % (table,len(to_insert)))
 
-            conn.commit()
+        conn.commit()
 
         for f in good_field_definitions:
             fieldname = f[0]
