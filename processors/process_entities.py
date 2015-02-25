@@ -24,6 +24,10 @@ class process_entities(object):
                     u'}ער{',
                     u'(חלצ)',
                   ]
+    CLEAN_TITLES = [ u'עירית',
+                    u'מ.א.',
+                    u"מ.ד.",
+                  ]
     def __init__(self):
         self.CLEAN_PREFIXES = set()
         for w in self.CLEAN_WORDS:
@@ -40,6 +44,10 @@ class process_entities(object):
                     done = False
                     break
         word = word.replace('"','').replace("'",'')
+        for w in self.CLEAN_TITLES:
+            if word.startswith(w+" "):
+                word = word[len(w)+1:]
+
         return word
 
     def process(self,inputs,outputs,name_key=None, processed_file=None, non_processed_file=None, id_keys=None, id_key=None ):
