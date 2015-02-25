@@ -26,7 +26,7 @@ class process_entities(object):
                   ]
     CLEAN_TITLES = [ u'עירית',
                     u'מ.א.',
-                    u"מ.ד.",
+                    u"מ.מ.",
                   ]
     def __init__(self):
         self.CLEAN_PREFIXES = set()
