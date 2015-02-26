@@ -1,7 +1,7 @@
 rules:
     - processor: aggregate_jsons_by_key
       input:
-          - exemption.json
+          - exemption.success.json
           - exemption.processed.jsons
       output: exemption.aggregated-jsons
       params:
