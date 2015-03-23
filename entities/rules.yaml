@@ -109,6 +109,21 @@ rules:
           - id
           - name
           - kind
+    - processor: dump_to_psql
+      input: used_entities.jsons
+      output: entities.psql
+      params:
+          table: entities
+          field_definitions:
+              -
+                  - id
+                  - text
+              -
+                  - kind
+                  - text
+              -
+                  - name
+                  - text
     - processor: upload
       input: used_entities.sqlite
       output: used_entities.upload
