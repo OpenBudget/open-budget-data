@@ -21,11 +21,11 @@ class fix_support_budget_titles(object):
         for line in file(budget_jsons):
             line = json.loads(line.strip())
             budgets["%(year)s/%(code)s" % line] = line['title']
-            budgets2.setdefault("%(year)s/%(title)s" % line,[]).add(line['code'])
+            budgets2.setdefault("%(year)s/%(title)s" % line,[]).append(line['code'])
 
         for line in file(supports_jsons):
             line = json.loads(line.strip())
-            supports.setdefault("%(year)s/%(title)s" % line,[]).add(line['code'])
+            supports.setdefault("%(year)s/%(title)s" % line,[]).append(line['code'])
 
         outfile = file(output,"w")
         changed_num = 0
