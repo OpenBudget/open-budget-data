@@ -27,35 +27,37 @@ class fix_support_budget_titles(object):
             line = json.loads(line.strip())
             supports.setdefault("%(year)s/%(title)s" % line,[]).append(line['code'])
 
+        errors = {}
+
         outfile = file(output,"w")
         changed_num = 0
         for line in file(supports_jsons):
-            line = json.loads(line.strip())
-            year = line['year']
-            data = [line]
-            for datum in data:
-                key_code = "%s/%s" % (year, datum['code'])
-                title = budgets.get(key_code)
-                if title != None:
-                    if title != line.get('title',''):
-                        datum['title'] = title
-                        changed_num += 1
+            datum = json.loads(line.strip())
+            year = datum['year']
+            key_code = "%s/%s" % (year, datum['code'])
+            title = budgets.get(key_code)
+            if title != None:
+                if title != line.get('title',''):
+                    datum['title'] = title
+                    changed_num += 1
+            else:
+                key_title = "%s/%s" % (year, datum['title'])
+                possible_codes = budgets2.get(key_title,[])
+                if len(possible_codes) == 1:
+                    datum['code'] = possible_codes[0]
+                    changed_num += 1
                 else:
-                    key_title = "%s/%s" % (year, datum['title'])
-                    possible_codes = budgets2.get(key_title,[])
-                    if len(possible_codes) == 1:
-                        datum['code'] = possible_codes[0]
+                    all_codes_for_title = supports.get(key_title,[])
+                    all_valid_codes = [ x for x in all_codes_for_title if "%s/%s" % (year,x) in budgets ]
+                    if len(all_valid_codes) == 1:
+                        code = all_valid_codes[0]
+                        datum['code'] = code
+                        datum['title'] = budgets[ "%s/%s" % (year,code) ]
                         changed_num += 1
                     else:
-                        all_codes_for_title = supports.get(key_title,[])
-                        all_valid_codes = [ x for x in all_codes_for_title if "%s/%s" % (year,x) in budgets ]
-                        if len(all_valid_codes) == 1:
-                            code = all_valid_codes[0]
-                            datum['code'] = code
-                            datum['title'] = budgets[ "%s/%s" % (year,code) ]
-                            changed_num += 1
-                        else:
-                            logging.error("Failed to find title for change with key %s" % key_code)
+                        errors[key_code] = (key_code, possible_codes, all_codes_for_title, all_valid_codes)
+            for error in errors.values():
+                logging.error("Failed to find title for support with key %s: pv=%r, ac=%r, vc=%r" % error)
 
             outfile.write(json.dumps(line,sort_keys=True)+"\n")
         logging.info("updated %d entries" % changed_num)
