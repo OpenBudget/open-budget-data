@@ -37,7 +37,7 @@ class fix_support_budget_titles(object):
             key_code = "%s/%s" % (year, datum['code'])
             title = budgets.get(key_code)
             if title != None:
-                if title != line.get('title',''):
+                if title != datum.get('title',''):
                     datum['title'] = title
                     changed_num += 1
             else:
@@ -56,8 +56,9 @@ class fix_support_budget_titles(object):
                         changed_num += 1
                     else:
                         errors[key_code] = (key_code, possible_codes, all_codes_for_title, all_valid_codes)
-            for error in errors.values():
-                logging.error("Failed to find title for support with key %s: pv=%r, ac=%r, vc=%r" % error)
+            outfile.write(json.dumps(datum,sort_keys=True)+"\n")
 
-            outfile.write(json.dumps(line,sort_keys=True)+"\n")
+        for error in errors.values():
+            logging.error("Failed to find title for support with key %s: pv=%r, ac=%r, vc=%r" % error)
+
         logging.info("updated %d entries" % changed_num)
