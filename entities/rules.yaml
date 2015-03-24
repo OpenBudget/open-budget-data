@@ -78,7 +78,6 @@ rules:
               - code
               - recipient
               - kind
-              - title
     - processor: process_entities
       input:
           - entities.jsons
