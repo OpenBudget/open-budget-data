@@ -27,7 +27,7 @@ class fix_support_budget_titles(object):
         for line in file(supports_jsons):
             line = json.loads(line.strip())
             if line.get('title','') != '':
-                supports.setdefault("%(year)s/%(title)s" % line,[]).append(line['code'])
+                supports.setdefault("%(year)s/%(title)s" % line,set()).add(line['code'])
 
         errors = {}
 
@@ -49,7 +49,7 @@ class fix_support_budget_titles(object):
                     datum['code'] = possible_codes[0]
                     changed_num += 1
                 else:
-                    all_codes_for_title = supports.get(key_title,[])
+                    all_codes_for_title = list(supports.get(key_title,[]))
                     all_valid_codes = [ x for x in all_codes_for_title if "%s/%s" % (year,x) in budgets ]
                     if len(all_valid_codes) == 1:
                         code = all_valid_codes[0]
