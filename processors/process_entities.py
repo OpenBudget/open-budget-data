@@ -86,8 +86,8 @@ class process_entities(object):
                 if clean_found==match_value or (len(match_value) > 30 and clean_found.startswith(match_value)):
                     matches += 1#print "||%s|||%s" % (match_value, clean_found)
                     rec = {}
-                    for id_key in id_keys:
-                        rec[id_key] = line[id_key]
+                    for _key in id_keys:
+                        rec[_key] = line[_key]
                     if found.get('kind') is None: continue
                     rec['entity_kind'] = found['kind']
                     rec['entity_id'] = found['id']
