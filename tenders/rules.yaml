@@ -1,0 +1,9 @@
+rules:
+    - processor: scrape_exemptions
+      delay: 86400
+      output: db/exemption.json
+      use_proxy: no
+    - processor: concat
+      input:
+          - db/exemption.json
+      output: db/exemption.success.json

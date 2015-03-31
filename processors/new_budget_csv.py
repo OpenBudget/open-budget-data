@@ -3,12 +3,9 @@
 import csv
 import json
 import logging
+import sys
 
-if __name__ == "__main__":
-    inputs = sys.argv[1:-1]
-    output = sys.argv[-1]
-    processor = new_budget_csv().process(inputs,output)
-
+ROOT_COL = None
 def indexof(*args):
     row = args[0]
     names = args[1:]
@@ -25,11 +22,11 @@ def to_code(row,col):
     t = row[col]
     if '-' in t:
         t = t.split('-')
-        assert(len(t)==(col+1)/2)
+        assert(len(t)==((col-ROOT_COL+2)/2))
         t= [ "%02d" % int(x) for x in t ]
         t = "00" + ''.join(t)
     else:
-        add = "0" * (col+3-len(t))
+        add = "0" * (col-ROOT_COL+4-len(t))
         t=add+t
     return t
 
@@ -49,6 +46,13 @@ def get_from(row,index,to_add=0):
 def add_to_sums(key,sums,amount,field):
     if amount is not None: sums[key][field] = sums[key].setdefault(field,0)+amount
 
+def add_to_list(key,sums,item,field):
+    if item is not None:
+        if item not in sums[key][field]:
+            sums[key][field].append(item)
+    if len(sums[key][field])>1 and len(key)>=11:
+        logging.error("TOO MANY GROUPS FOR %r" % sums[key])
+
 class new_budget_csv(object):
 
     def process(self,input,output,new_years=[]):
@@ -63,6 +67,8 @@ class new_budget_csv(object):
                     continue
                 YEAR_COL = indexof(row,u'שנה')
                 SAIF_COL = indexof(row,u'קוד סעיף')
+                global ROOT_COL
+                ROOT_COL = SAIF_COL
                 SAIF_NAME_COL = indexof(row,u'שם סעיף')
                 THUM_COL = indexof(row,u'קוד תחום')
                 THUM_NAME_COL = indexof(row,u'שם תחום')
@@ -91,9 +97,16 @@ class new_budget_csv(object):
 
                 USED_COL = indexof(row,u'ביצוע מזומן')
 
+                ACTIVE_COL = indexof(row,u'תקנה פעילה')
+
+                GROUP1_COL = indexof(row,u'שם רמה 1')
+                GROUP2_COL = indexof(row,u'שם רמה 2')
+
 
                 continue
             for col,title_col in [(SAIF_COL,SAIF_NAME_COL),(THUM_COL,THUM_NAME_COL),(PROG_COL,PROG_NAME_COL),(TAKA_COL,TAKA_NAME_COL)]:
+                if col is None or title_col is None:
+                    continue
                 code = to_code(row,col)
                 # if len(code) != col+3:
                 #     logging.error("%s, %s" % (code, row))
@@ -118,8 +131,27 @@ class new_budget_csv(object):
                 contractors_revised = get_from(row,CONTRACTORS_REVISED_COL)
                 amounts_revised = get_from(row,AMOUNTS_REVISED_COL)
 
+                if ACTIVE_COL is not None:
+                    active = row[ACTIVE_COL].decode('utf8') != u'פש"ח'
+                else:
+                    active = True
+
+                all_values = [net_allocated,gross_allocated,gross_allocated,gross_revised,net_used,dedicated_allocated,commitment_allocated,personnel_allocated,contractors_allocated,amounts_allocated,dedicated_revised,commitment_revised,personnel_revised,contractors_revised,amounts_revised]
+                all_zeros = sum(abs(x) for x in all_values if x is not None) == 0
+                if all_zeros and not active and year not in new_years:
+                    if code.startswith('003328'):
+                        print "SKIPPED %s/%s, not active" % (year,code)
+                    continue
+
+                group1 = group2 = None
+                if GROUP1_COL is not None and GROUP2_COL is not None:
+                    group1 = row[GROUP1_COL].decode('utf8')
+                    group2 = row[GROUP2_COL].decode('utf8')
+                group_top = group1
+                group_full = group2
+
                 key = "%s/%s" % (year,code)
-                sums.setdefault(key,{'code':code,'year':year,'title':title})
+                sums.setdefault(key,{'code':code,'year':year,'title':title,'group_top':[], 'group_full':[]})
                 add_to_sums(key,sums,net_allocated,'net_allocated')
                 add_to_sums(key,sums,net_revised,'net_revised')
                 add_to_sums(key,sums,net_used,'net_used')
@@ -138,9 +170,17 @@ class new_budget_csv(object):
                 add_to_sums(key,sums,contractors_revised,'contractors_revised')
                 add_to_sums(key,sums,amounts_revised,'amounts_revised')
 
+                add_to_list(key,sums,group_top,'group_top')
+                add_to_list(key,sums,group_full,'group_full')
+
         keys = sums.keys()
         keys.sort()
 
         out = file(output,"w")
         for key in keys:
             out.write("%s\n" % json.dumps(sums[key]))
+
+if __name__ == "__main__":
+    input = sys.argv[1]
+    output = sys.argv[-1]
+    processor = new_budget_csv().process(input,output,[2014,2015])

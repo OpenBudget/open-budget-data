@@ -41,7 +41,7 @@ class combine_budget_jsons(object):
                 except Exception,e:
                     logging.error("combine_budget_jsons: error %s in line %r" % (e,line))
 
-        for year in range(1992,2015):
+        for year in range(1992,2016):
             totalkey = '%s|%8s' % (year,"00")
             if '%s|%10s' % (year,"00") in keys:
                 continue
@@ -71,5 +71,7 @@ class combine_budget_jsons(object):
         out = file(output,'w')
         for k in keys:
             if alldata[k].get('title') is None:
+                continue
+            if alldata[k].get('net_allocated') is None:
                 continue
             out.write( json.dumps(alldata[k],sort_keys=True)+'\n' )

@@ -1,4 +1,16 @@
 rules:
+    - processor: scrape_supports
+      delay: 86400
+      output: tmichot2014.csv
+      use_proxy: yes
+      params:
+          year: 2014
+    - processor: scrape_supports
+      delay: 86400
+      output: tmichot2015.csv
+      use_proxy: yes
+      params:
+          year: 2015
     - processor: csv_to_jsons
       input: tmichot20*.csv
       output: /.csv/.jsons/
@@ -38,37 +50,66 @@ rules:
           - tmichot-unfixed-titles.jsons
           - ../../budget/budgets.jsons
       output: tmichot.jsons
+    - processor: aggregate_jsons_by_key
+      input:
+          - tmichot.jsons
+          - tmichot.processed.jsons
+      output: tmichot.aggregated-jsons
+      params:
+          key_fields:
+              - year
+              - code
+              - recipient
+              - kind
+          summarize: no
     - processor: dump_to_db
-      input: tmichot.jsons
+      input: tmichot.aggregated-jsons
       output: tmichot.sqlite
       params:
           key_fields:
               - year
-              - subject
               - code
               - recipient
               - kind
-    - processor: join
-      input: ../../amutot/amutot.sqlite
-      output: amutot.jsons
+    - processor: dump_to_psql
+      input: tmichot.aggregated-jsons
+      output: tmichot.psql
       params:
-          dst_file: tmichot/data/tmichot.sqlite
-          src_field: recipient
-          join_field: name_heb
-          dst_field: amuta_id
-          dst_field_name: ngo_id
-          max_len: 35
-          max_cost: 2
-    - processor: join
-      input: ../../companies/company-records.sqlite
-      output: companies.jsons
-      params:
-          dst_file: tmichot/data/tmichot.sqlite
-          src_field: recipient
-          join_field: name_heb
-          dst_field: registration_id
-          dst_field_name: company_id
-          max_len: 35
+          table: supports
+          field_definitions:
+              -
+                  - year
+                  - integer
+              -
+                  - subject
+                  - text
+              -
+                  - code
+                  - text
+              -
+                  - recipient
+                  - text
+              -
+                  - kind
+                  - text
+              -
+                  - title
+                  - text
+              -
+                  - num_used
+                  - integer
+              -
+                  - amount_allocated
+                  - bigint
+              -
+                  - amount_supported
+                  - bigint
+              -
+                  - entity_id
+                  - text
+              -
+                  - entity_kind
+                  - text
     - processor: upload
       input: tmichot.sqlite
       output: tmichot.upload

@@ -84,10 +84,28 @@ class entity_record(base_record.base_record):
 
             for publication_id in self['exemptions']:
                 r = exemption_record.get_record( publication_id=publication_id )
-                ret.setdefault( r['publisher'], 0 )
-                ret[r['publisher']] += 1
+                ret.setdefault( r['publisher'], [] )
+                ret[r['publisher']].append( r )
 
             self['exemption_offices'] = ret
+
+        elif field_name == 'exemption_offices_2014':
+            from exemption_record import exemption_record
+
+            ret = {}
+
+            started_2014 = numerate_date( '1/1/2014' )
+
+            for publication_id in self['exemptions']:
+                r = exemption_record.get_record( publication_id=publication_id )
+
+                if numerate_date(r['start_date']) < started_2014:
+                    continue
+
+                ret.setdefault( r['publisher'], [] )
+                ret[r['publisher']].append( r )
+
+            self['exemption_offices_2014'] = ret
 
 
         else:
@@ -107,7 +125,20 @@ def csv_line( l ):
     return [csv_field(x) for x in l]
 
 def numerate_date( d ):
-    day, month, year = [int(x) for x in d.split('/')]
+    if d is None:
+        return None
+    if d == '-':
+        return None
+    if type(d) in [int, long, float]:
+        return d
+    if len(d.strip()) == 0:
+        return None
+
+    try:
+        day, month, year = [int(x) for x in d.split('/')]
+    except:
+        print repr(d)
+        raise
     return time.mktime( time.struct_time([year, month, day, 0, 0, 0, 0, 0, 0]) )
 
 def date_str( n ):

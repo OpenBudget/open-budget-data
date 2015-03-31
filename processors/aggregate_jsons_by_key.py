@@ -8,7 +8,7 @@ if __name__ == "__main__":
 
 class aggregate_jsons_by_key(object):
 
-    def process(self,inputs,output,key_fields):
+    def process(self,inputs,output,key_fields,summarize=True):
 
         values = {}
         keys = []
@@ -20,23 +20,33 @@ class aggregate_jsons_by_key(object):
             for line in file(input):
                 line = line.strip()
                 data = json.loads(line)
-                key = "/".join("%s:%s" % (field,data[field]) for field in key_fields)
+                try:
+                    key = "/".join("%s:%s" % (field,data[field]) for field in key_fields)
+                except KeyError:
+                    continue
 
                 if values.has_key(key):
                     current = values[key]
                     for k,v in data.iteritems():
                         if k not in key_fields and (type(v) == int or type(v) == long):
                             current.setdefault(k,0)
-                            current[k]+=v
+                            if summarize:
+                                current[k]+=v
+                            else:
+                                current[k]=v
                         elif type(v) == str or type(v) == unicode:
                             current.setdefault(k,'')
                             if len(current[k]) < len(v):
                                 current[k] = v
-                        else:
+                        elif type(v) == list:
+                            current.setdefault(k,[]).extend(v)
+                        elif v is not None:
                             current[k] = v
                 else:
                     keys.append(key)
-                    values[key] = data
+                    filt_data = dict((k,v) for k,v in data.iteritems() if v is not None)
+                    if len(filt_data) > 0:
+                        values[key] = filt_data
 
         out = file(output,"w")
         for key in keys:

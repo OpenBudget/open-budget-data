@@ -145,7 +145,14 @@ def numerate_date( d ):
         return None
     if type(d) in [int, long, float]:
         return d
-    day, month, year = [int(x) for x in d.split('/')]
+    if len(d.strip()) == 0:
+        return None
+
+    try:
+        day, month, year = [int(x) for x in d.split('/')]
+    except:
+        print repr(d)
+        raise
     return time.mktime( time.struct_time([year, month, day, 0, 0, 0, 0, 0, 0]) )
 
 def date_str( n ):

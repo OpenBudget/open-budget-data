@@ -4,31 +4,10 @@ import glob
 import yaml
 import logging
 import time
+import subprocess
 
-processor_order = ['spreadsheet_to_jsons',
-                    'download_pending_changes',
-                    'new_budget_csv',
-                   'rar_to_zip',
-                   'combine_budget_jsons',
-                   'prepare_budget_changes',
-                   'csv_to_jsons',
-                   'aggregate_jsons_by_key',
-                   'extract_txt_from_docs',
-                   'extract_change_groups',
-                   'concat',
-                   'consolidate_change_dates',
-                   'fix_changeline_budget_titles',
-                   'fix_support_budget_titles',
-                   'make_search_prefixes',
-                   'dump_to_db',
-                   'join',
-                   'upload',
-		           'rss',
-                   'extract_for_partition_layout']
-processor_order = dict( (e,i) for i,e in enumerate(processor_order) )
-
-def collect_processors():
-    current_path = "." # os.path.abspath(".")
+def collect_processors(start_here):
+    current_path = start_here
     for dirpath, dirnames, filenames in os.walk(current_path):
         processors = [ f for f in filenames if f.endswith("yaml") ]
         for processor in processors:
@@ -95,6 +74,13 @@ def run_processor(processor,apikey):
         logging.info("%s(%s) %s << %s" % (processor_classname,
                                          ", ".join("%s=%s" % i for i in params.iteritems()), output,
                                          " + ".join(inputs) if type(inputs)==list else inputs))
+        use_proxy = processor.get('use_proxy',False)
+        if use_proxy:
+            logging.info('Setting up proxy...')
+            local_address = '127.0.0.1:55555'
+            proxy = subprocess.Popen(['ssh','adamk@budget.msh.gov.il','-p','27628','-ND',local_address])
+            time.sleep(10)
+            params['PROXY'] = local_address
         try:
             processor_obj.process(inputs,output,**params)
         except Exception,e:
@@ -103,6 +89,11 @@ def run_processor(processor,apikey):
             if os.path.exists(output):
                 os.unlink(output)
             raise
+        finally:
+            if use_proxy:
+                logging.info('Tearing down proxy...')
+                proxy.kill()
+                proxy.wait()
 
 def setup_logging():
     root = logging.getLogger()
@@ -123,17 +114,34 @@ if __name__ == "__main__":
     APIKEY = None
     if len(sys.argv) > 1:
         APIKEY = sys.argv[1]
+    start_here = '.'
+    if len(sys.argv) > 2:
+        start_here = sys.argv[2]
     has_logging = False
     priorities = list
-    processors = list( collect_processors() )
+    processors = list( collect_processors(start_here) )
     while True:
         relevant = [ p for p in processors if is_relevant_processor(p) ]
-        relevant.sort( key=lambda p: processor_order[p['processor']] )
         if len(relevant) == 0:
             break
         else:
             if not has_logging:
                 setup_logging()
                 has_logging = True
+        all_outputs = set()
+        for p in relevant:
+            all_outputs.update(set(x[1] for x in p['_tuples']))
         logging.debug("relevant processors: %r" % [ r['processor'] for r in relevant ])
-        run_processor(relevant[0],APIKEY)
+        #logging.debug("all_outputs %r" % sorted(list(all_outputs)))
+        for p in relevant:
+            all_inputs = set()
+            for t in p['_tuples']:
+                if type(t[0])==list:
+                    all_inputs.update(set(t[0]))
+                else:
+                    all_inputs.add(t[0])
+            #logging.debug("inputs for processor %r" % all_inputs)
+            if len(all_inputs.intersection(all_outputs))==0:
+                logging.debug("RUNNING processor %s" % p['processor'])
+                run_processor(p,APIKEY)
+                break

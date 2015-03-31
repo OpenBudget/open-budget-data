@@ -9,12 +9,14 @@ rules:
               - leading_item
               - req_code
               - budget_code
+          summarize: no
     - processor: prepare_budget_changes
       input: changes.jsons
       output: budget_changes.jsons
       params:
           new_years:
               - 2014
+              - 2015
     - processor: consolidate_change_dates
       input: changes.jsons
       output: changes-with-dates.jsons
@@ -32,6 +34,69 @@ rules:
               - leading_item
               - req_code
               - budget_code
+    - processor: dump_to_psql
+      input: changes-fixed-titles.jsons
+      output: changes.psql
+      params:
+          table: changes
+          field_definitions:
+            -
+                - year
+                - integer
+            -
+                - leading_item
+                - integer
+            -
+                - req_code
+                - integer
+            -
+                - req_title
+                - text
+            -
+                - change_code
+                - integer
+            -
+                - change_title
+                - text
+            -
+                - change_type_id
+                - integer
+            -
+                - change_type_name
+                - text
+            -
+                - committee_id
+                - integer
+            -
+                - budget_code
+                - text
+            -
+                - budget_title
+                - text
+            -
+                - net_expense_diff
+                - bigint
+            -
+                - gross_expense_diff
+                - bigint
+            -
+                - allocated_income_diff
+                - bigint
+            -
+                - commitment_limit_diff
+                - bigint
+            -
+                - personnel_max_diff
+                - numeric
+            -
+                - date
+                - text
+            -
+                - pending
+                - boolean
+            -
+                - equiv_code
+                - text[]
     - processor: upload
       input: changes.sqlite
       output: changes.upload
@@ -46,7 +111,7 @@ rules:
     - processor: fix_changeline_budget_titles
       input:
           - changegroups.jsons
-          - ../budget/budgets.jsons
+          - ../budget/budgets.aggregated-jsons
       output: changegroups-fixed-titles.jsons
     - processor: dump_to_db
       input: changegroups-fixed-titles.jsons

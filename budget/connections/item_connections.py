@@ -1,7 +1,7 @@
 import json
 
 KEY = "%s/%s-"
-YEAR = 2014
+YEAR = 2015
 
 def process(input_file, output_file):
     all_codes = []
@@ -16,9 +16,12 @@ def process(input_file, output_file):
             code = str(line['code'])
             year = line['year']
             value = line.get('net_revised',0) + line.get('gross_revised',0)
-            if value == 0 and year != YEAR:
+            test_value = sum(line.get(x,0)**2 for x in ['net_allocated','gross_allocated','commitment_allocated','net_used'])
+            if test_value == 0 and year != YEAR:
                 continue
-            title = line['title']
+            title = line.get('title')
+            if title is None:
+                continue
             if len(code) > 2:
                 parent_code = code[:-2]
                 h_eq.setdefault(KEY % (year,parent_code),[]).append(KEY % (year,code))
@@ -35,7 +38,7 @@ def process(input_file, output_file):
             y2=years[i+1]
             y_eq.setdefault(y1,{}).setdefault(KEY % (y2,code),[]).append(KEY % (y1,code))
 
-    for preset_fn in ["2013-2012-conversion.json","curated.json"]:
+    for preset_fn in ["2013-2012-conversion.json","curated.json","curated2.json", "curated3.json", "curated4.json"]:
         with file(preset_fn) as preset_file:
             presets = json.load(preset_file)
             for preset in presets:
@@ -159,4 +162,4 @@ def process(input_file, output_file):
         output.write('%s,"C%s","%s",%s\n' % (year,str(code),title.replace('"','""'),value))
 
 if __name__ == "__main__":
-    process("../budgets-noequiv.jsons","budget_equivalents.jsons")
+    process("../budgets-noequiv.aggregated-jsons","budget_equivalents.jsons")

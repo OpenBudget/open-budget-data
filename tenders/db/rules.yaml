@@ -1,0 +1,84 @@
+rules:
+    - processor: aggregate_jsons_by_key
+      input:
+          - exemption.success.json
+          - exemption.processed.jsons
+      output: exemption.aggregated-jsons
+      params:
+          key_fields:
+              - publication_id
+          summarize: no
+    - processor: dump_to_db
+      input: exemption.aggregated-jsons
+      output: exemption.sqlite
+      params:
+          key_fields:
+              - publication_id
+    - processor: dump_to_psql
+      input: exemption.aggregated-jsons
+      output: exemption.psql
+      params:
+          table: exemption
+          field_definitions:
+              -
+                  - publication_id
+                  - bigint
+              -
+                  - publisher
+                  - text
+              -
+                  - regulation
+                  - text
+              -
+                  - supplier
+                  - text
+              -
+                  - supplier_id
+                  - text
+              -
+                  - start_date
+                  - date
+              -
+                  - end_date
+                  - date
+              -
+                  - claim_date
+                  - date
+              -
+                  - last_update_date
+                  - date
+              -
+                  - contact
+                  - text
+              -
+                  - contact_email
+                  - text
+              -
+                  - description
+                  - text
+              -
+                  - volume
+                  - bigint
+              -
+                  - reason
+                  - text
+              -
+                  - decision
+                  - text
+              -
+                  - url
+                  - text
+              -
+                  - subjects
+                  - text[]
+              -
+                  - entity_id
+                  - text
+              -
+                  - entity_kind
+                  - text
+    - processor: upload
+      input: exemption.sqlite
+      output: exemption.upload
+      params:
+          kind: mr

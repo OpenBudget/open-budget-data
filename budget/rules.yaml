@@ -6,6 +6,7 @@ rules:
           - queries/out.json
           - full_titles/out.json
           - data/budgets.jsons
+          - explanations/budget_explanations.jsons
       output: budgets.jsons
     - processor: aggregate_jsons_by_key
       input:
@@ -21,6 +22,14 @@ rules:
           - budgets-noequiv.aggregated-jsons
           - connections/budget_equivalents.jsons
       output: budgets.aggregated-jsons
+    - processor: analyze_budgets
+      input: budgets.aggregated-jsons
+      output: budget-analysis.jsons
+    - processor: combine_budget_jsons
+      input:
+          - budget-analysis.jsons
+          - budgets.aggregated-jsons
+      output: budgets.analyzed.aggregated-jsons
     # - processor: aggregate_jsons_by_key
     #   input:
     #       - budget_equivalents.jsons
@@ -30,7 +39,7 @@ rules:
     #           - equiv_code
     #           - year
     - processor: dump_to_db
-      input: budgets.aggregated-jsons
+      input: budgets.analyzed.aggregated-jsons
       output: budget.sqlite
       params:
           key_fields:
@@ -41,8 +50,96 @@ rules:
       output: budget.upload
       params:
           kind: bl
+    - processor: dump_to_psql
+      input: budgets.analyzed.aggregated-jsons
+      output: budget.psql
+      params:
+          table: budget
+          field_definitions:
+              -
+                  - code
+                  - text
+              -
+                  - year
+                  - integer
+              -
+                  - title
+                  - text
+              -
+                  - net_allocated
+                  - bigint
+              -
+                  - net_revised
+                  - bigint
+              -
+                  - net_used
+                  - bigint
+              -
+                  - gross_allocated
+                  - bigint
+              -
+                  - gross_revised
+                  - bigint
+              -
+                  - personnel_allocated
+                  - numeric
+              -
+                  - personnel_revised
+                  - numeric
+              -
+                  - commitment_allocated
+                  - bigint
+              -
+                  - commitment_revised
+                  - bigint
+              -
+                  - amounts_allocated
+                  - integer
+              -
+                  - amounts_revised
+                  - integer
+              -
+                  - contractors_allocated
+                  - integer
+              -
+                  - contractors_revised
+                  - integer
+              -
+                  - dedicated_allocated
+                  - bigint
+              -
+                  - dedicated_revised
+                  - bigint
+              -
+                  - equiv_code
+                  - text[]
+              -
+                  - group_full
+                  - text[]
+              -
+                  - group_top
+                  - text[]
+
+    # Comparison record
+    - processor: prepare_compare_record
+      input: budgets.analyzed.aggregated-jsons
+      output: compare_record.jsons
+      params:
+         year: 2015
+    - processor: dump_to_db
+      input: compare_record.jsons
+      output: compare_record.sqlite
+      params:
+           key_fields:
+               - key
+    - processor: upload
+      input: compare_record.sqlite
+      output: compare_record.upload
+      params:
+           kind: sp
+    # Partition Layout
     - processor: extract_for_partition_layout
-      input: budgets.aggregated-jsons
+      input: budgets.analyzed.aggregated-jsons
       output: budget_partition_layout.jsons
       params:
           year: 2014

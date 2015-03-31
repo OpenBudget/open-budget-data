@@ -9,6 +9,7 @@ if __name__ == "__main__":
 class concat(object):
     def process(self,inputs,output,input_gzipped=False):
         out = file(output,"w")
+        inputs.sort()
         for input in inputs:
             if input_gzipped:
                 out.write(gzip.GzipFile(input).read())

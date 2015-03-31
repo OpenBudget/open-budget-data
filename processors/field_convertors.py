@@ -1,13 +1,23 @@
 #encoding: utf8
 from datetime import date, datetime
 import calendar
+import re
+import time
 
 id = lambda x:x
 
-integer = lambda x: int(x)
+integer = lambda x: int(x) if x is not None else None
+boolean = lambda x: x.strip().lower() in ["true","1","yes"] if type(x) in [str,unicode] else x
+newlines_to_br = lambda x: x.replace('\n','<br/>')
 canonize_integer = lambda x: int(x.replace(",",""))
 canonize_float = lambda x: float(x.replace(",",""))
 comma_separated_list = lambda x: [xx.strip() for xx in x.split(",")]
+nbsp = lambda x: x.replace(u'\u00a0', ' ')
+c_code = lambda x: re.findall('[0-9]+',x)[0]
+utf8_decoder = lambda x: x.decode('utf8')
+win_decoder = lambda x: x.decode('cp1255')
+reg_date = lambda x: time.mktime(datetime.strptime(x, "%Y-%m-%d %H:%M:%S").timetuple()) if x.strip() != '' else None
+
 def simple_date_from_spreadsheet(datestr):
     if datestr is None: return None
     d = datetime.strptime(datestr.strip(),"%d.%m.%Y").timetuple()

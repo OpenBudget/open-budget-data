@@ -96,7 +96,15 @@ class search_web_page:
 
     def initialize_web_page( self ):
         print "initializing browser..."
-        self.driver = webdriver.PhantomJS()
+        proxy = os.environ.get('PROXY')
+        if proxy is not None:
+            service_args = [
+                '--proxy=%s' % proxy,
+                '--proxy-type=socks5',
+            ]
+            self.driver = webdriver.PhantomJS(service_args=service_args)
+        else:
+            self.driver = webdriver.PhantomJS()
         self.driver.set_window_size(1024, 768)
         self.driver.set_script_timeout( 30 )
         self.driver.set_page_load_timeout( 30 )
@@ -111,14 +119,14 @@ class search_web_page:
     def result_indexes( self ):
         records_range_str = self.driver.find_element_by_xpath( '//*[@class="resultsSummaryDiv"]' ).text
         # "tozaot 1-10 mitoch 100 reshumot
-        
+
         if len(records_range_str.split(' ')) == 3: # lo nimtzeu reshoomot
             return {'range':[0,0], 'total':0}
 
         return {'range':[int(x) for x in records_range_str.split(' ')[1].split('-')], 'total':int((records_range_str.split(' ')[3]))}
 
     def get_next_pages( self ):
-        
+
         ret = []
         for elem in self.driver.find_elements_by_xpath( '//*[@class="resultsPagingNumber"]' ):
             ret.append( {'page_num':int(elem.text),
@@ -158,7 +166,7 @@ class search_web_page:
     def is_single_page( self ):
         r = self.result_indexes()
         return r['total'] <= 10
-            
+
 
     def curr_page_num( self ):
         if self.is_single_page():
@@ -179,9 +187,9 @@ class search_web_page:
     def go_to_page_num( self, page_num ):
 
         while self.curr_page_num() != page_num:
-            
+
             next_pages = self.get_next_pages()
-            
+
             distances = [abs(page_num - page['page_num']) for page in next_pages]
 
             closest = distances.index( min(distances) )
@@ -194,7 +202,7 @@ class search_web_page:
 
             next_pages[closest]['elem'].click()
             if self.curr_page_num() != expected_page:
-                
+
                 # sometimes this happens...
                 print "expected to reach page %d but reached page %d. restarting search." % (expected_page, self.curr_page_num())
                 self.initialize_web_page()
@@ -211,7 +219,7 @@ class search_web_page:
     }
 
     heading_order = ['publisher', 'regulation', 'volume', 'supplier', 'subjects', 'start_date', 'end_date', 'decision']
-        
+
     def validate_headings( self ):
         # titles
         # //*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_grvMichrazim"]/tbody/tr[1]/th
@@ -246,13 +254,13 @@ class search_web_page:
             row = {}
             for i, heading in enumerate(self.heading_order):
                 row[heading] = data_elems[i].text
-            
+
             row['url'] = self.driver.find_element_by_xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_grvMichrazim"]/tbody/tr[%d]/td[1]/a' % (row_i+2) ).get_attribute('href')
 
             ret.append( row )
 
         print 'parsed page in %f secs' % (time.time() - start_time)
-            
+
         return ret
 
     def parse( self ):
@@ -266,7 +274,7 @@ class search_web_page:
 
 
         self.extract_page_data()
-            
+
 
 
 # post processing
@@ -302,7 +310,7 @@ def remove_test_fields( record ):
     for f in ['documents', 'contact_email', 'contact', 'supplier_id', 'description', 'claim_date']:
         if f in record:
             record.pop( f )
-    
+
 
 def post_process_record( record ):
     add_publication_id( record )
@@ -316,7 +324,7 @@ def post_processing( input, output, creation_date ):
     print "post processing %s into %s..." % (input, output)
 
     processed_file = open( output, 'w' )
-    
+
     for record in iter_records(input):
         post_process_record( record )
         add_history_field( record, creation_date )
@@ -373,7 +381,7 @@ class text_table:
             ret += s + "\n"
 
         return ret
-    
+
 
 def show_stats( base_path ):
     publisher_indexes = [int(x) for x in os.listdir( os.path.join(base_path, 'publisher') )]
@@ -400,7 +408,7 @@ def show_stats( base_path ):
 
     t.add_row( ['-', totals['pages'], totals['exceptions'], '%.2f' % totals['time'], '%.2f' % (totals['time'] / totals['pages'])] )
     print t
-    
+
 
 if __name__ == "__main__":
     from optparse import OptionParser
@@ -441,5 +449,3 @@ if __name__ == "__main__":
 
     if options.stats:
         show_stats( base_path )
-
-

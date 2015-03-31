@@ -116,7 +116,7 @@ def download_all():
                         pass
 
     ts = []
-    for year in range(1996,2015):
+    for year in range(1996,2016):
         t = Downloader(year)
         t.start()
         ts.append(t)
