@@ -1,7 +1,4 @@
 #!/usr/bin/python
-from selenium import webdriver
-from selenium.webdriver.support.ui import Select
-import selenium.common.exceptions
 import base_scraper
 import time
 import pprint
@@ -9,10 +6,11 @@ import json
 import os
 import copy
 import shutil
-import requests
+import requesocks as requests
 from scrapy.selector import Selector
 from post_processing import field_to_int, zero_is_none, add_history_field
 from exemption_record import update_data, exemption_json_to_csv
+import urllib3
 
 
 # TODO: when there is a mismatch in the publisher scraper params, rm -rf the dir and restart
@@ -92,23 +90,28 @@ class search_web_page:
     def __init__( self, rate_limit=None, **search_params ):
         self.rate_limit = rate_limit
         self.search_params = search_params
+        self.session = None
+
         self.initialize_web_page()
 
+    def request( self, *p, **d ):
+        if self.session is None:
+            self.session = requests.Session()
+
+            proxy = os.environ.get('PROXY')
+            if proxy is not None:
+                self.session.proxies = {'http': 'socks5://'+proxy}
+
+        d.setdefault( 'timeout', 10 )
+        d.setdefault( 'url', 'http://www.mr.gov.il/ExemptionMessage/Pages/SearchExemptionMessages.aspx' )
+
+        self.response = self.session.request( *p, **d )
+        self.sel = Selector(text=self.response.text)
+        
+
     def initialize_web_page( self ):
-        print "initializing browser..."
-        proxy = os.environ.get('PROXY')
-        if proxy is not None:
-            service_args = [
-                '--proxy=%s' % proxy,
-                '--proxy-type=socks5',
-            ]
-            self.driver = webdriver.PhantomJS(service_args=service_args)
-        else:
-            self.driver = webdriver.PhantomJS()
-        self.driver.set_window_size(1024, 768)
-        self.driver.set_script_timeout( 30 )
-        self.driver.set_page_load_timeout( 30 )
-        self.driver.get('http://www.mr.gov.il/ExemptionMessage/Pages/SearchExemptionMessages.aspx')
+        
+        self.request( 'get' )
         if self.search_params:
             self.search( **self.search_params )
         print "done"
@@ -117,9 +120,9 @@ class search_web_page:
         return self.result_indexes() == {'range':[1,10], 'total':100}
 
     def result_indexes( self ):
-        records_range_str = self.driver.find_element_by_xpath( '//*[@class="resultsSummaryDiv"]' ).text
+        records_range_str = self.sel.xpath( '//*[@class="resultsSummaryDiv"]/text()' )[0].extract()
         # "tozaot 1-10 mitoch 100 reshumot
-
+        
         if len(records_range_str.split(' ')) == 3: # lo nimtzeu reshoomot
             return {'range':[0,0], 'total':0}
 
@@ -128,40 +131,84 @@ class search_web_page:
     def get_next_pages( self ):
 
         ret = []
-        for elem in self.driver.find_elements_by_xpath( '//*[@class="resultsPagingNumber"]' ):
-            ret.append( {'page_num':int(elem.text),
-                         'elem':elem} )
+        for elem in self.sel.xpath( '//*[@class="resultsPagingNumber"]' ):
+
+            # href = javascript:WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions("ctl00$m$g_cf609c81_a070_46f2_9543_e90c7ce5195b$ctl00$grvMichrazim$ctl13$ctl01", "", true, "", "", false, true))
+            # extracting the ctl00$m$g_...ctl13$ctl01
+            target = elem.xpath('@href')[0].extract()
+            target = target.split( '(' )[2].split('"')[1]
+
+
+            ret.append( {'page_num':int(elem.xpath('@title')[0].extract()),
+                         'target':target} )
 
         return ret
 
     def num_of_options( self, option_name ):
         if option_name == 'publisher':
-            return len(Select(self.driver.find_element_by_xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_ddlPublisher"]' )).options)
+            return len(self.sel.xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_ddlPublisher"]/option' ))
         else:
             raise NotImplementedError()
 
     def option_value( self, option_name, option_index ):
         if option_name == 'publisher':
-            return Select(self.driver.find_element_by_xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_ddlPublisher"]' )).options[option_index].text
+            return self.sel.xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_ddlPublisher"]/option[@value="%d"]/@title' % option_index  )[0].extract()
         else:
             raise NotImplementedError()
 
     def search( self, **search_params ):
 
-        search_params.setdefault( 'publisher_index', 0 )
+        search_params.setdefault( 'publisher_index', '' )
         self.search_params = search_params
 
         if self.rate_limit is not None:
             self.rate_limit.rate_limit()
 
-        selector = Select(self.driver.find_element_by_xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_ddlPublisher"]' ))
-        selector.select_by_index( self.search_params['publisher_index'] )
+        ret = {'publisher':
+               self.option_value('publisher', self.search_params['publisher_index'])}
 
-        ret = {'publisher':selector.all_selected_options[0].text}
-
-        self.driver.find_element_by_xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_btnSearch"]' ).click()
+        self.fill_form()
 
         return ret
+
+    def fill_form( self, d={} ):
+        form_data = {
+            '__EVENTTARGET':'',
+            '__EVENTARGUMENT':'',
+        }
+        
+        for form_data_elem in self.sel.xpath('//*[@id="aspnetForm"]/input'):
+            form_data[form_data_elem.xpath('@name')[0].extract()] = form_data_elem.xpath('@value')[0].extract()
+            
+        for form_data_elem in self.sel.xpath('//*[@id="WebPartWPQ3"]//select'):
+            form_data[form_data_elem.xpath('@name')[0].extract()] = 0
+
+        for form_data_elem in self.sel.xpath('//*[@id="WebPartWPQ3"]//input'):
+            form_data[form_data_elem.xpath('@name')[0].extract()] = ''
+
+        if 'publisher_index' in self.search_params:
+            form_data['ctl00$m$g_cf609c81_a070_46f2_9543_e90c7ce5195b$ctl00$ddlPublisher'] = self.search_params['publisher_index']
+
+        form_data.update( d )
+        
+        # the clear button was not clicked
+        form_data.pop( 'ctl00$m$g_cf609c81_a070_46f2_9543_e90c7ce5195b$ctl00$btnClear' )
+
+        if form_data['__EVENTTARGET']:
+
+            # if a page number was presses, the search button was not clicked
+            form_data.pop( 'ctl00$m$g_cf609c81_a070_46f2_9543_e90c7ce5195b$ctl00$btnSearch' )
+
+        # for k in sorted(form_data.keys()):
+        #     v = form_data[k]
+        #     if len(str(v)) < 20:
+        #         print k, '=', repr(v)
+        #     else:
+        #         print k, '=', repr(v)[:20] + '...'
+                
+
+        self.request( 'post', data=form_data )
+
 
     def is_single_page( self ):
         r = self.result_indexes()
@@ -172,7 +219,7 @@ class search_web_page:
         if self.is_single_page():
             return 1
 
-        return int( self.driver.find_element_by_xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_grvMichrazim"]/tbody/tr[%d]/td/div/div/div[3]/span' % (self.num_of_rows() + 2) ).text )
+        return int( self.sel.xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_grvMichrazim"]/tr[%d]/td/div/div/div[3]/span/text()' % (self.num_of_rows() + 2) )[0].extract() )
 
     def num_of_rows( self ):
 
@@ -182,7 +229,7 @@ class search_web_page:
             d = 2
 
         # one row for the heading, one for the page nums
-        return len(self.driver.find_elements_by_xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_grvMichrazim"]/tbody/tr' )) - d
+        return len(self.sel.xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_grvMichrazim"]/tr' )) - d
 
     def go_to_page_num( self, page_num ):
 
@@ -200,7 +247,7 @@ class search_web_page:
             if next_pages[closest]['page_num'] < self.curr_page_num():
                 raise AssertionError()
 
-            next_pages[closest]['elem'].click()
+            self.fill_form( {'__EVENTTARGET':next_pages[closest]['target']} )
             if self.curr_page_num() != expected_page:
 
                 # sometimes this happens...
@@ -225,8 +272,9 @@ class search_web_page:
         # //*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_grvMichrazim"]/tbody/tr[1]/th
 
         start_time = time.time()
-        for i, e in enumerate( self.driver.find_elements_by_xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_grvMichrazim"]/tbody/tr[1]/th' ) ):
-            hebrew_title = e.text
+
+        for i, e in enumerate( self.sel.xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_grvMichrazim"]/tr[1]/th' ) ):
+            hebrew_title = e.xpath('text()')[0].extract()
             if hebrew_title not in self.heading_name_map:
                 raise AssertionError( 'unknown heading %s' % repr(hebrew_title) )
             title = self.heading_name_map[hebrew_title]
@@ -244,7 +292,7 @@ class search_web_page:
         ret = []
 
         for row_i in xrange(self.num_of_rows()):
-            data_elems = self.driver.find_elements_by_xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_grvMichrazim"]/tbody/tr[%d]/td' % (row_i+2) )
+            data_elems = self.sel.xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_grvMichrazim"]/tr[%d]/td' % (row_i+2) )
             if len(data_elems) != 8:
                 raise AssertionError()
 
@@ -253,9 +301,11 @@ class search_web_page:
 
             row = {}
             for i, heading in enumerate(self.heading_order):
-                row[heading] = data_elems[i].text
+                row[heading] = data_elems[i].xpath('text()')[0].extract()
 
-            row['url'] = self.driver.find_element_by_xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_grvMichrazim"]/tbody/tr[%d]/td[1]/a' % (row_i+2) ).get_attribute('href')
+            row['url'] = self.sel.xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_grvMichrazim"]/tr[%d]/td[1]/a/@href' % (row_i+2) )[0].extract()
+            if row['url'].startswith( '/' ):
+                row['url'] = 'http://www.mr.gov.il' + row['url']
 
             ret.append( row )
 
@@ -337,7 +387,7 @@ def get_num_of_publishers():
     for i in xrange(5):
         try:
             return search_web_page().num_of_options('publisher')
-        except (selenium.common.exceptions.NoSuchElementException, selenium.common.exceptions.TimeoutException):
+        except (urllib3.exceptions.ReadTimeoutError, requests.exceptions.ConnectionError, requests.exceptions.HTTPError, requests.exceptions.SSLError, requests.exceptions.Timeout, base_scraper.NoSuchElementException), e:
             if i == 4:
                 raise
 

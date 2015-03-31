@@ -1,5 +1,4 @@
 import time
-import selenium.common.exceptions
 import os
 import json
 import copy
@@ -163,12 +162,12 @@ class base_scraper:
             try:
                 self._scrape()
                 break
-            except (selenium.common.exceptions.TimeoutException, urllib3.exceptions.ReadTimeoutError, requests.exceptions.ConnectionError, requests.exceptions.HTTPError, requests.exceptions.SSLError, requests.exceptions.Timeout), e:
+            except (urllib3.exceptions.ReadTimeoutError, requests.exceptions.ConnectionError, requests.exceptions.HTTPError, requests.exceptions.SSLError, requests.exceptions.Timeout), e:
                 if 'web_page' in self.__dict__:
                     if 'driver' in self.web_page.__dict__:
                         self.web_page.driver.save_screenshot( os.path.join(self.base_path, 'timeout.png') )
                 pass
-            except (selenium.common.exceptions.NoSuchElementException, NoSuchElementException), e:
+            except (NoSuchElementException), e:
                 prev_scraped_records.append( self.scraped_records )
 
                 # if we get this exception 3 times with no records then this could be a bug and not a timeout

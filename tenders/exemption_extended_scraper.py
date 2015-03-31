@@ -1,7 +1,4 @@
 #!/usr/bin/python
-from selenium import webdriver
-from selenium.webdriver.support.ui import Select
-import selenium.common.exceptions
 import base_scraper
 import time
 import pprint
