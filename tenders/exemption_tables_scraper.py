@@ -37,7 +37,7 @@ class counts_scraper(base_scraper.base_scraper):
         return 'counts_scraper()'
 
     def get_state( self ):
-        return {'total_pages':self.web_page.num_of_options('publisher')}
+        return {'total_pages':len(self.web_page.get_options('publisher'))}
 
     def go_to_page_num( self, page_num ):
         self.searched = self.web_page.search( publisher_index=(page_num-1) )
@@ -144,15 +144,18 @@ class search_web_page:
 
         return ret
 
-    def num_of_options( self, option_name ):
+    def get_options( self, option_name ):
         if option_name == 'publisher':
-            return len(self.sel.xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_ddlPublisher"]/option' ))
+            return [int(e.xpath('@value')[0].extract()) for e in self.sel.xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_ddlPublisher"]/option' ) if int(e.xpath('@value')[0].extract()) != 0]
         else:
             raise NotImplementedError()
 
     def option_value( self, option_name, option_index ):
         if option_name == 'publisher':
-            return self.sel.xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_ddlPublisher"]/option[@value="%d"]/@title' % option_index  )[0].extract()
+            ret = self.sel.xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_ddlPublisher"]/option[@value="%d"]/@title' % option_index  )
+            if len(ret) != 1:
+                raise AssertionError( 'no publisher number %d' % option_index )
+            return ret[0].extract()
         else:
             raise NotImplementedError()
 
@@ -301,7 +304,11 @@ class search_web_page:
 
             row = {}
             for i, heading in enumerate(self.heading_order):
-                row[heading] = data_elems[i].xpath('text()')[0].extract()
+                data = data_elems[i].xpath('text()')
+                if len(data):
+                    row[heading] = data[0].extract()
+                else:
+                    row[heading] = None
 
             row['url'] = self.sel.xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_grvMichrazim"]/tr[%d]/td[1]/a/@href' % (row_i+2) )[0].extract()
             if row['url'].startswith( '/' ):
@@ -383,17 +390,17 @@ def post_processing( input, output, creation_date ):
 
     processed_file.close()
 
-def get_num_of_publishers():
+def get_publishers():
     for i in xrange(5):
         try:
-            return search_web_page().num_of_options('publisher')
+            return search_web_page().get_options('publisher')
         except (urllib3.exceptions.ReadTimeoutError, requests.exceptions.ConnectionError, requests.exceptions.HTTPError, requests.exceptions.SSLError, requests.exceptions.Timeout, base_scraper.NoSuchElementException), e:
             if i == 4:
                 raise
 
 def scrape_data( base_path, scraper_class=publisher_scraper, **d ):
-    num_of_publishers = get_num_of_publishers()
-    for i in xrange( 1, num_of_publishers ):
+    publishers = get_publishers()
+    for i in publishers:
         scraper_class( publisher_index=i, base_path=os.path.join(base_path, 'publisher'), **d ).scrape()
 
 def stitch_scrape( base_path ):
