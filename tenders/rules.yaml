@@ -3,7 +3,5 @@ rules:
       delay: 86400
       output: db/exemption.json
       use_proxy: no
-    - processor: concat
-      input:
-          - db/exemption.json
-      output: db/exemption.success.json
+      params:
+          success_output: tenders/db/exemption.success.json

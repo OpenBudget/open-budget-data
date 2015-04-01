@@ -6,7 +6,7 @@ import shutil
 
 class scrape_exemptions(object):
 
-    def process(self,input,output,since='yesterday',PROXY=None):
+    def process(self,input,output,since='yesterday',success_output=None,PROXY=None):
         env = os.environ.copy()
         if PROXY is not None:
             env['PROXY'] = PROXY
@@ -18,17 +18,19 @@ class scrape_exemptions(object):
             logging.debug("Didn't delete old dir, whatever")
             pass
         os.mkdir(os.path.join(cwd,output_dir))
-        scraper = subprocess.Popen(['/usr/bin/env',
-                                  'python',
-                                  'exemption_updated_records_scraper.py',
-                                  '--scrape=%s' % since,
-                                  output_dir,'--update'],
-                                  cwd=cwd,env=env,
-                                  stdout=subprocess.PIPE,
-                                  stderr=subprocess.PIPE)
+        shutil.copyfile(success_output,output)
+        args = ['/usr/bin/env', 'python', 'exemption_updated_records_scraper.py',
+                '--scrape=%s' % since, output_dir,'--update']
+        logging.info("RUNNING %s" % " ".join(args))
+        logging.info("cwd='%s'" % cwd)
+        scraper = subprocess.Popen(args,
+                                   cwd=cwd,env=env,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
         stdout, stderr = scraper.communicate()
         for x in stdout.split('\n'):
             logging.debug(x)
         for x in stderr.split('\n'):
             logging.error(x)
         assert(len(stderr.strip())==0)
+        shutil.copyfile(output,success_output)
