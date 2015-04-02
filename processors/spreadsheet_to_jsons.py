@@ -59,7 +59,7 @@ def work(input,output,key="",sheet=None,num_cols=2,convertors={},
             out.write(json.dumps(row,sort_keys=True)+"\n")
 
 if __name__ == "__main__":
-    jargs = [json.loads(x) for x in sys.argv[1:8]]
+    jargs = [json.loads(x) for x in sys.argv[1:9]]
     inp,out,key,sheet,num_cols,convertors,spreadsheet_name_key,spreadsheet_index_key = jargs[:]
     work(inp,out,key,sheet,num_cols,convertors,spreadsheet_name_key,spreadsheet_index_key)
     sys.exit(0)
