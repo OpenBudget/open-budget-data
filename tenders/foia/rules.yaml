@@ -1,0 +1,17 @@
+rules:
+    - processor: csv_to_jsons
+      input: "*.csv"
+      output: /csv/foia.jsons/
+      params:
+          has_header: true
+          field_definition:
+            - field_name: budget_code
+            - field_name: publication_id
+              convertor: integer
+            - field_name: reason
+            - field_name: description
+            - field_name: volume
+              convertor: number
+    - processor: concat
+      input: "*.foia.jsons"
+      output: exemptions-foia.jsons
