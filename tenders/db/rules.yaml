@@ -11,7 +11,7 @@ rules:
     - processor: aggregate_jsons_by_key
       input:
           - exemption.aggregated1-jsons
-          - ../foia/exemption-foia.jsons
+          - ../foia/exemptions-foia.jsons
       output: exemption.aggregated-jsons
       params:
           key_fields:
