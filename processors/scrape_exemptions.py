@@ -6,7 +6,7 @@ import shutil
 
 class scrape_exemptions(object):
 
-    def process(self,input,output,since='yesterday',success_output=None,PROXY=None):
+    def process(self,input,output,since='last_week',success_output=None,PROXY=None):
         env = os.environ.copy()
         if PROXY is not None:
             env['PROXY'] = PROXY

@@ -162,7 +162,8 @@ class base_scraper:
             try:
                 self._scrape()
                 break
-            except (urllib3.exceptions.ReadTimeoutError, requests.exceptions.ConnectionError, requests.exceptions.HTTPError, requests.exceptions.SSLError, requests.exceptions.Timeout), e:
+            except (urllib3.exceptions.ReadTimeoutError, requests.exceptions.ConnectionError, requests.exceptions.HTTPError, requests.exceptions.SSLError, requests.exceptions.Timeout,
+                    requesocks.exceptions.Timeout), e:
                 if 'web_page' in self.__dict__:
                     if 'driver' in self.web_page.__dict__:
                         self.web_page.driver.save_screenshot( os.path.join(self.base_path, 'timeout.png') )

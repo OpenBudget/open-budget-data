@@ -120,7 +120,7 @@ class search_web_page:
         return self.result_indexes() == {'range':[1,10], 'total':100}
 
     def result_indexes( self ):
-        records_range_str = self.sel.xpath( '//*[@class="resultsSummaryDiv"]/text()' )[0].extract()
+        records_range_str = self.must_exist_xpath( '//*[@class="resultsSummaryDiv"]/text()' )[0].extract()
         # "tozaot 1-10 mitoch 100 reshumot
         
         if len(records_range_str.split(' ')) == 3: # lo nimtzeu reshoomot
@@ -128,10 +128,16 @@ class search_web_page:
 
         return {'range':[int(x) for x in records_range_str.split(' ')[1].split('-')], 'total':int((records_range_str.split(' ')[3]))}
 
+    def must_exist_xpath( self, *p, **d ):
+        ret = self.sel.xpath( *p, **d )
+        if len(ret) == 0:
+            raise base_scraper.NoSuchElementException()
+        return ret
+
     def get_next_pages( self ):
 
         ret = []
-        for elem in self.sel.xpath( '//*[@class="resultsPagingNumber"]' ):
+        for elem in self.must_exist_xpath( '//*[@class="resultsPagingNumber"]' ):
 
             # href = javascript:WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions("ctl00$m$g_cf609c81_a070_46f2_9543_e90c7ce5195b$ctl00$grvMichrazim$ctl13$ctl01", "", true, "", "", false, true))
             # extracting the ctl00$m$g_...ctl13$ctl01
@@ -146,13 +152,13 @@ class search_web_page:
 
     def get_options( self, option_name ):
         if option_name == 'publisher':
-            return [int(e.xpath('@value')[0].extract()) for e in self.sel.xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_ddlPublisher"]/option' ) if int(e.xpath('@value')[0].extract()) != 0]
+            return [int(e.xpath('@value')[0].extract()) for e in self.must_exist_xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_ddlPublisher"]/option' ) if int(e.xpath('@value')[0].extract()) != 0]
         else:
             raise NotImplementedError()
 
     def option_value( self, option_name, option_index ):
         if option_name == 'publisher':
-            ret = self.sel.xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_ddlPublisher"]/option[@value="%d"]/@title' % option_index  )
+            ret = self.must_exist_xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_ddlPublisher"]/option[@value="%d"]/@title' % option_index  )
             if len(ret) != 1:
                 raise AssertionError( 'no publisher number %d' % option_index )
             return ret[0].extract()
@@ -180,13 +186,13 @@ class search_web_page:
             '__EVENTARGUMENT':'',
         }
         
-        for form_data_elem in self.sel.xpath('//*[@id="aspnetForm"]/input'):
+        for form_data_elem in self.must_exist_xpath('//*[@id="aspnetForm"]/input'):
             form_data[form_data_elem.xpath('@name')[0].extract()] = form_data_elem.xpath('@value')[0].extract()
             
-        for form_data_elem in self.sel.xpath('//*[@id="WebPartWPQ3"]//select'):
+        for form_data_elem in self.must_exist_xpath('//*[@id="WebPartWPQ3"]//select'):
             form_data[form_data_elem.xpath('@name')[0].extract()] = 0
 
-        for form_data_elem in self.sel.xpath('//*[@id="WebPartWPQ3"]//input'):
+        for form_data_elem in self.must_exist_xpath('//*[@id="WebPartWPQ3"]//input'):
             form_data[form_data_elem.xpath('@name')[0].extract()] = ''
 
         if 'publisher_index' in self.search_params:
@@ -222,7 +228,7 @@ class search_web_page:
         if self.is_single_page():
             return 1
 
-        return int( self.sel.xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_grvMichrazim"]/tr[%d]/td/div/div/div[3]/span/text()' % (self.num_of_rows() + 2) )[0].extract() )
+        return int( self.must_exist_xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_grvMichrazim"]/tr[%d]/td/div/div/div[3]/span/text()' % (self.num_of_rows() + 2) )[0].extract() )
 
     def num_of_rows( self ):
 
@@ -276,7 +282,7 @@ class search_web_page:
 
         start_time = time.time()
 
-        for i, e in enumerate( self.sel.xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_grvMichrazim"]/tr[1]/th' ) ):
+        for i, e in enumerate( self.must_exist_xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_grvMichrazim"]/tr[1]/th' ) ):
             hebrew_title = e.xpath('text()')[0].extract()
             if hebrew_title not in self.heading_name_map:
                 raise AssertionError( 'unknown heading %s' % repr(hebrew_title) )
@@ -295,7 +301,7 @@ class search_web_page:
         ret = []
 
         for row_i in xrange(self.num_of_rows()):
-            data_elems = self.sel.xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_grvMichrazim"]/tr[%d]/td' % (row_i+2) )
+            data_elems = self.must_exist_xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_grvMichrazim"]/tr[%d]/td' % (row_i+2) )
             if len(data_elems) != 8:
                 raise AssertionError()
 
@@ -310,7 +316,7 @@ class search_web_page:
                 else:
                     row[heading] = None
 
-            row['url'] = self.sel.xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_grvMichrazim"]/tr[%d]/td[1]/a/@href' % (row_i+2) )[0].extract()
+            row['url'] = self.must_exist_xpath( '//*[@id="ctl00_m_g_cf609c81_a070_46f2_9543_e90c7ce5195b_ctl00_grvMichrazim"]/tr[%d]/td[1]/a/@href' % (row_i+2) )[0].extract()
             if row['url'].startswith( '/' ):
                 row['url'] = 'http://www.mr.gov.il' + row['url']
 
@@ -354,6 +360,10 @@ def add_publication_id( record ):
 
 def split_subjects( record ):
     if type(record['subjects']) is list:
+        return
+
+    if record['subjects'] is None:
+        record['subjects'] = []
         return
 
     record['subjects'] = record['subjects'].split( '; ' )
