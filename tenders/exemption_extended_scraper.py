@@ -90,7 +90,7 @@ class extended_data_web_page:
         if found_fields == 0:
             raise base_scraper.NoSuchElementException()
 
-        if None in [ret["supplier"], ret["last_update_date"], ret["last_update_date"]]:
+        if None in [ret["last_update_date"]]:
             raise base_scraper.NoSuchElementException()
 
         ret['documents'] = []

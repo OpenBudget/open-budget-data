@@ -4,6 +4,7 @@ import json
 import copy
 import urllib3.exceptions
 import requests.exceptions
+import requesocks
 
 def rec_mkdir( d ):
     s = d.split(os.path.sep)
@@ -164,22 +165,22 @@ class base_scraper:
                 break
             except (urllib3.exceptions.ReadTimeoutError, requests.exceptions.ConnectionError, requests.exceptions.HTTPError, requests.exceptions.SSLError, requests.exceptions.Timeout,
                     requesocks.exceptions.Timeout), e:
+                print time.asctime(), "timed out", str(e)
                 if 'web_page' in self.__dict__:
                     if 'driver' in self.web_page.__dict__:
                         self.web_page.driver.save_screenshot( os.path.join(self.base_path, 'timeout.png') )
-                pass
             except (NoSuchElementException), e:
+                print time.asctime(), "missing element", str(e)
                 prev_scraped_records.append( self.scraped_records )
 
                 # if we get this exception 3 times with no records then this could be a bug and not a timeout
                 if len(prev_scraped_records) >= 3:
-                    if prev_scraped_records[:-3] == [0,0,0]:
+                    if prev_scraped_records[-3:] == [0,0,0]:
                         if 'web_page' in self.__dict__:
                             if 'driver' in self.web_page.__dict__:
                                 self.web_page.driver.save_screenshot( os.path.join(self.base_path, 'crash.%f.png' % time.time()) )
                         raise
 
-            print time.asctime(), "timed out", str(e)
             time.sleep( 60 )
 
 
