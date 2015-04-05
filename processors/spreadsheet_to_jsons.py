@@ -63,6 +63,8 @@ def work(input,output,key="",sheet=None,num_cols=2,convertors={},
     if outdata != currentdata:
         out = file(output,'w')
         out.write(outdata)
+    else:
+        os.utime(output, None)
 
 if __name__ == "__main__":
     jargs = [json.loads(x) for x in sys.argv[1:9]]
