@@ -16,7 +16,7 @@ def work(input,output,key="",sheet=None,num_cols=2,convertors={},
             sheets = [ sheet ]
         else:
             sheets = sheet
-    out = None
+    outdata = ""
     for sheet in sheets:
         sheetp = "sheet=%s&" % sheet if sheet is not None else ""
         columns = ",".join([ chr(65+i) for i in range(num_cols) ])
@@ -53,10 +53,16 @@ def work(input,output,key="",sheet=None,num_cols=2,convertors={},
         if spreadsheet_index_key is not None:
             for i,row in enumerate(rows):
                 row[spreadsheet_index_key] = i
-        if len(rows) > 0 and out is None:
-            out = file(output,'w')
-        for row in rows:
-            out.write(json.dumps(row,sort_keys=True)+"\n")
+        if len(rows) > 0:
+            outdata += "".join(json.dumps(row,sort_keys=True)+"\n" for row in rows)
+    currentdata = ""
+    try:
+        currentdata = file(output).read()
+    except:
+        pass
+    if outdata != currentdata:
+        out = file(output,'w')
+        out.write(outdata)
 
 if __name__ == "__main__":
     jargs = [json.loads(x) for x in sys.argv[1:9]]
