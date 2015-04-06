@@ -71,10 +71,10 @@ class fix_support_budget_titles(object):
                             datum['title'] = title
                         changed_num += 1
                     else:
-                        errors[key_code]=(key_code,possible_codes)
+                        errors[key_code]=(key_code,datum['subject'],possible_codes)
             outfile.write(json.dumps(datum,sort_keys=True)+"\n")
 
         for error in errors.values():
-            logging.error("Failed to find title for support with key %s: pc=%r" % error)
+            logging.error("Failed to find title for support with key %s: subject=%s pc=%r" % error)
 
         logging.info("updated %d entries" % changed_num)
