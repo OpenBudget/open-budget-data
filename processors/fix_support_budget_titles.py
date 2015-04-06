@@ -40,6 +40,8 @@ class fix_support_budget_titles(object):
 
         outfile = file(output,"w")
         changed_num = 0
+        ok_num = 0
+        err_num = 0
         for line in file(supports_jsons):
             datum = json.loads(line.strip())
             year = datum['year']
@@ -50,6 +52,8 @@ class fix_support_budget_titles(object):
                 if title != datum.get('title',''):
                     datum['title'] = title
                     changed_num += 1
+                else:
+                    ok_num += 1
             else:
                 key_title = "%s/%s" % (year, datum['title'])
                 possible_codes = list(budgets2.get(key_title,[]))
@@ -83,10 +87,13 @@ class fix_support_budget_titles(object):
                                 datum['title'] = title
                             changed_num += 1
                         else:
+                            err_num += 1
                             errors[key_code]=(key_code,datum['subject'],possible_codes)
             outfile.write(json.dumps(datum,sort_keys=True)+"\n")
 
         for error in errors.values():
             logging.error("Failed to find title for support with key %s: subject=%s pc=%r" % error)
 
-        logging.info("updated %d entries" % changed_num)
+        logging.info("updated: %d entries" % changed_num)
+        logging.info("valid: %d entries" % ok_num)
+        logging.info("err: %d entries" % err_num)
