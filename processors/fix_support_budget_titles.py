@@ -28,10 +28,10 @@ class fix_support_budget_titles(object):
         for line in file(supports_jsons):
             line = json.loads(line.strip())
             if line.get('title','') != '':
-                if budgets.get("%(year)s/%(code)s" % year) is not None:
+                if budgets.get("%(year)s/%(code)s" % line) is not None:
                     supports.setdefault("%(year)s/%(title)s" % line,set()).add(line['code'])
             if line.get('subject','') != '':
-                if budgets.get("%(year)s/%(code)s" % year) is not None:
+                if budgets.get("%(year)s/%(code)s" % line) is not None:
                     supports2.setdefault("%(year)s/%(subject)s" % line,set()).add(line['code'])
 
         errors = {}
