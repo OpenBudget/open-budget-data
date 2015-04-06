@@ -22,8 +22,10 @@ class fix_support_budget_titles(object):
         for line in file(budget_jsons):
             line = json.loads(line.strip())
             budgets["%(year)s/%(code)s" % line] = line['title']
-            # if line.get('title','') != '':
-            #     budgets2.setdefault("%(year)s/%(title)s" % line,[]).append(line['code'])
+            if line.get('title','') != '':
+                budgets2.setdefault("%s/%s" % (line['year'],line['title']),set()).add(line['code'])
+                budgets2.setdefault("%s/%s" % (line['year'],line['title'][:-1]),set()).add(line['code'])
+                budgets2.setdefault("%s/%s" % (line['year'],line['title'][:20]),set()).add(line['code'])
 
         for line in file(supports_jsons):
             line = json.loads(line.strip())
@@ -50,7 +52,7 @@ class fix_support_budget_titles(object):
                     changed_num += 1
             else:
                 key_title = "%s/%s" % (year, datum['title'])
-                possible_codes = list(supports.get(key_title,[]))
+                possible_codes = list(budgets2.get(key_title,[]))
                 if len(possible_codes) == 1:
                     # There's only one valid budget code for this support title
                     datum['code'] = possible_codes[0]
@@ -60,10 +62,9 @@ class fix_support_budget_titles(object):
                         datum['title'] = title
                     changed_num += 1
                 else:
-                    key_subject = "%s/%s" % (year, datum['subject'])
-                    possible_codes = list(supports2.get(key_subject,[]))
+                    possible_codes = list(supports.get(key_title,[]))
                     if len(possible_codes) == 1:
-                        # There's only one valid budget code for this support subject
+                        # There's only one valid budget code for this support title
                         datum['code'] = possible_codes[0]
                         key_code = "%s/%s" % (year, datum['code'])
                         title = budgets.get(key_code)
@@ -71,7 +72,18 @@ class fix_support_budget_titles(object):
                             datum['title'] = title
                         changed_num += 1
                     else:
-                        errors[key_code]=(key_code,datum['subject'],possible_codes)
+                        key_subject = "%s/%s" % (year, datum['subject'])
+                        possible_codes = list(supports2.get(key_subject,[]))
+                        if len(possible_codes) == 1:
+                            # There's only one valid budget code for this support subject
+                            datum['code'] = possible_codes[0]
+                            key_code = "%s/%s" % (year, datum['code'])
+                            title = budgets.get(key_code)
+                            if title is not None:
+                                datum['title'] = title
+                            changed_num += 1
+                        else:
+                            errors[key_code]=(key_code,datum['subject'],possible_codes)
             outfile.write(json.dumps(datum,sort_keys=True)+"\n")
 
         for error in errors.values():
