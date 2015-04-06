@@ -71,7 +71,7 @@ class fix_support_budget_titles(object):
                             datum['title'] = title
                         changed_num += 1
                     else:
-                        errors.append((key_code,possible_codes))
+                        errors[key_code]=(key_code,possible_codes)
             outfile.write(json.dumps(datum,sort_keys=True)+"\n")
 
         for error in errors.values():
