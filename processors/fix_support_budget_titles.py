@@ -50,7 +50,7 @@ class fix_support_budget_titles(object):
                     changed_num += 1
             else:
                 key_title = "%s/%s" % (year, datum['title'])
-                possible_codes = supports.get(key_title,[])
+                possible_codes = list(supports.get(key_title,[]))
                 if len(possible_codes) == 1:
                     # There's only one valid budget code for this support title
                     datum['code'] = possible_codes[0]
@@ -61,7 +61,7 @@ class fix_support_budget_titles(object):
                     changed_num += 1
                 else:
                     key_subject = "%s/%s" % (year, datum['subject'])
-                    possible_codes = supports2.get(key_subject,[])
+                    possible_codes = list(supports2.get(key_subject,[]))
                     if len(possible_codes) == 1:
                         # There's only one valid budget code for this support subject
                         datum['code'] = possible_codes[0]
