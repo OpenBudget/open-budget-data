@@ -107,10 +107,10 @@ class search_web_page:
 
         self.response = self.session.request( *p, **d )
         self.sel = Selector(text=self.response.text)
-        
+
 
     def initialize_web_page( self ):
-        
+
         self.request( 'get' )
         if self.search_params:
             self.search( **self.search_params )
@@ -122,7 +122,7 @@ class search_web_page:
     def result_indexes( self ):
         records_range_str = self.must_exist_xpath( '//*[@class="resultsSummaryDiv"]/text()' )[0].extract()
         # "tozaot 1-10 mitoch 100 reshumot
-        
+
         if len(records_range_str.split(' ')) == 3: # lo nimtzeu reshoomot
             return {'range':[0,0], 'total':0}
 
@@ -185,10 +185,10 @@ class search_web_page:
             '__EVENTTARGET':'',
             '__EVENTARGUMENT':'',
         }
-        
+
         for form_data_elem in self.must_exist_xpath('//*[@id="aspnetForm"]/input'):
             form_data[form_data_elem.xpath('@name')[0].extract()] = form_data_elem.xpath('@value')[0].extract()
-            
+
         for form_data_elem in self.must_exist_xpath('//*[@id="WebPartWPQ3"]//select'):
             form_data[form_data_elem.xpath('@name')[0].extract()] = 0
 
@@ -199,7 +199,7 @@ class search_web_page:
             form_data['ctl00$m$g_cf609c81_a070_46f2_9543_e90c7ce5195b$ctl00$ddlPublisher'] = self.search_params['publisher_index']
 
         form_data.update( d )
-        
+
         # the clear button was not clicked
         form_data.pop( 'ctl00$m$g_cf609c81_a070_46f2_9543_e90c7ce5195b$ctl00$btnClear' )
 
@@ -214,7 +214,7 @@ class search_web_page:
         #         print k, '=', repr(v)
         #     else:
         #         print k, '=', repr(v)[:20] + '...'
-                
+
 
         self.request( 'post', data=form_data )
 
@@ -312,7 +312,7 @@ class search_web_page:
             for i, heading in enumerate(self.heading_order):
                 data = data_elems[i].xpath('text()')
                 if len(data):
-                    row[heading] = data[0].extract()
+                    row[heading] = "".join( x.extract() for x in data )
                 else:
                     row[heading] = None
 
