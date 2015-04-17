@@ -310,9 +310,9 @@ class search_web_page:
 
             row = {}
             for i, heading in enumerate(self.heading_order):
-                data = data_elems[i].xpath('text()')
+                data = data_elems[i].xpath('.//text()')
                 if len(data):
-                    row[heading] = "".join( x.extract() for x in data )
+                    row[heading] = "".join( x.extract() for x in data ).strip()
                 else:
                     row[heading] = None
 
