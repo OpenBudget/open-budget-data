@@ -6,6 +6,7 @@ rules:
           has_header: true
           field_definition:
             - field_name: budget_code
+              convertor: canonize_budget_code
             - field_name: publication_id
               convertor: integer
             - field_name: reason
