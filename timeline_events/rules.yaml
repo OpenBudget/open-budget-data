@@ -101,3 +101,18 @@ rules:
       output: budget_approvals.upload
       params:
           kind: ba
+    - processor: dump_to_psql
+      input: budget_approvals.sqlite
+      output: budget_approvals.psql
+      params:
+          table: budget_approvals
+          field_definitions:
+              -
+                  - year
+                  - integer
+              -
+                  - link
+                  - text
+              -
+                  - net_allocated
+                  - bigint

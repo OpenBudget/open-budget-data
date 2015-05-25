@@ -11,10 +11,12 @@ import datetime
 
 def convert(val,typ):
     if typ=="date" and val is not None:
-        if val.strip() != '':
+        if type(val) in (str,long) and val.strip() != '':
             val = [int(x) for x in val.split('/')]
             val.reverse()
             val = datetime.date(*val)
+        elif type(val) in (int,long):
+            val = datetime.datetime.fromtimestamp(val).date()
         else:
             val = None
     return val
