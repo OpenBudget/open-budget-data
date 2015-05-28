@@ -17,7 +17,7 @@ c_code = lambda x: re.findall('[0-9]+',x)[0]
 utf8_decoder = lambda x: x.decode('utf8')
 win_decoder = lambda x: x.decode('cp1255')
 reg_date = lambda x: time.mktime(datetime.strptime(x, "%Y-%m-%d %H:%M:%S").timetuple()) if x.strip() != '' else None
-number = lambda x: float(x) if x is not None else None
+number = lambda x: canonize_float(x) if x is not None else None
 
 def simple_date_from_spreadsheet(datestr):
     if datestr is None: return None

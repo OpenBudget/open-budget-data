@@ -7,6 +7,8 @@ import json
 import tempfile
 import logging
 
+tempfile.tempdir='/mnt/big/adam/tmp'
+
 if __name__ == "__main__":
     input = sys.argv[1:-1]
     output = sys.argv[-1]
