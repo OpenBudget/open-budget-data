@@ -12,3 +12,49 @@ rules:
       output: properties.upload
       params:
           kind: sp
+
+    # Change history
+    - processor: dump_to_db
+      input: change_history.aggregated.jsons
+      output: change_history.sqlite
+      params:
+          model: ChangeHistory
+          key_fields:
+             - model
+             - selector_key
+             - date
+             - field
+             - from_value
+          process_history: no
+    - processor: upload
+      input: change_history.sqlite
+      output: change_history.upload
+      params:
+          kind: ch
+    - processor: dump_to_psql
+      input: change_history.aggregated.jsons
+      output: change_history.psql
+      params:
+          table: change_history
+          field_definitions:
+              -
+                  - model
+                  - text
+              -
+                  - selector
+                  - jsonb
+              -
+                  - time
+                  - date
+              -
+                  - field
+                  - text
+              -
+                  - from_value
+                  - jsonb
+              -
+                  - to_value
+                  - jsonb
+              -
+                  - created
+                  - boolean

@@ -49,6 +49,7 @@ rules:
           key_fields:
             - kind
             - title
+            - full_title
             - start_date
           model: ParticipantTimeline
     - processor: upload

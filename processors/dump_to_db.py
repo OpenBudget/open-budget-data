@@ -49,6 +49,7 @@ class dump_to_db(object):
                                     history.append({
                                         'model': model,
                                         'selector': history_key,
+                                        'selector_key': key,
                                         'time' : date,
                                         'created': True,
                                     })
@@ -56,10 +57,11 @@ class dump_to_db(object):
                                     history.append({
                                         'model': model,
                                         'selector': history_key,
+                                        'selector_key': key,
                                         'time' : date,
                                         'field': h['field'],
-                                        'from' : h['from'],
-                                        'to'   : h['to'],
+                                        'from_value' : h['from'],
+                                        'to_value'   : h['to'],
                                         'created': False
                                     })
                             except Exception, e:
@@ -77,9 +79,10 @@ class dump_to_db(object):
                                 history.append({
                                     'model': model,
                                     'selector': history_key,
+                                    'selector_key': key,
                                     'field': k,
-                                    'from' : current.get(k),
-                                    'to'   : v,
+                                    'from_value' : current.get(k),
+                                    'to_value'   : v,
                                     'time' : time.time(),
                                     'created': False
                                 })

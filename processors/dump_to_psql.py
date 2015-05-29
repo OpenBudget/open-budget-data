@@ -19,6 +19,8 @@ def convert(val,typ):
             val = datetime.datetime.fromtimestamp(val).date()
         else:
             val = None
+    elif typ=="jsonb":
+        val = json.dumps(val)
     return val
 
 class dump_to_psql(object):
