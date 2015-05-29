@@ -107,7 +107,7 @@ rules:
       params:
           kind: ba
     - processor: dump_to_psql
-      input: budget_approvals.sqlite
+      input: budget_approvals.jsons
       output: budget_approvals.psql
       params:
           table: budget_approvals
@@ -119,5 +119,11 @@ rules:
                   - link
                   - text
               -
-                  - net_allocated
-                  - bigint
+                  - approval_date
+                  - date
+              -
+                  - effect_date
+                  - date
+              -
+                  - end_date
+                  - date
