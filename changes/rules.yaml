@@ -33,6 +33,7 @@ rules:
               - leading_item
               - req_code
               - budget_code
+          model: ChangeLine
     - processor: dump_to_psql
       input: changes-fixed-titles.jsons
       output: changes.psql
@@ -119,6 +120,7 @@ rules:
           key_fields:
               - year
               - group_id
+          model: ChangeGroup
     - processor: upload
       input: changegroups.sqlite
       output: changegroups.upload

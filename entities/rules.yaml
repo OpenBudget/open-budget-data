@@ -108,6 +108,7 @@ rules:
           - id
           - name
           - kind
+        model: Entity
     - processor: dump_to_psql
       input: used_entities.jsons
       output: entities.psql

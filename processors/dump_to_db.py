@@ -10,7 +10,7 @@ import gzip
 
 class dump_to_db(object):
 
-    def process(self,input,output,key_fields):
+    def process(self,input,output,key_fields,model,process_history=True):
 
         conn = sqlite3.connect(output)
         c = conn.cursor()
@@ -19,6 +19,7 @@ class dump_to_db(object):
         c.execute("""CREATE UNIQUE INDEX IF NOT EXISTS data_idx ON data(key)""")
 
 
+        history = []
         to_insert = []
         to_update = []
         if input.endswith('.gz'):
@@ -29,12 +30,59 @@ class dump_to_db(object):
             line = line.strip()
             data = json.loads(line)
             key = "/".join("%s:%s" % (field,data[field]) for field in key_fields)
+            history_key = { field:data[field] for field in key_fields }
             #key = hashlib.md5(key.encode('utf8')).hexdigest()
             current = c.execute("""SELECT value from data where key=?""",(key,)).fetchone()
             if current is None:
+                if process_history:
+                    history.append({
+                        'model': model,
+                        'selector': history_key,
+                        'time' : time.time(),
+                        'created': True
+                    })
+                    if data.has_key('history'):
+                        for h in history:
+                            try:
+                                date = time.mktime(time.strptime(h['date'],"%d/%m/%Y"))
+                                if h['field'] == 'creation':
+                                    history.append({
+                                        'model': model,
+                                        'selector': history_key,
+                                        'time' : date,
+                                        'created': True,
+                                    })
+                                else:
+                                    history.append({
+                                        'model': model,
+                                        'selector': history_key,
+                                        'time' : date,
+                                        'field': h['field'],
+                                        'from' : h['from'],
+                                        'to'   : h['to'],
+                                        'created': False
+                                    })
+                            except Exception, e:
+                                logging.warn("%s/%s: Failed to parse history item %r (%r)" % (model,key,h,e) )
+                                pass
+                        del data['history']
+                        line = json.dumps(data, sort_keys=True)
                 to_insert.append( (time.time(), key, line, 1, None) )
             else:
                 if current[0] != line:
+                    if process_history:
+                        current = json.loads(current[0])
+                        for k,v in data.iteritems():
+                            if current.get(k) != v:
+                                history.append({
+                                    'model': model,
+                                    'selector': history_key,
+                                    'field': k,
+                                    'from' : current.get(k),
+                                    'to'   : v,
+                                    'time' : time.time(),
+                                    'created': False
+                                })
                     to_update.append( (time.time(), line, 1, key))
         if len(to_insert)>0:
             c.executemany("""INSERT OR REPLACE INTO data VALUES(?,?,?,?,?)""", to_insert)
@@ -48,6 +96,10 @@ class dump_to_db(object):
 
         conn.commit()
         conn.close()
+
+        change_history = file('change_history.jsons','a')
+        for h in history:
+            change_history.write(json.dumps(h,sort_keys=True)+'\n')
 
 if __name__ == "__main__":
     input = sys.argv[1]

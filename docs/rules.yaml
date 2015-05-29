@@ -15,6 +15,7 @@ rules:
           key_fields:
               - model
               - field
+          model: ModelDocumentation
     - processor: upload
       input: model-documentation.sqlite
       output: model-documentation.upload

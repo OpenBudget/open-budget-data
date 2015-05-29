@@ -24,7 +24,7 @@ def do_write(kind,APIKEY,data,i):
 
 class upload(object):
     def process(self,input,output,kind,APIKEY):
-        pool = Pool(10)
+        pool = Pool(50)
 
         if APIKEY is None:
             logging.error("no API key")

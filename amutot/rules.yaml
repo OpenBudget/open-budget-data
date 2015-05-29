@@ -20,8 +20,9 @@ rules:
       params:
           key_fields:
               - amuta_id
+          model: NGORecord
     - processor: upload
       input: amutot.sqlite
-      output: amutot.updload
+      output: amutot.upload
       params:
           kind: ngo

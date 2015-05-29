@@ -18,6 +18,7 @@ rules:
               - year
               - leading_item
               - req_code
+          model: ChangeExplanation
     - processor: upload
       input: explanations.sqlite
       output: explanations.upload
