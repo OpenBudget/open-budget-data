@@ -40,6 +40,9 @@ class dump_to_db(object):
                         'selector': history_key,
                         'selector_key': key,
                         'time' : time.time(),
+                        'field': None,
+                        'from_value': None,
+                        'to_value': None,
                         'created': True
                     })
                     if data.has_key('history'):
@@ -52,6 +55,9 @@ class dump_to_db(object):
                                         'selector': history_key,
                                         'selector_key': key,
                                         'time' : date,
+                                        'field': None,
+                                        'from_value': None,
+                                        'to_value': None,
                                         'created': True,
                                     })
                                 else:
