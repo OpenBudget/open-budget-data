@@ -38,6 +38,7 @@ class dump_to_db(object):
                     history.append({
                         'model': model,
                         'selector': history_key,
+                        'selector_key': key,
                         'time' : time.time(),
                         'created': True
                     })
@@ -100,9 +101,10 @@ class dump_to_db(object):
         conn.commit()
         conn.close()
 
-        change_history = file('change_history.jsons','a')
-        for h in history:
-            change_history.write(json.dumps(h,sort_keys=True)+'\n')
+        if len(history) > 0:
+            change_history = file('change_history.jsons','a')
+            for h in history:
+                change_history.write(json.dumps(h,sort_keys=True)+'\n')
 
 if __name__ == "__main__":
     input = sys.argv[1]
