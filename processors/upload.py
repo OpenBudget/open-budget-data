@@ -36,7 +36,7 @@ class upload(object):
 
         i = 0
         while True:
-            lines = dirtys.fetchmany(25)
+            lines = dirtys.fetchmany(5)
             if len(lines) == 0:
                 break
             lines = [ x[0] for x in lines ]

@@ -54,6 +54,8 @@ class dump_to_psql(object):
 
         for f in good_field_definitions:
             fieldname = f[0]
+            if f[1] == 'jsonb':
+                continue
             c.execute("""create index {0}_{1}_idx_asc on {0}({1} asc);""".format(table,fieldname))
             c.execute("""create index {0}_{1}_idx_desc on {0}({1} desc);""".format(table,fieldname))
 

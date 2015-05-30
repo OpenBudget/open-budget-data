@@ -22,7 +22,7 @@ rules:
           key_fields:
              - model
              - selector_key
-             - date
+             - time
              - field
              - from_value
           process_history: no
