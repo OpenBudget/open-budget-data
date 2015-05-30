@@ -43,7 +43,7 @@ class dump_to_db(object):
                         'created': True
                     })
                     if data.has_key('history'):
-                        for h in history:
+                        for h in data['history']:
                             try:
                                 date = time.mktime(time.strptime(h['date'],"%d/%m/%Y"))
                                 if h['field'] == 'creation':
