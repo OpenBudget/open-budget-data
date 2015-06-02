@@ -11,7 +11,7 @@ import datetime
 
 def convert(val,typ):
     if typ=="date" and val is not None:
-        if type(val) in (str,long) and val.strip() != '':
+        if type(val) in (str,unicode) and val.strip() != '':
             val = [int(x) for x in val.split('/')]
             val.reverse()
             val = datetime.date(*val)
