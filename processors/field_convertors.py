@@ -56,7 +56,10 @@ def canonize_date(datestr):
     return out
 
 def canonize_us_date(datestr):
-    d = datestr.split('/')
-    return canonize_date('/'.join([d[1],d[0],d[2]]))
+    if '/' in datestr:
+        d = datestr.split('/')
+        return canonize_date('/'.join([d[1],d[0],d[2]]))
+    else:
+        return canonize_date(datestr)
 
 ngo_kind = lambda x:{u'חל"ץ':'cic',u'עמותה':'association'}[x.decode('utf8')]
