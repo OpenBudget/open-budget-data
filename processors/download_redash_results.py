@@ -6,6 +6,7 @@ import subprocess
 import time
 import hashlib
 import hmac
+import json
 
 class download_redash_results(object):
 
