@@ -52,6 +52,8 @@ def canonize_date(datestr):
         datestr = "%s/%s/%s" % (d[1],d[0],d[2])
     if datestr[-4:-2]=="20":
         out = datetime.strptime(datestr,"%d/%m/%Y").date()
+    if datestr.strip()=="":
+        return None
     out = datetime.strftime(out,"%d/%m/%Y")
     return out
 
