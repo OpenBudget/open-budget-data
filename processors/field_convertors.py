@@ -60,13 +60,13 @@ def canonize_date(datestr):
         d[2] += 2000
         datestr = "%s/%s/%s" % (d[1],d[0],d[2])
     if datestr[-4:-2]=="20":
-        out = datetime.strptime(datestr,"%d/%m/%Y").date()
+        try:
+            out = datetime.strptime(datestr,"%d/%m/%Y").date()
+        except:
+            out = None
     if out is None:
         return None
-    try:
-        out = datetime.strftime(out,"%d/%m/%Y")
-    except:
-        out = None
+    out = datetime.strftime(out,"%d/%m/%Y")
     return out
 
 def canonize_us_date(datestr):
