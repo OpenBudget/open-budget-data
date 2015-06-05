@@ -63,7 +63,10 @@ def canonize_date(datestr):
         out = datetime.strptime(datestr,"%d/%m/%Y").date()
     if out is None:
         return None
-    out = datetime.strftime(out,"%d/%m/%Y")
+    try:
+        out = datetime.strftime(out,"%d/%m/%Y")
+    except:
+        out = None
     return out
 
 def canonize_us_date(datestr):
