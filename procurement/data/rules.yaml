@@ -33,11 +33,11 @@ rules:
           key_fields:
               - procurement_id
           model: ProcurementLine
-    - processor: upload
-      input: procurement.sqlite
-      output: procurement.upload
-      params:
-          kind: pl
+    # - processor: upload
+    #   input: procurement.sqlite
+    #   output: procurement.upload
+    #   params:
+    #       kind: pl
     - processor: dump_to_psql
       input: procurement.jsons
       output: procurement.psql
