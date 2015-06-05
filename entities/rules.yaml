@@ -91,6 +91,7 @@ rules:
           id_keys:
               - publication_id
     - processor: download_redash_results
+      delay: 86400
       output: entity_ranks.jsons
       params:
           query_id: 127
