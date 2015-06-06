@@ -105,10 +105,11 @@ class process_entities(object):
                 # We use bisect so we find prefixes of the name as well
                 i = bisect.bisect_left(entity_names, match_value)
                 if i != len(entity_names):
-                    clean_found = self.clean(found['name'])
+                    _found = entities[i]
+                    clean_found = self.clean(_found['name'])
                     # Make sure that what we found is what we're looking for
                     if clean_found==match_value or (len(match_value) > 30 and clean_found.startswith(match_value)):
-                        found = entities[i]
+                        found = _found
 
             # If we found something
             if found is not None:
