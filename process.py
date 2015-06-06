@@ -143,5 +143,7 @@ if __name__ == "__main__":
             #logging.debug("inputs for processor %r" % all_inputs)
             if len(all_inputs.intersection(all_outputs))==0:
                 logging.debug("RUNNING processor %s" % p['processor'])
+                for t in p['_tuples'][:3]:
+                    logging.debug("\t-> %s is newer than %s" % t)
                 run_processor(p,APIKEY)
                 break

@@ -45,6 +45,7 @@ rules:
           key_fields:
               - year
               - code
+          model: BudgetLine
     - processor: upload
       input: budget.sqlite
       output: budget.upload
@@ -130,13 +131,15 @@ rules:
       input: compare_record.jsons
       output: compare_record.sqlite
       params:
-           key_fields:
-               - key
+          key_fields:
+              - key
+          model: SystemProperty
+          process_history: no
     - processor: upload
       input: compare_record.sqlite
       output: compare_record.upload
       params:
-           kind: sp
+          kind: sp
     # Partition Layout
     - processor: extract_for_partition_layout
       input: budgets.analyzed.aggregated-jsons
@@ -149,6 +152,8 @@ rules:
       params:
           key_fields:
               - key
+          model: SystemProperty
+          process_history: no
     - processor: upload
       input: budget_partition_layout.sqlite
       output: budget_partition_layout.upload

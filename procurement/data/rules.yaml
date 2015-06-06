@@ -1,0 +1,85 @@
+rules:
+    - processor: csv_to_jsons
+      input: procurement_*.csv
+      output: /.csv/.jsons/
+      params:
+          has_header: true
+          field_definition:
+            - field_name: publisher
+            - field_name: supplier
+            - field_name: supplier_internal_id
+            - field_name: supplier_id
+            - field_name: volume
+              convertor: canonize_float
+            - field_name: actual_volume
+              convertor: canonize_float
+            - field_name: title
+            - field_name: procurement_id
+            - field_name: exemption_reason
+            - field_name: regulation
+            - field_name: claim_date
+              convertor: canonize_us_date
+            - field_name: start_date
+              convertor: canonize_us_date
+            - field_name: end_date
+              convertor: canonize_us_date
+    - processor: concat
+      input: procurement_*.jsons
+      output: procurement.jsons
+    - processor: dump_to_db
+      input: procurement.jsons
+      output: procurement.sqlite
+      params:
+          key_fields:
+              - procurement_id
+          model: ProcurementLine
+    # - processor: upload
+    #   input: procurement.sqlite
+    #   output: procurement.upload
+    #   params:
+    #       kind: pl
+    - processor: dump_to_psql
+      input: procurement.jsons
+      output: procurement.psql
+      params:
+          table: procurement
+          field_definitions:
+              -
+                  - publisher
+                  - text
+              -
+                  - supplier
+                  - text
+              -
+                  - supplier_internal_id
+                  - text
+              -
+                  - supplier_id
+                  - text
+              -
+                  - volume
+                  - numeric
+              -
+                  - actual_volume
+                  - numeric
+              -
+                  - title
+                  - text
+              -
+                  - procurement_id
+                  - text
+              -
+                  - exemption_reason
+                  - text
+              -
+                  - regulation
+                  - text
+              -
+                  - claim_date
+                  - date
+              -
+                  - start_date
+                  - date
+              -
+                  - end_date
+                  - date

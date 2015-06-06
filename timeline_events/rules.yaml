@@ -15,6 +15,7 @@ rules:
       params:
           key_fields:
               - budget_code
+          model: ParticipantMapping
     - processor: upload
       input: participant_mapping.sqlite
       output: participant_mapping.upload
@@ -48,7 +49,9 @@ rules:
           key_fields:
             - kind
             - title
+            - full_title
             - start_date
+          model: ParticipantTimeline
     - processor: upload
       input: participant_timeline.sqlite
       output: participant_timeline.upload
@@ -71,6 +74,8 @@ rules:
       params:
           key_fields:
             - name
+          model: ParticipantPhoto
+          process_history: no
     - processor: upload
       input: participant_photos.sqlite
       output: participant_photos.upload
@@ -96,8 +101,30 @@ rules:
       params:
           key_fields:
             - year
+          model: BudgetApproval
     - processor: upload
       input: budget_approvals.sqlite
       output: budget_approvals.upload
       params:
           kind: ba
+    - processor: dump_to_psql
+      input: budget_approvals.jsons
+      output: budget_approvals.psql
+      params:
+          table: budget_approvals
+          field_definitions:
+              -
+                  - year
+                  - integer
+              -
+                  - link
+                  - text
+              -
+                  - approval_date
+                  - date
+              -
+                  - effect_date
+                  - date
+              -
+                  - end_date
+                  - date

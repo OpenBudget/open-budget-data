@@ -24,7 +24,7 @@ def do_write(kind,APIKEY,data,i):
 
 class upload(object):
     def process(self,input,output,kind,APIKEY):
-        pool = Pool(10)
+        pool = Pool(50)
 
         if APIKEY is None:
             logging.error("no API key")
@@ -36,7 +36,7 @@ class upload(object):
 
         i = 0
         while True:
-            lines = dirtys.fetchmany(25)
+            lines = dirtys.fetchmany(5)
             if len(lines) == 0:
                 break
             lines = [ x[0] for x in lines ]

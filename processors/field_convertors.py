@@ -10,14 +10,18 @@ integer = lambda x: int(x) if x is not None else None
 boolean = lambda x: x.strip().lower() in ["true","1","yes"] if type(x) in [str,unicode] else x
 newlines_to_br = lambda x: x.replace('\n','<br/>')
 canonize_integer = lambda x: int(x.replace(",",""))
-canonize_float = lambda x: float(x.replace(",",""))
+def canonize_float(x):
+       try:
+               return float(x.replace(",","").replace('₪',''))
+       except:
+               return None
 comma_separated_list = lambda x: [xx.strip() for xx in x.split(",")]
 nbsp = lambda x: x.replace(u'\u00a0', ' ')
 c_code = lambda x: re.findall('[0-9]+',x)[0]
 utf8_decoder = lambda x: x.decode('utf8')
 win_decoder = lambda x: x.decode('cp1255')
 reg_date = lambda x: time.mktime(datetime.strptime(x, "%Y-%m-%d %H:%M:%S").timetuple()) if x.strip() != '' else None
-number = lambda x: float(x) if x is not None else None
+number = lambda x: canonize_float(x) if x is not None else None
 
 def simple_date_from_spreadsheet(datestr):
     if datestr is None: return None
@@ -31,6 +35,7 @@ def canonize_budget_code(code):
     code = "00"+code
     return code
 
+DATE_RE = re.compile("[0-9-/.]+")
 def canonize_date(datestr):
     datestr = datestr.replace('ינו','1').replace('פבר','2').replace('מרץ','3').replace('אפר','4')\
                          .replace('מאי','5').replace('יונ','6').replace('יול','7').replace('אוג','8').replace('ספט','9')\
@@ -39,6 +44,10 @@ def canonize_date(datestr):
                        .replace('May','5').replace('Jun','6').replace('Jul','7').replace('Aug','8').replace('Sep','9')\
                        .replace('Oct','10').replace('Nov','11').replace('Dec','12')
     datestr = datestr.replace('B1','')
+    datestr = DATE_RE.findall(datestr)
+    if len(datestr)>0:
+        datestr = datestr[0]
+    out = None
     if '-' in datestr:
         datestr = datestr.split('-')
         d = [ int(x) for x in datestr ]
@@ -51,8 +60,20 @@ def canonize_date(datestr):
         d[2] += 2000
         datestr = "%s/%s/%s" % (d[1],d[0],d[2])
     if datestr[-4:-2]=="20":
-        out = datetime.strptime(datestr,"%d/%m/%Y").date()
+        try:
+            out = datetime.strptime(datestr,"%d/%m/%Y").date()
+        except:
+            out = None
+    if out is None:
+        return None
     out = datetime.strftime(out,"%d/%m/%Y")
     return out
+
+def canonize_us_date(datestr):
+    if '/' in datestr:
+        d = datestr.split('/')
+        return canonize_date('/'.join([d[1],d[0],d[2]]))
+    else:
+        return canonize_date(datestr)
 
 ngo_kind = lambda x:{u'חל"ץ':'cic',u'עמותה':'association'}[x.decode('utf8')]

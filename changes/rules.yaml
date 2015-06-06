@@ -15,7 +15,6 @@ rules:
       output: budget_changes.jsons
       params:
           new_years:
-              - 2014
               - 2015
     - processor: consolidate_change_dates
       input: changes.jsons
@@ -34,6 +33,7 @@ rules:
               - leading_item
               - req_code
               - budget_code
+          model: ChangeLine
     - processor: dump_to_psql
       input: changes-fixed-titles.jsons
       output: changes.psql
@@ -102,9 +102,9 @@ rules:
       output: changes.upload
       params:
           kind: cl
-    - processor: rss
-      input: changes.upload
-      output: rss-properties.jsons
+    # - processor: rss
+    #   input: changes.upload
+    #   output: rss-properties.jsons
     - processor: concat
       input: mof-data/changegroups-*.jsons
       output: changegroups.jsons
@@ -120,6 +120,7 @@ rules:
           key_fields:
               - year
               - group_id
+          model: ChangeGroup
     - processor: upload
       input: changegroups.sqlite
       output: changegroups.upload

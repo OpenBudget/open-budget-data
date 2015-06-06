@@ -28,6 +28,7 @@ rules:
           key_fields:
               - flow
               - index
+          model: TrainingFlow
     - processor: upload
       input: training-flows.sqlite
       output: training-flows.upload

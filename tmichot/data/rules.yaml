@@ -71,6 +71,7 @@ rules:
               - code
               - recipient
               - kind
+          model: SupportLine
     - processor: dump_to_psql
       input: tmichot.aggregated-jsons
       output: tmichot.psql

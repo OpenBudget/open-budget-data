@@ -23,6 +23,7 @@ rules:
       params:
           key_fields:
               - publication_id
+          model: MRExemptionRecord
     - processor: dump_to_psql
       input: exemption.aggregated-jsons
       output: exemption.psql

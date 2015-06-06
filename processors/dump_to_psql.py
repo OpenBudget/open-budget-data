@@ -11,12 +11,16 @@ import datetime
 
 def convert(val,typ):
     if typ=="date" and val is not None:
-        if val.strip() != '':
+        if type(val) in (str,unicode) and val.strip() != '':
             val = [int(x) for x in val.split('/')]
             val.reverse()
             val = datetime.date(*val)
+        elif type(val) in (int,long,float):
+            val = datetime.datetime.fromtimestamp(val).date()
         else:
             val = None
+    elif typ=="jsonb":
+        val = json.dumps(val)
     return val
 
 class dump_to_psql(object):
@@ -50,6 +54,8 @@ class dump_to_psql(object):
 
         for f in good_field_definitions:
             fieldname = f[0]
+            if f[1] == 'jsonb':
+                continue
             c.execute("""create index {0}_{1}_idx_asc on {0}({1} asc);""".format(table,fieldname))
             c.execute("""create index {0}_{1}_idx_desc on {0}({1} desc);""".format(table,fieldname))
 

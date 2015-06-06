@@ -90,10 +90,17 @@ rules:
           non_processed_file: tenders/db/exemption.nonprocessed.txt
           id_keys:
               - publication_id
+    - processor: download_redash_results
+      delay: 86400
+      output: entity_ranks.jsons
+      params:
+          query_id: 127
+          api_key: dcedd6c80be61bc29f2f4bae6cf60c35d5a7e73f
     - processor: aggregate_jsons_by_key
       input:
           - used_entities.tmichot.jsons
           - used_entities.exemptions.jsons
+          - entity_ranks.jsons
       output: used_entities.jsons
       params:
           key_fields:
@@ -108,6 +115,7 @@ rules:
           - id
           - name
           - kind
+        model: Entity
     - processor: dump_to_psql
       input: used_entities.jsons
       output: entities.psql
