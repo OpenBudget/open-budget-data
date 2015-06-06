@@ -11,7 +11,6 @@ from scrapy.selector import Selector
 from post_processing import field_to_int, zero_is_none, iter_records, empty_str_is_none
 from exemption_record import exemption_json_to_csv, update_data, exemption_record
 
-
 class extended_data_scraper(base_scraper.base_scraper):
     def __init__( self, base_path ):
         base_scraper.base_scraper.__init__( self, base_path=base_path )
@@ -55,6 +54,7 @@ class extended_data_web_page:
         self.response = self.session.request( 'get', url=url, timeout=10 )
         print 'loaded exended data in %f secs' % (time.time() - start_time)
 
+
     def extract_page_data( self ):
         #start_time = time.time()
 
@@ -74,7 +74,9 @@ class extended_data_web_page:
                                   ('contact_email', '//*[@id="ctl00_PlaceHolderMain_lbl_ContactPersonEmail"]'),
                                   ('claim_date', '//*[@id="ctl00_PlaceHolderMain_lbl_ClaimDate"]'),
                                   ('last_update_date', '//*[@id="ctl00_PlaceHolderMain_lbl_UpdateDate"]'),
-                                  ('reason', '//*[@id="ctl00_PlaceHolderMain_lbl_PtorReason"]'), ]:
+                                  ('reason', '//*[@id="ctl00_PlaceHolderMain_lbl_PtorReason"]'), 
+                                  ('source_currency', '//*[@id="ctl00_PlaceHolderMain_lbl_Currency"]'),
+                                  ('page_title', '//*[@id="ctl00_PlaceHolderMain_lbl_PublicationType"]') ]:
 
             if len(sel.xpath(xpath+'/text()')) == 0:
                 ret[field_name] = None
