@@ -15,7 +15,7 @@ def convert(val,typ):
             val = [int(x) for x in val.split('/')]
             val.reverse()
             val = datetime.date(*val)
-        elif type(val) in (int,long):
+        elif type(val) in (int,long,float):
             val = datetime.datetime.fromtimestamp(val).date()
         else:
             val = None
