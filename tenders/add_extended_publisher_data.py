@@ -31,6 +31,9 @@ class add_extended_publisher_data:
 
             publisher = row.pop( 'publisher' )
 
+            if 'logo' in row:
+                row.pop( 'logo' )
+
             self.publisher_extended_data[publisher] = row
             
 
