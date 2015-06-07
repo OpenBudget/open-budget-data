@@ -55,10 +55,10 @@ rules:
       output: from_exemptions.jsons
     - processor: aggregate_jsons_by_key
       input:
+          - from_exemptions.jsons
           - associations.jsons
           - companies.jsons
           - curated.jsons
-          - from_exemptions.jsons
       output: entities.jsons
       params:
           key_fields:
