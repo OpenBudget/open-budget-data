@@ -25,6 +25,7 @@ class process_entities(object):
                     u'(חלצ)',
                   ]
     CLEAN_TITLES = [ u'עירית',
+                    u'עיריית',
                     u'מ.א.',
                     u"מ.מ.",
                     u'מ.א',
