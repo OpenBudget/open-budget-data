@@ -7,7 +7,7 @@ import csv
 import re
 import subprocess
 from pyquery import PyQuery as pq
-]
+
 codes = [
  ('2900',
   u'\u05de\u05e9\u05e8\u05d3 \u05d4\u05d1\u05d9\u05e0\u05d5\u05d9 \u05d5\u05d4\u05e9\u05d9\u05db\u05d5\u05df'),
