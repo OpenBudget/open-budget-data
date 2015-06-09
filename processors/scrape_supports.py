@@ -7,6 +7,7 @@ import csv
 import re
 import subprocess
 from pyquery import PyQuery as pq
+import requests
 
 codes = [
  ('2900',
@@ -92,6 +93,13 @@ class scrape_supports(object):
 
             for item_code in item_codes:
                 fmt['code'] = item_code
+
+                url = "http://obudget.org/api/supports/00{0}/{1}?limit=5000".format(item_code,year)
+                rows = requests.open(url).json()
+                rows = [ [ str(y),encode('utf8') for y  in [x['year'], '', x['subject'], item_code,
+                                                            x['recipient'], x['kind'],
+                                                            x['title'], 0, 0, 0]] for x in rows ]
+                out.writerows(rows)
 
                 print year,hcode,title.encode('utf8'),item_code
 
