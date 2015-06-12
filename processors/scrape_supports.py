@@ -3,6 +3,7 @@
 import gzip
 import time
 import requesocks as requests
+import requests as real_requests
 import csv
 import re
 import subprocess
@@ -94,8 +95,8 @@ class scrape_supports(object):
                 fmt['code'] = item_code
 
                 url = "http://obudget.org/api/supports/00{0}/{1}?limit=5000".format(item_code,year)
-                rows = requests.get(url).json()
-                rows = [ [ str(y).encode('utf8') for y  in [x['year'], '', x['subject'], item_code,
+                rows = real_requests.get(url).json()
+                rows = [ [ unicode(y).encode('utf8') for y  in [x['year'], '', x['subject'], item_code,
                                                             x['recipient'], x['kind'],
                                                             x['title'], 0, 0, 0]] for x in rows ]
                 out.writerows(rows)
