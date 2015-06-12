@@ -30,7 +30,15 @@ class process_entities(object):
                     u"מ.מ.",
                     u'מ.א',
                     u"מ.מ",
+                    u"מ. מ.",
+                    u"מ. א.",
                   ]
+    SIMPLIFICATIONS = [ ('"', ''),
+                        ("'", ""),
+                        ("-", " "),
+                        (u"וו", u"ו"),
+                        (u"יי", u"י"),
+    ]
     def __init__(self):
         self.CLEAN_PREFIXES = set()
         for w in self.CLEAN_WORDS:
@@ -46,7 +54,8 @@ class process_entities(object):
                     word = word[:-len(p)]
                     done = False
                     break
-        word = word.replace('"','').replace("'",'')
+        for f,t in SIMPLIFICATIONS:
+            word = word.replace(f,t)
         for w in self.CLEAN_TITLES:
             if word.startswith(w+" "):
                 word = word[len(w)+1:]
