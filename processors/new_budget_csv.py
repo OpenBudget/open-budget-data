@@ -99,6 +99,8 @@ class new_budget_csv(object):
 
                 ACTIVE_COL = indexof(row,u'תקנה פעילה')
 
+                INOUT_COL = indexof(row,u'סוג הוצאה')
+
                 GROUP1_COL = indexof(row,u'שם רמה 1')
                 GROUP2_COL = indexof(row,u'שם רמה 2')
 
@@ -136,11 +138,17 @@ class new_budget_csv(object):
                 else:
                     active = True
 
+                if INOUT_COL is not None:
+                    if row[INOUT_COL].decode('utf8') == u'הכנסה':
+                        tak_kind = 'income'
+                    elif row[INOUT_COL].decode('utf8') == u'הוצאה':
+                        tak_kind = 'expense'
+                    else:
+                        tak_kind = 'unknown'
+
                 all_values = [net_allocated,gross_allocated,gross_allocated,gross_revised,net_used,dedicated_allocated,commitment_allocated,personnel_allocated,contractors_allocated,amounts_allocated,dedicated_revised,commitment_revised,personnel_revised,contractors_revised,amounts_revised]
                 all_zeros = sum(abs(x) for x in all_values if x is not None) == 0
                 if all_zeros and not active and year not in new_years:
-                    if code.startswith('003328'):
-                        print "SKIPPED %s/%s, not active" % (year,code)
                     continue
 
                 group1 = group2 = None
@@ -172,6 +180,7 @@ class new_budget_csv(object):
 
                 add_to_list(key,sums,group_top,'group_top')
                 add_to_list(key,sums,group_full,'group_full')
+                add_to_list(key,sums,tak_kind,'kind')
 
         keys = sums.keys()
         keys.sort()
