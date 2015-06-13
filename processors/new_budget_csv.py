@@ -159,7 +159,7 @@ class new_budget_csv(object):
                 group_full = group2
 
                 key = "%s/%s" % (year,code)
-                sums.setdefault(key,{'code':code,'year':year,'title':title,'group_top':[], 'group_full':[]})
+                sums.setdefault(key,{'code':code,'year':year,'title':title,'group_top':[], 'group_full':[],'kind':[]})
                 add_to_sums(key,sums,net_allocated,'net_allocated')
                 add_to_sums(key,sums,net_revised,'net_revised')
                 add_to_sums(key,sums,net_used,'net_used')
