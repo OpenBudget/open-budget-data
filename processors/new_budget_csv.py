@@ -50,7 +50,7 @@ def add_to_list(key,sums,item,field):
     if item is not None:
         if item not in sums[key][field]:
             sums[key][field].append(item)
-    if len(sums[key][field])>1 and len(key)>=11:
+    if len(sums[key][field])>1 and len(key)>=11 and field != 'kind':
         logging.error("TOO MANY GROUPS FOR %r" % sums[key])
 
 class new_budget_csv(object):
@@ -138,13 +138,12 @@ class new_budget_csv(object):
                 else:
                     active = True
 
+                tak_kind = 'unknown'
                 if INOUT_COL is not None:
                     if row[INOUT_COL].decode('utf8') == u'הכנסה':
                         tak_kind = 'income'
                     elif row[INOUT_COL].decode('utf8') == u'הוצאה':
                         tak_kind = 'expense'
-                    else:
-                        tak_kind = 'unknown'
 
                 all_values = [net_allocated,gross_allocated,gross_allocated,gross_revised,net_used,dedicated_allocated,commitment_allocated,personnel_allocated,contractors_allocated,amounts_allocated,dedicated_revised,commitment_revised,personnel_revised,contractors_revised,amounts_revised]
                 all_zeros = sum(abs(x) for x in all_values if x is not None) == 0
