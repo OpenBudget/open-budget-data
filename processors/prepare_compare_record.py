@@ -13,7 +13,7 @@ class prepare_compare_record(object):
             except:
                 print "%r" % line.strip()
                 raise
-            if "expense" not in rec['kind']:
+            if "expense" not in rec.get('kind',['expense']):
                 continue
             if rec['year'] == year:
                 if len(rec['code'])!=6:
