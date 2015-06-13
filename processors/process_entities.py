@@ -54,7 +54,7 @@ class process_entities(object):
                     word = word[:-len(p)]
                     done = False
                     break
-        for f,t in SIMPLIFICATIONS:
+        for f,t in self.SIMPLIFICATIONS:
             word = word.replace(f,t)
         for w in self.CLEAN_TITLES:
             if word.startswith(w+" "):
