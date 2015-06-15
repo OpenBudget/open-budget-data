@@ -15,6 +15,8 @@ class prepare_compare_record(object):
                 raise
             if "expense" not in rec.get('kind',['expense']):
                 continue
+            if rec['code'].startswith('0000'):
+                continue
             if rec['year'] == year:
                 if len(rec['code'])!=6:
                     continue
