@@ -14,6 +14,6 @@ class ids_from_exemptions(object):
             if supplier_id is None: continue
             id = str(supplier_id).strip()
             name = data.get('supplier','').strip()
-            if id != '' and name != '' and len(id)>8:
+            if id != '' and name != '' and len(id)==9 and id.startswith('5'):
                 ret = {'id':id,'name':name,'kind':''}
                 out.write(json.dumps(ret,sort_keys=True)+'\n')

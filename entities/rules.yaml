@@ -11,13 +11,13 @@ rules:
       use_proxy: yes
       params:
           url: "http://index.justice.gov.il/DataGov/Corporations/Associations.csv"
-    - processor: spreadsheet_to_jsons
-      output: curated.jsons
-      delay: 86400
-      params:
-          key: 1NmtnUgNZRNKKBiIjFsqbyiNdUPeI_FOZ3ZQhVZsdMXs
-          sheet: ids
-          num_cols: 3
+    # - processor: spreadsheet_to_jsons
+    #   output: curated.jsons
+    #   delay: 86400
+    #   params:
+    #       key: 1NmtnUgNZRNKKBiIjFsqbyiNdUPeI_FOZ3ZQhVZsdMXs
+    #       sheet: ids
+    #       num_cols: 3
     - processor: csv_to_jsons
       input: associations.csv
       output: associations.jsons
@@ -50,6 +50,19 @@ rules:
             - field_name: creation_date
               field_title: Company_Registration_Date
               convertor: reg_date
+    - processor: csv_to_jsons
+      input: special.csv
+      output: special.jsons
+      params:
+          has_header: false
+          field_definition:
+            - field_name: kind
+            - field_name: name
+            - field_name: id
+            - field_name: _
+            - field_name: _
+            - field_name: _
+            - field_name: _
     - processor: ids_from_exemptions
       input: ../tenders/db/exemption.json
       output: from_exemptions.jsons
@@ -58,7 +71,7 @@ rules:
           - from_exemptions.jsons
           - associations.jsons
           - companies.jsons
-          - curated.jsons
+          - special.jsons
       output: entities.jsons
       params:
           key_fields:
