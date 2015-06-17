@@ -19,7 +19,11 @@ class aggregate_jsons_by_key(object):
         for input in inputs:
             for line in file(input):
                 line = line.strip()
-                data = json.loads(line)
+                try:
+                    data = json.loads(line)
+                except:
+                    print "ERROR in line: ",line
+                    raise
                 try:
                     key = "/".join("%s:%s" % (field,data[field]) for field in key_fields)
                 except KeyError:
