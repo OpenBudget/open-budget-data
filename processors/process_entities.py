@@ -105,7 +105,7 @@ class process_entities(object):
 
             # If we have an id key, let's use it
             if id_key is not None:
-                match_value = line.get(id_key)
+                match_value = str(line.get(id_key))
                 # We canonize so that all entities with the same id have the same name
                 found = entity_by_id.get(match_value)
 
