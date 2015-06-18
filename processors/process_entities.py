@@ -80,7 +80,7 @@ class process_entities(object):
         # In case the input file contains an id, use it
         entity_by_id = {}
         if id_key is not None:
-            entity_by_id = dict((e[id_key],e) for e in entities if id_key in e.keys())
+            entity_by_id = dict((e["id"],e) for e in entities)
 
         # Sort entities by clean name
         entities.sort(key=lambda x:self.clean(x['name']))
