@@ -8,10 +8,25 @@ rules:
           key_fields:
               - publication_id
           summarize: no
+    - processor: spreadsheet_to_jsons
+      output: extra_queries.jsons
+      delay: 86400
+      params:
+          key: 1E2bQcDguJbeBp3wFMGNpo0XynV0f93NFzfk3J4GfVFo
+          sheet: queries
+          num_cols: 3
+    - processor: combine_redash_results
+      input: extra_queries.jsons
+      output: extra_exemption_properties.jsons
+      params:
+          combined_field: flags
+          id_fields:
+              - publication_id
     - processor: aggregate_jsons_by_key
       input:
           - exemption.aggregated1-jsons
           - ../foia/exemptions-foia.jsons
+          - extra_exemption_properties.jsons
       output: exemption.aggregated-jsons
       params:
           key_fields:

@@ -17,6 +17,7 @@ def sign(key, path, expires):
     return h.hexdigest()
 
 def get_query_results(query_id, secret_api_key, redash_url="http://data.obudget.org"):
+    logging.info("Getting Re:dash query {0} with key {1}".format(query_id,secret_api_key))
     path = '/api/queries/{}/results.json'.format(query_id)
     expires = time.time()+900 # expires must be <= 3600 seconds from now
     signature = sign(secret_api_key, path, expires)
