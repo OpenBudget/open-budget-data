@@ -61,10 +61,10 @@ rules:
       output: from_exemptions.jsons
     - processor: aggregate_jsons_by_key
       input:
+          - from_exemptions.jsons
           - associations.jsons
           - companies.jsons
           - special.jsons
-          - from_exemptions.jsons
       output: entities.jsons
       params:
           key_fields:
@@ -121,6 +121,7 @@ rules:
           - used_entities.tmichot.jsons
           - used_entities.exemptions.jsons
           - entity_ranks.jsons
+          - extra_entity_properties.jsons
       output: used_entities.jsons
       params:
           key_fields:
