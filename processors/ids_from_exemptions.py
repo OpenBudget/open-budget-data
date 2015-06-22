@@ -19,7 +19,7 @@ class ids_from_exemptions(object):
 
     def legal_id(self, id, name):
         return (id != '' and
-                name.strip(0) != '' and
+                name != '' and
                 len(id) == 9 and
                 any(id.startswith(x) for x in self.allowed_prefixes))
 
