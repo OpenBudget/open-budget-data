@@ -11,13 +11,6 @@ rules:
       use_proxy: yes
       params:
           url: "http://index.justice.gov.il/DataGov/Corporations/Associations.csv"
-    # - processor: spreadsheet_to_jsons
-    #   output: curated.jsons
-    #   delay: 86400
-    #   params:
-    #       key: 1NmtnUgNZRNKKBiIjFsqbyiNdUPeI_FOZ3ZQhVZsdMXs
-    #       sheet: ids
-    #       num_cols: 3
     - processor: csv_to_jsons
       input: associations.csv
       output: associations.jsons
@@ -68,10 +61,10 @@ rules:
       output: from_exemptions.jsons
     - processor: aggregate_jsons_by_key
       input:
-          - from_exemptions.jsons
           - associations.jsons
           - companies.jsons
           - special.jsons
+          - from_exemptions.jsons
       output: entities.jsons
       params:
           key_fields:
@@ -109,6 +102,20 @@ rules:
       params:
           query_id: 127
           api_key: dcedd6c80be61bc29f2f4bae6cf60c35d5a7e73f
+    - processor: spreadsheet_to_jsons
+      output: extra_queries.jsons
+      delay: 86400
+      params:
+          key: 1jfqWYxqE7dRtmtNW-u-IlfdzHeLiSyqmQgFsrYbiuHk
+          sheet: queries
+          num_cols: 3
+    - processor: combine_redash_results
+      input: extra_queries.jsons
+      output: extra_entity_properties.jsons
+      params:
+          combined_field: flags
+          id_fields:
+              - entity_id
     - processor: aggregate_jsons_by_key
       input:
           - used_entities.tmichot.jsons
@@ -144,6 +151,9 @@ rules:
               -
                   - name
                   - text
+              -
+                  - flags
+                  - jsonb
     - processor: upload
       input: used_entities.sqlite
       output: used_entities.upload
