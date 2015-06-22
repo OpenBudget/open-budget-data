@@ -17,7 +17,7 @@ class ids_from_exemptions(object):
         '5621', '5623',
     ]
 
-    def legal_id(id, name):
+    def legal_id(self, id, name):
         return (id != '' and
                 name.strip(0) != '' and
                 len(id) == 9 and
