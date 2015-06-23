@@ -89,12 +89,16 @@ def run_processor(processor,apikey):
                                              ", ".join("%s=%s" % i for i in params.iteritems()), e, output))
             if os.path.exists(output):
                 os.unlink(output)
-            raise
+
+            rollbar.report_exc_info(sys.exc_info())
+            
+            return False
         finally:
             if use_proxy:
                 logging.info('Tearing down proxy...')
                 proxy.kill()
                 proxy.wait()
+    return True
 
 def setup_logging():
     root = logging.getLogger()
@@ -130,6 +134,7 @@ def main():
             all_outputs.update(set(x[1] for x in p['_tuples']))
         logging.debug("relevant processors: %r" % [ r['processor'] for r in relevant ])
         #logging.debug("all_outputs %r" % sorted(list(all_outputs)))
+        success = False
         for p in relevant:
             all_inputs = set()
             for t in p['_tuples']:
@@ -142,8 +147,9 @@ def main():
                 logging.debug("RUNNING processor %s" % p['processor'])
                 for t in p['_tuples'][:3]:
                     logging.debug("\t-> %s is newer than %s" % t)
-                run_processor(p,APIKEY)
-                break
+                success = success or run_processor(p,APIKEY)
+        if not success:
+            break
 
 if __name__ == "__main__":
 
