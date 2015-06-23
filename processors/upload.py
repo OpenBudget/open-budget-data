@@ -75,6 +75,6 @@ class upload(object):
         conn.close()
 
         if to_write != uploaded:
-            raise RuntimeError("Updated less than expected {0} > {1}".format(to_write,uploaded))
+            raise RuntimeError("{2}: Updated less than expected {0} > {1}".format(to_write,uploaded,input))
         gevent.sleep(1)
         file(output,"w").write("OK")
