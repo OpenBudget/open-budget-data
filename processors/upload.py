@@ -61,7 +61,7 @@ class upload(object):
 
             #lines = "\n".join(lines)
             #print lines
-            pool.spawn(do_write, kind, APIKEY, lines, i, good_queue)
+            pool.spawn(do_write, kind, APIKEY, lines, to_write, good_queue)
             #do_write("\n".join(lines),i)
             #print "."
         pool.join()
