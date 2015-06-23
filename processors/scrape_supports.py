@@ -81,8 +81,8 @@ class scrape_supports(object):
         session = requests.session()
         if PROXY is not None:
             session.proxies = {'http': 'socks5://'+PROXY}
+        out = None
 
-        out = csv.writer(file(output,"w"))
         for hcode, title in codes:
 
             fmt = {'year':year,'hcode':hcode }
@@ -91,10 +91,13 @@ class scrape_supports(object):
             item_codes = CodesRE.findall(item_codes)
             print item_codes
 
+            if out is None:
+                out = csv.writer(file(output,"w"))
+
             for item_code in item_codes:
                 fmt['code'] = item_code
 
-                url = "http://obudget.org/api/supports/00{0}/{1}?limit=5000".format(item_code,year)
+                url = "http://www.obudget.org/api/supports/00{0}/{1}?limit=5000".format(item_code,year)
                 rows = real_requests.get(url).json()
                 rows = [ [ unicode(y).encode('utf8') for y  in [x['year'], '', x['subject'], item_code,
                                                             x['recipient'], x['kind'],
