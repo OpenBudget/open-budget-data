@@ -44,6 +44,7 @@ class upload(object):
 
         good_queue = Queue()
         def _undirty(queue):
+            global uploaded
             for keys in queue:
                 logging.debug("marking keys %r as valid" % keys)
                 c.execute("""UPDATE data SET dirty=0 WHERE dirty=1 and key in (%s)""" %
