@@ -1,4 +1,4 @@
-from gevent import monkey; monkey.patch_socket()
+from gevent import monkey; monkey.patch_socket() ; monkey.patch_ssl()
 import gevent
 from gevent.pool import Pool
 from gevent.queue import Queue
@@ -43,14 +43,14 @@ class upload(object):
         uploaded = 0
 
         good_queue = Queue()
-        def undirty(queue):
+        def _undirty(queue):
             for keys in queue:
                 logging.debug("marking keys %r as valid" % keys)
                 c.execute("""UPDATE data SET dirty=0 WHERE dirty=1 and key in (%s)""" %
                              ','.join('?'*len(keys)), keys)
                 conn.commit()
                 uploaded += len(keys)
-        gevent.spawn(undirty,good_queue)
+        undirty = gevent.spawn(_undirty,good_queue)
 
         while True:
             lines = dirtys.fetchmany(5)
