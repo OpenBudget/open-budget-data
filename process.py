@@ -91,7 +91,7 @@ def run_processor(processor,apikey):
                 os.unlink(output)
 
             rollbar.report_exc_info(sys.exc_info())
-            
+
             return False
         finally:
             if use_proxy:
@@ -147,7 +147,8 @@ def main():
                 logging.debug("RUNNING processor %s" % p['processor'])
                 for t in p['_tuples'][:3]:
                     logging.debug("\t-> %s is newer than %s" % t)
-                success = success or run_processor(p,APIKEY)
+                proc_success = run_processor(p,APIKEY)
+                success = success or proc_success
         if not success:
             break
 
