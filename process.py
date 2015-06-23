@@ -5,6 +5,7 @@ import yaml
 import logging
 import time
 import subprocess
+import rollbar
 
 def collect_processors(start_here):
     current_path = start_here
@@ -106,11 +107,7 @@ def setup_logging():
     ch.setFormatter(formatter)
     root.addHandler(ch)
 
-if __name__ == "__main__":
-
-    import singleton
-    me = singleton.SingleInstance()
-
+def main():
     APIKEY = None
     if len(sys.argv) > 1:
         APIKEY = sys.argv[1]
@@ -147,3 +144,15 @@ if __name__ == "__main__":
                     logging.debug("\t-> %s is newer than %s" % t)
                 run_processor(p,APIKEY)
                 break
+
+if __name__ == "__main__":
+
+    import singleton
+    me = singleton.SingleInstance()
+
+    rollbar.init('78cb9735c7de4031b6e676105051020e', 'production')  # access_token, environment
+
+    try:
+        main()
+    except Exception, e:
+        rollbar.report_exc_info()
