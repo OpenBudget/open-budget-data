@@ -39,30 +39,29 @@ class upload(object):
         c = conn.cursor()
         dirtys = c.execute("""SELECT value,key from data WHERE dirty = 1""")
 
-        to_write = 0
-        uploaded = 0
-
         good_queue = Queue()
         def _undirty(queue):
-            global uploaded
+            uploaded = 0
             for keys in queue:
                 logging.debug("marking keys %r as valid" % keys)
                 c.execute("""UPDATE data SET dirty=0 WHERE dirty=1 and key in (%s)""" %
                              ','.join('?'*len(keys)), keys)
                 conn.commit()
                 uploaded += len(keys)
+            return uploaded
         undirty = gevent.spawn(_undirty,good_queue)
 
+        written = 0
         while True:
             lines = dirtys.fetchmany(5)
             if len(lines) == 0:
                 break
             lines = [ (x[0],x[1]) for x in lines ]
-            to_write+=len(lines)
+            written+=len(lines)
 
             #lines = "\n".join(lines)
             #print lines
-            pool.spawn(do_write, kind, APIKEY, lines, to_write, good_queue)
+            pool.spawn(do_write, kind, APIKEY, lines, written, good_queue)
             #do_write("\n".join(lines),i)
             #print "."
         pool.join()
@@ -74,7 +73,9 @@ class upload(object):
         conn.commit()
         conn.close()
 
-        if to_write != uploaded:
-            raise RuntimeError("{2}: Updated less than expected {0} > {1}".format(to_write,uploaded,input))
+        uploaded = undirty.value
+
+        if written != uploaded:
+            raise RuntimeError("{2}: Updated less than expected {0} > {1}".format(written,uploaded,input))
         gevent.sleep(1)
         file(output,"w").write("OK")
