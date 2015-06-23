@@ -15,7 +15,7 @@ if __name__ == "__main__":
     processor = upload().process(input,output)
 
 def do_write(kind,APIKEY,lines,i,good_queue):
-    values = [ x[0] for x in lines ]
+    values = "\n".join([ x[0] for x in lines ])
     keys = [ x[1] for x in lines ]
     try:
         req = urllib2.Request('http://the.open-budget.org.il/api/update/%s?apikey=%s' % (kind,APIKEY),
@@ -59,7 +59,7 @@ class upload(object):
             lines = [ (x[0],x[1]) for x in lines ]
             to_write+=len(lines)
 
-            lines = "\n".join(lines)
+            #lines = "\n".join(lines)
             #print lines
             pool.spawn(do_write, kind, APIKEY, lines, i, good_queue)
             #do_write("\n".join(lines),i)
