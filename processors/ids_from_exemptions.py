@@ -18,9 +18,12 @@ class ids_from_exemptions(object):
     ]
 
     def legal_id(self, id, name):
+        if len(id)>9: return False
+        id = "0" * (9-len(id)) + id
+        valid = sum( int(x) for x in ''.join( str((i%2+1)*int(x)) for i,x in enumerate(id) ) ) % 10 == 0
         return (id != '' and
                 name != '' and
-                len(id) == 9 and
+                valid and
                 any(id.startswith(x) for x in self.allowed_prefixes))
 
     def process(self,input,output):
