@@ -49,7 +49,6 @@ class upload(object):
                 conn.commit()
                 uploaded += len(keys)
             return uploaded
-        undirty = gevent.spawn(_undirty,good_queue)
 
         written = 0
         while True:
@@ -64,6 +63,8 @@ class upload(object):
             pool.spawn(do_write, kind, APIKEY, lines, written, good_queue)
             #do_write("\n".join(lines),i)
             #print "."
+
+        undirty = gevent.spawn(_undirty,good_queue)
         pool.join()
         # if i > 0:
         #     dirtys = c.execute("""UPDATE data SET dirty=0 WHERE dirty=1""")

@@ -14,8 +14,37 @@ rules:
           kind: sp
 
     # Change history
-    - processor: dump_to_db
+    - processor: filter_history
       input: change_history.jsons
+      output: change_history.filtered.jsons
+      params:
+          filter_spec:
+              SupportLine:
+                  - created: true
+                  - fields:
+                      - amount_supported
+                      - amount_allocated
+                      - num_used
+              MRExemptionRecord:
+                  - created: true
+                  - fields:
+                      - end_date
+                      - start_date
+                      - claim_date
+                      - reason
+                      - regulation
+                      - decision
+                      - volume
+                      - contact_email
+                      - supplier
+                      - supplier_id                      
+              ChangeGroup:
+                  - created: true
+                  - fields:
+                      - pending
+                      - date
+    - processor: dump_to_db
+      input: change_history.filtered.jsons
       output: change_history.sqlite
       params:
           model: ChangeHistory
