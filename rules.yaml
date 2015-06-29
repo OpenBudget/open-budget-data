@@ -20,14 +20,14 @@ rules:
       params:
           filter_spec:
               SupportLine:
-                  - created: true
-                  - fields:
+                  created: true
+                  fields:
                       - amount_supported
                       - amount_allocated
                       - num_used
               MRExemptionRecord:
-                  - created: true
-                  - fields:
+                  created: true
+                  fields:
                       - end_date
                       - start_date
                       - claim_date
@@ -39,8 +39,8 @@ rules:
                       - supplier
                       - supplier_id
               ChangeGroup:
-                  - created: true
-                  - fields:
+                  created: true
+                  fields:
                       - pending
                       - date
     - processor: dump_to_db
