@@ -5,7 +5,7 @@ class filter_history(object):
     def process(self,input,output,filter_spec):
 
         out = None
-        
+
         for line in file(input):
             data = json.loads(line)
             model = data.get('model')
@@ -15,7 +15,7 @@ class filter_history(object):
             model_spec = filter_spec.get(model)
             if model_spec is not None:
                 ok = False
-                if created and model_spec.get('created',False)
+                if created and model_spec.get('created',False):
                     ok = True
                 elif not created:
                     allowed_fields = model_spec.get('fields',[])
