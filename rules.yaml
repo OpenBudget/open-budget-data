@@ -37,7 +37,7 @@ rules:
                       - volume
                       - contact_email
                       - supplier
-                      - supplier_id                      
+                      - supplier_id
               ChangeGroup:
                   - created: true
                   - fields:
@@ -61,7 +61,7 @@ rules:
       params:
           kind: ch
     - processor: dump_to_psql
-      input: change_history.jsons
+      input: change_history.filtered.jsons
       output: change_history.psql
       params:
           table: change_history
