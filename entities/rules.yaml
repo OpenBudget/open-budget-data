@@ -119,7 +119,7 @@ rules:
       params:
           combined_field: flags
           id_fields:
-              - entity_id
+              - id
     - processor: aggregate_jsons_by_key
       input:
           - used_entities.tmichot.jsons
