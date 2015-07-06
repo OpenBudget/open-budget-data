@@ -1,4 +1,4 @@
-from gevent import monkey; monkey.patch_socket() ; monkey.patch_ssl()
+from gevent import monkey; monkey.patch_all()
 import gevent
 from gevent.pool import Pool
 from gevent.queue import Queue

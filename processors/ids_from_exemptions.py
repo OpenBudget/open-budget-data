@@ -19,7 +19,6 @@ class ids_from_exemptions(object):
 
     def legal_id(self, id, name):
         if len(id)>9: return False
-        id = "0" * (9-len(id)) + id
         valid = sum( int(x) for x in ''.join( str((i%2+1)*int(x)) for i,x in enumerate(id) ) ) % 10 == 0
         return (id != '' and
                 name != '' and
@@ -34,6 +33,7 @@ class ids_from_exemptions(object):
             supplier_id = data.get('supplier_id')
             if supplier_id is None: continue
             id = str(supplier_id).strip()
+            id = "0" * max(0,9-len(id)) + id
             name = data.get('supplier','').strip()
             if self.legal_id(id, name):
                 ret = {'id':id,'name':name,'kind':''}
