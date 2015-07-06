@@ -160,7 +160,7 @@ rules:
                   - flags
                   - jsonb
               -
-                  - moital_contractors
+                  - moital_contractor
                   - jsonb
     - processor: upload
       input: used_entities.sqlite
