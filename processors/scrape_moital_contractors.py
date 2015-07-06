@@ -83,6 +83,9 @@ def scrape(browser):
             browser.save_screenshot('screen.png')
             return False, rows
 
+def add_zeros(x):
+    return "0"*(max(0,9-len(x))) + x
+
 def main(output):
     dcap = dict(webdriver.DesiredCapabilities.PHANTOMJS)
     dcap["phantomjs.page.settings.userAgent"] = (
@@ -98,7 +101,7 @@ def main(output):
     if success:
         out = file(output,'w')
         for row in rows:
-            row = { 'entity_id': row['company_id'], 'moital_contractor':row }
+            row = { 'id': add_zeros(row['company_id']), 'name': row['company_name'], 'moital_contractor':row }
             out.write(json.dumps(row,sort_keys=True)+'\n')
         return
     raise RuntimeError("Something went wrong!")
