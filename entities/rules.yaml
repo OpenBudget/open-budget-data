@@ -1,4 +1,5 @@
 rules:
+    ## Official Data from the Gov.
     - processor: download_shitty_csv
       output: companies.csv
       delay: 86400
@@ -56,12 +57,24 @@ rules:
             - field_name: _
             - field_name: _
             - field_name: _
+    ### Enrichment of companies from exemptions
     - processor: ids_from_exemptions
       input: ../tenders/db/exemption.json
       output: from_exemptions.jsons
+    ### Enrichment for entities
     - processor: scrape_moital_contractors
       delay: 86400
-      output: moital_contractors.jsons
+      output: moital_manpower_contractors.jsons
+      params:
+          url: http://apps.moital.gov.il/WebServicesHandlers/ManpowerContractors.aspx
+          field: manpower_contractor
+    - processor: scrape_moital_contractors
+      delay: 86400
+      output: moital_service_contractors.jsons
+      params:
+          url: http://apps.moital.gov.il/WebServicesHandlers/ServiceContractors.aspx
+          field: service_contractor
+    ### Canonical Entity List
     - processor: aggregate_jsons_by_key
       input:
           - from_exemptions.jsons
@@ -74,6 +87,7 @@ rules:
           key_fields:
               - id
           summarize: no
+    ### Entity Processing
     - processor: process_entities
       input:
           - entities.jsons
@@ -100,6 +114,7 @@ rules:
           non_processed_file: tenders/db/exemption.nonprocessed.txt
           id_keys:
               - publication_id
+    ### Analysis data from re:dash
     - processor: download_redash_results
       delay: 86400
       output: entity_ranks.jsons
@@ -120,6 +135,7 @@ rules:
           combined_field: flags
           id_fields:
               - id
+    ### Enrich entity data with analysis
     - processor: aggregate_jsons_by_key
       input:
           - used_entities.tmichot.jsons
@@ -132,6 +148,7 @@ rules:
               - id
               - kind
           summarize: no
+    ### Save & upload
     - processor: dump_to_db
       input: used_entities.jsons
       output: used_entities.sqlite
@@ -160,7 +177,10 @@ rules:
                   - flags
                   - jsonb
               -
-                  - moital_contractor
+                  - manpower_contractor
+                  - jsonb
+              -
+                  - service_contractor
                   - jsonb
     - processor: upload
       input: used_entities.sqlite

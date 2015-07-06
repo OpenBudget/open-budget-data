@@ -5,10 +5,6 @@ from selenium import webdriver
 import sys
 import time
 
-# path_to_phantomjs = "/usr/bin/phantomjs"
-moital_contractors_url = (
-    'http://apps.moital.gov.il/WebServicesHandlers/ServiceContractors.aspx')
-
 header_conv = {
    u"כתובת" : "address",
    u"מס' רשיון" : "license_number",
@@ -86,14 +82,14 @@ def scrape(browser):
 def add_zeros(x):
     return "0"*(max(0,9-len(x))) + x
 
-def main(output):
+def main(output,url,field):
     dcap = dict(webdriver.DesiredCapabilities.PHANTOMJS)
     dcap["phantomjs.page.settings.userAgent"] = (
          "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
          "(KHTML, like Gecko) Chrome/43.0.2357.81 Safari/537.36")
     browser = webdriver.PhantomJS(desired_capabilities = dcap)
     browser.set_window_size(1200, 800)
-    browser.get(moital_contractors_url)
+    browser.get(url)
 
     success, rows = scrape(browser)
 
@@ -101,15 +97,15 @@ def main(output):
     if success:
         out = file(output,'w')
         for row in rows:
-            row = { 'id': add_zeros(row['company_id']), 'name': row['company_name'], 'moital_contractor':row }
+            row = { 'id':add_zeros(row['company_id']), 'name':row['company_name'], field:row }
             out.write(json.dumps(row,sort_keys=True)+'\n')
         return
     raise RuntimeError("Something went wrong!")
 
 class scrape_moital_contractors(object):
 
-    def process(self,input,output):
-        main(output)
+    def process(self,input,output,url,field):
+        main(output,url,field)
 
 if __name__=="__main__":
     main('moital.jsons')
