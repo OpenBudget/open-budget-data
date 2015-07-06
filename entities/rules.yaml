@@ -59,12 +59,16 @@ rules:
     - processor: ids_from_exemptions
       input: ../tenders/db/exemption.json
       output: from_exemptions.jsons
+    - processor: scrape_moital_contractors
+      delay: 86400
+      output: moital_contractors.jsons
     - processor: aggregate_jsons_by_key
       input:
           - from_exemptions.jsons
           - associations.jsons
           - companies.jsons
           - special.jsons
+          - moital_contractors.jsons
       output: entities.jsons
       params:
           key_fields:
@@ -116,16 +120,12 @@ rules:
           combined_field: flags
           id_fields:
               - entity_id
-    - processor: scrape_moital_contractors
-      delay: 86400
-      output: moital_contractors.jsons
     - processor: aggregate_jsons_by_key
       input:
           - used_entities.tmichot.jsons
           - used_entities.exemptions.jsons
           - entity_ranks.jsons
           - extra_entity_properties.jsons
-          - moital_contractors.jsons
       output: used_entities.jsons
       params:
           key_fields:
