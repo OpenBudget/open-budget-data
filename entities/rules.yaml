@@ -159,6 +159,9 @@ rules:
               -
                   - flags
                   - jsonb
+              -
+                  - moital_contractors
+                  - jsonb
     - processor: upload
       input: used_entities.sqlite
       output: used_entities.upload
