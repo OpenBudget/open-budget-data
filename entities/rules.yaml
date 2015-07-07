@@ -81,7 +81,8 @@ rules:
           - associations.jsons
           - companies.jsons
           - special.jsons
-          - moital_contractors.jsons
+          - moital_service_contractors.jsons
+          - moital_manpower_contractors.jsons
       output: entities.jsons
       params:
           key_fields:
