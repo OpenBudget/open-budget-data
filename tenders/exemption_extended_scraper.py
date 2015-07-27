@@ -71,6 +71,7 @@ class extended_data_web_page:
                                   ('supplier_id', '//*[@id="ctl00_PlaceHolderMain_lbl_SupplierNum"]'),
                                   ('supplier', '//*[@id="ctl00_PlaceHolderMain_lbl_SupplierName"]'),
                                   ('contact', '//*[@id="ctl00_PlaceHolderMain_lbl_ContactPersonName"]'),
+                                  ('publisher', '//*[@id="ctl00_PlaceHolderMain_lbl_PUBLISHER"]'),
                                   ('contact_email', '//*[@id="ctl00_PlaceHolderMain_lbl_ContactPersonEmail"]'),
                                   ('claim_date', '//*[@id="ctl00_PlaceHolderMain_lbl_ClaimDate"]'),
                                   ('last_update_date', '//*[@id="ctl00_PlaceHolderMain_lbl_UpdateDate"]'),
