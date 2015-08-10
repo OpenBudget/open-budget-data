@@ -7,7 +7,7 @@ rules:
           success_output: tenders/db/exemption.success.json
     - processor: scrape_exemptions
       delay: 907200
-      output: db/exemption.json
+      output: db/exemption-yearly.json
       use_proxy: no
       params:
           since: last_year
