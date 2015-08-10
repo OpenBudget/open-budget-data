@@ -23,6 +23,10 @@ class publisher_updated_scraper(exemption_tables_scraper.publisher_scraper):
             yesterday = datetime.now() - timedelta(days=8)
             updated_since = yesterday.strftime('%d/%m/%y')
 
+        if updated_since == 'last_year':
+            yesterday = datetime.now() - timedelta(days=366)
+            updated_since = yesterday.strftime('%d/%m/%y')
+
         self.scrape_updated_since = numerate_date( updated_since )
 
         exemption_tables_scraper.publisher_scraper.__init__( self, *p, **d )
@@ -130,7 +134,7 @@ def post_processing( input, output, creation_date ):
     print "post processing %s into %s..." % (input, output)
 
     processed_file = open( output, 'w' )
-    
+
     for record in iter_records(input):
         add_history_field( record, creation_date )
         exemption_tables_scraper.post_process_record( record )
