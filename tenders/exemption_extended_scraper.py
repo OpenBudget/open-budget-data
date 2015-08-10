@@ -1,4 +1,6 @@
-#!/usr/bin/python
+#!/usr/local/bin/python
+import six.moves.urllib.parse
+from scrapy.selector import Selector
 import base_scraper
 import time
 import pprint
@@ -7,7 +9,6 @@ import os
 import copy
 import shutil
 import requesocks as requests
-from scrapy.selector import Selector
 from post_processing import field_to_int, zero_is_none, iter_records, empty_str_is_none
 from exemption_record import exemption_json_to_csv, update_data, exemption_record
 
