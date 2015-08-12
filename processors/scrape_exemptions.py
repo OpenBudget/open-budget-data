@@ -32,5 +32,6 @@ class scrape_exemptions(object):
             logging.debug(x)
         for x in stderr.split('\n'):
             logging.error(x)
-        assert(len(stderr.strip())==0)
+        if len(stderr.strip())>0:
+            raise RuntimeError(stderr.strip())
         shutil.copyfile(output,success_output)
