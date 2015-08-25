@@ -29,7 +29,7 @@ def work(input,output,key="",sheet=None,num_cols=2,convertors={},
                 user_agent = {'User-agent': 'Mozilla/5.0', 'Connection':'Close'}
                 data = requests.get(URL,headers=user_agent) # remove JavaScript handler
                 print data
-                data = data.text[2:-2]
+                data = data.text[data.text.index('{'):-2]
                 break
             except Exception,e:
                 logging.error("Failed to open url, retries=%d (%s)" % (retries, str(e)))
