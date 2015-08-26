@@ -2,8 +2,17 @@ rules:
     - processor: aggregate_jsons_by_key
       input:
           - exemption.success.json
+          - exemption-alltime.success.jsons
+      output: exemption-all.jsons
+      params:
+          key_fields:
+              - publication_id
+          summarize: no
+    - processor: aggregate_jsons_by_key
+      input:
+          - exemption-all.json
           - exemption.processed.jsons
-      output: exemption.aggregated1-jsons
+      output: exemption-all.processed.jsons
       params:
           key_fields:
               - publication_id
@@ -24,7 +33,7 @@ rules:
               - publication_id
     - processor: aggregate_jsons_by_key
       input:
-          - exemption.aggregated1-jsons
+          - exemption-all.processed.jsons
           - ../foia/exemptions-foia.jsons
           - extra_exemption_properties.jsons
       output: exemption.aggregated-jsons

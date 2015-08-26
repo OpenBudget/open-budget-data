@@ -19,13 +19,16 @@ class publisher_updated_scraper(exemption_tables_scraper.publisher_scraper):
             yesterday = datetime.now() - timedelta(days=2)
             updated_since = yesterday.strftime('%d/%m/%y')
 
-        if updated_since == 'last_week':
+        elif updated_since == 'last_week':
             yesterday = datetime.now() - timedelta(days=8)
             updated_since = yesterday.strftime('%d/%m/%y')
 
-        if updated_since == 'last_year':
+        elif updated_since == 'last_year':
             yesterday = datetime.now() - timedelta(days=366)
             updated_since = yesterday.strftime('%d/%m/%y')
+
+        elif updated_since == 'alltime':
+            updated_since = '1/1/2013'
 
         self.scrape_updated_since = numerate_date( updated_since )
 

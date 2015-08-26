@@ -59,7 +59,7 @@ rules:
             - field_name: _
     ### Enrichment of companies from exemptions
     - processor: ids_from_exemptions
-      input: ../tenders/db/exemption.json
+      input: ../tenders/db/exemption-all.json
       output: from_exemptions.jsons
     ### Enrichment for entities
     - processor: scrape_moital_contractors
