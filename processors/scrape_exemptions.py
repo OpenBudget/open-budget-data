@@ -20,7 +20,7 @@ class scrape_exemptions(object):
         os.mkdir(os.path.join(cwd,output_dir))
         shutil.copyfile(success_output,output)
         args = ['/usr/bin/env', 'python', 'exemption_updated_records_scraper.py',
-                '--scrape=%s' % since, output_dir,'--update']
+                '--scrape=%s' % since, output_dir]
         logging.info("RUNNING %s" % " ".join(args))
         logging.info("cwd='%s'" % cwd)
         scraper = subprocess.Popen(args,
@@ -32,5 +32,6 @@ class scrape_exemptions(object):
             logging.debug(x)
         for x in stderr.split('\n'):
             logging.error(x)
-        assert(len(stderr.strip())==0)
+        if len(stderr.strip())>0:
+            raise RuntimeError(stderr.strip())
         shutil.copyfile(output,success_output)

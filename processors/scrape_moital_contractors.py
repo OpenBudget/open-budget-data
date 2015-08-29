@@ -4,6 +4,7 @@ import pyquery
 from selenium import webdriver
 import sys
 import time
+import os
 
 header_conv = {
    u"כתובת" : "address",
@@ -87,7 +88,7 @@ def main(output,url,field):
     dcap["phantomjs.page.settings.userAgent"] = (
          "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
          "(KHTML, like Gecko) Chrome/43.0.2357.81 Safari/537.36")
-    browser = webdriver.PhantomJS(desired_capabilities = dcap)
+    browser = webdriver.PhantomJS(desired_capabilities = dcap, executable_path=os.environ.get('PHANTOMJS_PATH'))
     browser.set_window_size(1200, 800)
     browser.get(url)
 

@@ -4,4 +4,12 @@ rules:
       output: db/exemption.json
       use_proxy: no
       params:
+          since: yesterday
           success_output: tenders/db/exemption.success.json
+    - processor: scrape_exemptions
+      delay: 907200
+      output: db/exemption-alltime.json
+      use_proxy: no
+      params:
+          since: alltime
+          success_output: tenders/db/exemption-alltime.success.json

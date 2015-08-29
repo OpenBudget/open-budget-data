@@ -43,6 +43,7 @@ class process_entities(object):
                         ("-", " "),
                         (u"וו", u"ו"),
                         (u"יי", u"י"),
+                        (",", ""),
     ]
     def __init__(self):
         self.CLEAN_PREFIXES = set()

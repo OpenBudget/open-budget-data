@@ -32,7 +32,7 @@ slugs = {u"  \u05ea\u05d0\u05d2\u05d9\u05d3\u05d9 \u05d4\u05d0\u05d6\u05d5\u05e8
  u'\u05e9\u05d9\u05e8\u05d5\u05ea\u05d9 \u05d3\u05ea': 'religion_service'}
 
 if __name__=="__main__":
-    driver = webdriver.PhantomJS(service_args=['--ignore-ssl-errors=true'])
+    driver = webdriver.PhantomJS(service_args=['--ignore-ssl-errors=true'],executable_path=os.environ.get('PHANTOMJS_PATH'))
     driver.set_window_size(1200, 800)
     prepare(driver)
     select = driver.find_element_by_id("DropdownlistSugYeshut")
