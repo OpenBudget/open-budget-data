@@ -48,6 +48,7 @@ class extended_data_web_page:
 
     def go_to_url( self, url ):
 
+        self.url = url
         if self.rate_limit is not None:
             self.rate_limit.rate_limit()
         start_time = time.time()
@@ -77,6 +78,12 @@ class extended_data_web_page:
                                   ('last_update_date', '//*[@id="ctl00_PlaceHolderMain_lbl_UpdateDate"]'),
                                   ('reason', '//*[@id="ctl00_PlaceHolderMain_lbl_PtorReason"]'), 
                                   ('source_currency', '//*[@id="ctl00_PlaceHolderMain_lbl_Currency"]'),
+                                  ('regulation', '//*[@id="ctl00_PlaceHolderMain_lbl_Regulation"]'),
+                                  ('volume', '//*[@id="ctl00_PlaceHolderMain_lbl_TotalAmount"]'),
+                                  ('subjects', '//*[@id="ctl00_PlaceHolderMain_lbl_PublicationSUBJECT"]'),
+                                  ('start_date', '//*[@id="ctl00_PlaceHolderMain_lbl_StartDate"]'),
+                                  ('end_date', '//*[@id="ctl00_PlaceHolderMain_lbl_EndDate"]'),
+                                  ('decision', '//*[@id="ctl00_PlaceHolderMain_lbl_Decision"]'),
                                   ('page_title', '//*[@id="ctl00_PlaceHolderMain_lbl_PublicationType"]') ]:
 
             if len(sel.xpath(xpath+'/text()')) == 0:
@@ -96,6 +103,7 @@ class extended_data_web_page:
         if None in [ret["last_update_date"]]:
             raise base_scraper.NoSuchElementException()
 
+        ret['url'] = self.url
         ret['documents'] = []
         links = sel.xpath('//*[@id="ctl00_PlaceHolderMain_pnl_Files"]/div/div/div[2]/a')
         update_times = sel.xpath('//*[@id="ctl00_PlaceHolderMain_pnl_Files"]/div/div/div[1]')
