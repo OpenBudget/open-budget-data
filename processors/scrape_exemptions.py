@@ -6,19 +6,19 @@ import shutil
 
 class scrape_exemptions(object):
 
-    def process(self,input,output,since='last_week',success_output=None,PROXY=None):
+    def process(self,input,output,since='last_week',PROXY=None):
         env = os.environ.copy()
         if PROXY is not None:
             env['PROXY'] = PROXY
         output_dir = 'intermediates'
         cwd = 'tenders'
+        int_output = 'tenders/intermediates/processed.json'
         try:
             shutil.rmtree(os.path.join(cwd,output_dir))
         except:
             logging.debug("Didn't delete old dir, whatever")
             pass
         os.mkdir(os.path.join(cwd,output_dir))
-        shutil.copyfile(success_output,output)
         args = ['/usr/bin/env', 'python', 'exemption_updated_records_scraper.py',
                 '--scrape=%s' % since, output_dir]
         logging.info("RUNNING %s" % " ".join(args))
@@ -34,4 +34,4 @@ class scrape_exemptions(object):
             logging.error(x)
         if len(stderr.strip())>0:
             raise RuntimeError(stderr.strip())
-        shutil.copyfile(output,success_output)
+        shutil.copyfile(int_output,output)

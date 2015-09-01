@@ -120,6 +120,18 @@ rules:
               -
                   - group_top
                   - text[]
+              -
+                  - class_full
+                  - text[]
+              -
+                  - class_top
+                  - text[]
+              -
+                  - kind
+                  - text[]
+              -
+                  - subkind
+                  - text[]
 
     # Comparison record
     - processor: prepare_compare_record

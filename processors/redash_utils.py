@@ -23,5 +23,4 @@ def get_query_results(query_id, secret_api_key, redash_url="http://data.obudget.
     signature = sign(secret_api_key, path, expires)
     full_path = "{0}{1}?signature={2}&expires={3}".format(redash_url, path,
                                                           signature, expires)
-
     return requests.get(full_path).json()['query_result']['data']['rows']

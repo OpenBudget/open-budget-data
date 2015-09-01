@@ -3,3 +3,5 @@ tmichot*csv
 tmichot.sqlite
 tmichot*.jsons
 tmichot*.aggregated-jsons
+tmichot.nonprocessed.txt
+tmichot.psql

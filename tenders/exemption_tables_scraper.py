@@ -102,7 +102,7 @@ class search_web_page:
             if proxy is not None:
                 self.session.proxies = {'http': 'socks5://'+proxy}
 
-        d.setdefault( 'timeout', 10 )
+        d.setdefault( 'timeout', 180 )
         d.setdefault( 'url', 'http://www.mr.gov.il/ExemptionMessage/Pages/SearchExemptionMessages.aspx' )
 
         self.response = self.session.request( *p, **d )
@@ -110,8 +110,14 @@ class search_web_page:
 
 
     def initialize_web_page( self ):
-
-        self.request( 'get' )
+        for i in range(10):
+            try:
+                self.request( 'get' )
+                break
+            except Exception,e:
+                print "Got %s, retrying (%d)" % (e,i)
+                if i==9:
+                    raise
         if self.search_params:
             self.search( **self.search_params )
         print "done"

@@ -1,0 +1,5 @@
+intermediates/
+ghostdriver.log
+db/*jsons
+db/*json
+foia/*jsons

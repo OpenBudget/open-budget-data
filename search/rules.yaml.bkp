@@ -1,0 +1,26 @@
+rules:
+    - processor: make_search_prefixes
+      input: ../budget/budgets.jsons
+      output: search.jsons
+      params:
+          kind: BudgetLine
+          text_field: title
+          index_fields:
+              value: code
+              year: year
+          priority_fields:
+              - code
+              - year
+    # - processor: dump_to_db
+    #   input: search.jsons
+    #   output: search.sqlite
+    #   params:
+    #       key_fields:
+    #           - kind
+    #           - value
+    #           - year
+    # - processor: upload
+    #   input: search.sqlite
+    #   output: search.upload
+    #   params:
+    #       kind: sh

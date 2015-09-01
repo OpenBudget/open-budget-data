@@ -3,6 +3,7 @@ tmp.doc
 tmp.txt
 *.upload
 *.sqlite
+tmp/
 budget/budget_equivalents.jsons
 budget/budgets-noequiv.jsons
 budget/connections/budget_equivalents.jsons
