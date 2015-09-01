@@ -12,7 +12,7 @@ def indexof(*args):
     for name in names:
         for i,_h in enumerate(row):
             h = _h.decode('utf8')
-            if all(word in h for word in name.split()):
+            if name in h:
                 return i
     logging.error('cant find %s in row!' % "/".join(names))
     logging.error('row=%s' % ", ".join(row))
