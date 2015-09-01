@@ -6,12 +6,12 @@ rules:
           - queries/out.json
           - full_titles/out.json
           - data/budgets.jsons
-          - explanations/budget_explanations.jsons
       output: budgets.jsons
     - processor: aggregate_jsons_by_key
       input:
           - budgets.jsons
           - ../changes/budget_changes.jsons
+          - explanations/budget_explanations.jsons
       output: budgets-noequiv.aggregated-jsons
       params:
           key_fields:
