@@ -11,6 +11,12 @@ rules:
       use_proxy: yes
       params:
           year: 2015
+    - processor: scrape_supports
+      delay: 86400
+      output: tmichot2016.csv
+      use_proxy: yes
+      params:
+          year: 2016
     - processor: csv_to_jsons
       input: tmichot20*.csv
       output: /.csv/.jsons/
