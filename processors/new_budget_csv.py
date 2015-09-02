@@ -19,7 +19,7 @@ def indexof(*args):
     return None
 
 def to_code(row,col):
-    t = row[col]
+    t = row[col].strip()
     if len(t)==0:
         print "GOT EMPTY CODE! %s" % " ; ".join(x.decode('utf8') for x in row)
         return None
@@ -55,6 +55,9 @@ def add_to_list(key,sums,item,field):
             sums[key][field].append(item)
     # if len(sums[key][field])>1 and len(key)>=11 and field.startswith('group'):
     #     logging.error("TOO MANY GROUPS FOR %s %s: %r" % (field,key,sums[key]))
+
+def get_text(row,col):
+    return row[col].decode('utf8').strip()
 
 class new_budget_csv(object):
 
@@ -126,7 +129,7 @@ class new_budget_csv(object):
                 #     logging.error("%s, %s" % (code, row))
                 #     assert(False)
                 new_year = year in new_years and len(code) < 10
-                title = row[title_col].decode('utf8')
+                title = get_text(row,title_col)
 
                 net = get_from(row,NET_COL)
                 gross = get_from(row,GROSS_COL,net)
@@ -138,29 +141,29 @@ class new_budget_csv(object):
 
                 if PHASE_COL is None:
                     continue
-                phase = row[PHASE_COL].decode('utf8')
+                phase = get_text(row,PHASE_COL)
                 if phase not in [u'מקורי',u'ביצוע',u'מאושר']:
                     continue
 
                 if ACTIVE_COL is not None:
-                    active = row[ACTIVE_COL].decode('utf8') != u'פש"ח'
+                    active = get_text(row,ACTIVE_COL) != u'פש"ח'
                 else:
                     active = True
                 if ONETIME_COL is not None:
-                    active = row[ONETIME_COL].decode('utf8') != u'1'
+                    active = get_text(row,ONETIME_COL) != u'1'
                 else:
                     active = True
 
                 tak_kind = 'unknown'
                 if INOUT_COL is not None:
-                    if row[INOUT_COL].decode('utf8') == u'הכנסה':
+                    if get_text(row,INOUT_COL) == u'הכנסה':
                         tak_kind = 'income'
-                    elif row[INOUT_COL].decode('utf8') == u'הוצאה':
+                    elif get_text(row,INOUT_COL) == u'הוצאה':
                         tak_kind = 'expense'
 
                 tak_subkind = 'unknown'
                 if SUBKIND_COL is not None:
-                    tak_subkind = get_from(row,SUBKIND_COL)
+                    tak_subkind = get_text(row,SUBKIND_COL)
 
                 # all_values = [net_allocated,gross_allocated,gross_allocated,gross_revised,net_used,dedicated_allocated,commitment_allocated,personnel_allocated,contractors_allocated,amounts_allocated,dedicated_revised,commitment_revised,personnel_revised,contractors_revised,amounts_revised]
                 # all_zeros = sum(abs(x) for x in all_values if x is not None) == 0
@@ -169,15 +172,15 @@ class new_budget_csv(object):
 
                 group1 = group2 = None
                 if GROUP1_COL is not None and GROUP2_COL is not None:
-                    group1 = row[GROUP1_COL].decode('utf8')
-                    group2 = row[GROUP2_COL].decode('utf8')
+                    group1 = get_text(row,GROUP1_COL)
+                    group2 = get_text(row,GROUP2_COL)
                 group_top = group1
                 group_full = group2
 
                 class1 = class2 = None
                 if CLASS1_COL is not None and CLASS2_COL is not None:
-                    class1 = row[CLASS1_COL].decode('utf8')
-                    class2 = row[CLASS2_COL].decode('utf8')
+                    class1 = get_text(row,CLASS1_COL)
+                    class2 = get_text(row,CLASS2_COL)
                 class_top = class1
                 class_full = class2
 
