@@ -4,9 +4,9 @@ rules:
       output: db/exemption.success.jsons
       use_proxy: no
       params:
-          since: yesterday
+          since: last_week
     - processor: scrape_exemptions
-      delay: 907200
+      delay: 561600
       output: db/exemption-alltime.success.jsons
       use_proxy: no
       params:
