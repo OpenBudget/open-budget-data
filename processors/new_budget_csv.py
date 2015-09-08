@@ -194,7 +194,8 @@ class new_budget_csv(object):
                      'class_top':[],
                      'class_full':[],
                      'kind':[],
-                     'subkind':[]})
+                     'subkind':[],
+                     'active':active})
 
                 if phase == u'מקורי':
                     add_to_sums(key,sums,net, 'net_allocated')
