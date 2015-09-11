@@ -10,18 +10,14 @@ rules:
     - processor: aggregate_jsons_by_key
       input:
           - budgets.jsons
+          - connections/budget_equivalents.jsons
           - ../changes/budget_changes.jsons
           - explanations/budget_explanations.jsons
-      output: budgets-noequiv.aggregated-jsons
+      output: budgets.aggregated-jsons
       params:
           key_fields:
               - year
               - code
-    - processor: combine_budget_jsons
-      input:
-          - budgets-noequiv.aggregated-jsons
-          - connections/budget_equivalents.jsons
-      output: budgets.aggregated-jsons
     - processor: analyze_budgets
       input: budgets.aggregated-jsons
       output: budget-analysis.jsons
