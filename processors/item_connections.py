@@ -1,181 +1,322 @@
 import json
 import sys
+from collections import OrderedDict
 
+def getSizeOf(obj):
+    import cPickle
+    return "%0.3fMB" % (len(cPickle.dumps(obj))/1024.0/1024)
 
-KEY = "%s/%s-"
-DEFAULT_YEARS = [2014,2015]
+class LimitedSizeDict(OrderedDict):
+  def __init__(self, *args, **kwds):
+    self.size_limit = kwds.pop("size_limit", None)
+    OrderedDict.__init__(self, *args, **kwds)
+    self._check_size_limit()
 
+  def __setitem__(self, key, value):
+    OrderedDict.__setitem__(self, key, value)
+    self._check_size_limit()
 
-# if __name__ == "__main__":
-#     process("../budgets-noequiv.aggregated-jsons","budget_equivalents.jsons")
+  def _check_size_limit(self):
+    if self.size_limit is not None:
+      while len(self) > self.size_limit:
+        self.popitem(last=False)
+
+# Holds information regarding budget items
+class BudgetItems(object):
+    def __init__(self,in_fn,curatedInputs,errors):
+        self.minYear = 10000
+        self.maxYear = 0
+        self.titleCodeYears = {}
+        self.num_budgets = 0
+        self.codes = {}
+        for line in file(in_fn):
+            data = json.loads(line)
+            self.num_budgets += 1
+
+            year = data['year']
+            title = data['title']
+            code = data['code']
+            test_value = sum(data.get(x,0)**2 for x in ['net_allocated','gross_allocated','commitment_allocated','net_used'])
+            active = data.get('active',True)
+            if (test_value == 0 and year>=2015) or not active:
+                print "SKIPPING non-active %d/%s" % (year,code)
+                errors.skipped(year,code)
+                continue
+
+            self.codes.setdefault(year, []).append(code)
+
+            self.minYear = min(self.minYear,year)
+            self.maxYear = max(self.maxYear,year)
+
+            self.titleCodeYears.setdefault((title,code),[]).append(year)
+
+        for curatedInput in curatedInputs:
+            curated = json.load(file(curatedInput))
+            for single in curated:
+                src,dest = single
+                srcYear,srcCode = src
+                if len(srcCode)==10:
+                    self.codes[srcYear].append(srcCode)
+
+        print "Budgets processed #%d recs" % self.num_budgets
+        print "Years %d..%d" % (self.minYear,self.maxYear)
+
+    def allCodes(self,year):
+        return sorted(self.codes[year],key=lambda x:-len(x))
+
+class EquivsBase(object):
+    def __init__(self,size_limit=None):
+        self.equivs = LimitedSizeDict()
+
+    def key(self,year,code):
+        return "%d/%s" % (year,code)
+
+    def _put(self,srcYear,srcCode,dstYear,dstCodes):
+        eqs = self.equivs.setdefault(self.key(srcYear,srcCode),{})
+        if eqs.has_key(dstYear) and eqs[dstYear] != dstCodes:
+            print "DUP %s/%s <-- %s/%s (already has %s)" % (srcYear,srcCode,dstYear,dstCodes,eqs[dstYear])
+        eqs[dstYear] = dstCodes
+
+    def get(self,srcYear,srcCode):
+        return self.equivs.get(self.key(srcYear,srcCode),{})
+
+    def getMinYear(self,srcYear,srcCode,minYear):
+        per_year = self.get(srcYear,srcCode)
+        per_year = list(per_year.iteritems())
+        per_year = filter(lambda x:x[0]>=minYear,per_year)
+        if len(per_year) > 0:
+            per_year.sort(key=lambda x:x[0]) # sort by year ascending
+            first = per_year[0]
+            if first[1] == '':
+                return first[0],[]  # handle empty lists
+            else:
+                return first[0],first[1].split(";") # return first batch of codes
+        else:
+            return None,None
+
+    def setEq(self,srcYear,srcCode,dstYear,dstCodes):
+        dstCodes = ";".join(sorted(dstCodes))
+        self._put(srcYear,srcCode,dstYear,dstCodes)
+        #self._put(dstYear,dstCodes,srcYear,srcCode)
+
+class YearlyEquivs(EquivsBase):
+    def __init__(self,budgetItems,curatedInputs,errors):
+        super(YearlyEquivs,self).__init__()
+        for key,years in budgetItems.titleCodeYears.iteritems():
+            title,code = key
+            years = sorted(years)
+            years = zip(years[1:],years[:-1])
+            for srcYear,dstYear in years:
+                self.setEq(srcYear,code,dstYear,[code])
+        budgetItems.titleCodeYears = None
+        for curatedInput in curatedInputs:
+            curated = json.load(file(curatedInput))
+            for single in curated:
+                src,dest = single
+                srcYear,srcCode = src
+                dstYear = list(set(k[0] for k in dest))
+                dstCodes = list(set(k[1] for k in dest))
+                assert(len(dstYear)) == 1
+                dstYear = dstYear[0]
+                self.setEq(srcYear,srcCode,dstYear,dstCodes)
+                errors.curated(srcYear, srcCode, dstYear, dstCodes)
+
+class DescendantEquivs(EquivsBase):
+    def __init__(self,bi):
+        super(DescendantEquivs,self).__init__()
+        for year in range(bi.minYear,bi.maxYear+1):
+            kids = {}
+            for code in bi.allCodes(year):
+                if len(code)>4:
+                    parent = code[:4]
+                    kids.setdefault(parent,[]).append(code)
+            for parent,descendants in kids.iteritems():
+                self.setEq(year,parent,year,descendants)
+
+class MatcherResults(object):
+    def __init__(self):
+        self.cache = {}
+        self.matches = {}
+
+    def _add(self,srcYear,srcCode,dstYear,dstCode):
+        dstKey = "%d/%s" % (dstYear,dstCode)
+        srcKey = "%d/%s" % (srcYear,srcCode)
+        self.cache.setdefault(dstKey,{'code':dstCode,'year':dstYear,'equiv_codes':set([dstKey])})['equiv_codes'].add(srcKey)
+
+    def set(self,srcYear,srcCode,dstYear,codes):
+        for code in codes:
+            self._add(srcYear,srcCode,dstYear,code)
+        if len(codes)==1:
+            self._add(dstYear,codes[0],srcYear,srcCode)
+        if srcYear == dstYear + 1:
+            self.matches.setdefault(srcYear,[]).append(srcCode)
+
+    def dump(self,out_fn):
+        out = file(out_fn,"w")
+        for row in self.cache.values():
+            row['equiv_codes'] = sorted(list(row['equiv_codes']))
+            out.write(json.dumps(row,sort_keys=True)+"\n")
+
+    def getForYear(self,year):
+        return self.matches[year]
+
+class ErrorCollector(object):
+    def __init__(self):
+        self.errors = {}
+
+    def missing(self,srcYear,tgtYear,code):
+        if srcYear == tgtYear + 1:
+            self.errors.setdefault(srcYear,{}).setdefault(code,{})['missing']=True
+
+    def skipped(self,year,code):
+        self.errors.setdefault(year,{}).setdefault(code,{})['skipped']=True
+
+    def invalid(self,srcYear,srcCode,tgtYear,alt):
+        if srcYear == tgtYear + 1:
+            self.errors.setdefault(srcYear,{}).setdefault(srcCode,{})['invalid']=alt
+
+    def curated(self,srcYear,srcCode,tgtYear,tgtCodes):
+        if srcYear == tgtYear + 1:
+            self.errors.setdefault(srcYear,{}).setdefault(srcCode,{})['curated']=tgtCodes
+
+    def getForYear(self,year):
+        return self.errors.get(year)
+
+    def dump(self,out_fn,bi):
+        out = file(out_fn,'w')
+        for year in range(bi.minYear+1,bi.maxYear+1):
+            for code in bi.allCodes(year):
+                error = self.errors[year].get(code,{})
+                rec = {'code':code,'year':year,'match_status':error}
+                out.write(json.dumps(rec,sort_keys=True)+"\n")
+
+class MatchValidator(object):
+    def __init__(self,errors):
+        self.codes = {}
+        self.errors = errors
+
+    def clear(self):
+        self.codes = {}
+
+    def check(self,srcYear,srcCode,dstYear,codes):
+        if srcYear == dstYear + 1:
+            current = self.codes.setdefault(srcYear, {}).setdefault(len(srcCode),[])
+            for code in codes:
+                assert(len(code)>0)
+                for c in current:
+                    if c.startswith(code) or code.startswith(c):
+                        print "INVALID: %s/%s --> %s/%s (already have %s)" % (srcYear,srcCode,dstYear,code,c)
+                        self.errors.invalid(srcYear,srcCode,dstYear,[code,c])
+                        return False
+            current.extend(codes)
+        return True
+
+class Matcher(object):
+    def __init__(self,results,yearEqs,descEqs,validator):
+        self.results = results
+        self.yEq = yearEqs
+        self.dEq = descEqs
+        self.validator = validator
+        self.cache = EquivsBase(size_limit=50000)
+
+    def match(self,srcYear,srcCode,dstYear):
+        equivs = [(srcYear,srcCode)]
+        #print ">>>>>> ",srcYear,srcCode,"->",dstYear
+        done = False
+        while not done:
+            # We stop when all years are dstYear or we can't proceed no more
+            assert(len(equivs)>0)
+            years = list(set(eq[0] for eq in equivs))
+            if len(years)==1 and years[0] == dstYear:
+                # Great! we're done, save to cache
+                codes = list(set(eq[1] for eq in equivs))
+                if self.validator.check(srcYear,srcCode,dstYear,codes):
+                    #print "MATCH :%d/%s: --> %s" % (srcYear,srcCode,",".join(":%d/%s:" % (dstYear,c) for c in codes))
+                    self.cache.setEq(srcYear,srcCode,dstYear,codes)
+                    self.results.set(srcYear,srcCode,dstYear,codes)
+                    return equivs
+                else:
+                    break
+            new_equivs = []
+            for year,code in equivs:
+                # Try to find equivs for each item in the cache
+                eqYear,eqCodes = self.cache.getMinYear(year,code,dstYear)
+                if eqYear is not None:
+                    if len(eqCodes) > 0:
+                        # We found a hit in the cache, use it
+                        new_equivs.extend([(eqYear,eqCode) for eqCode in eqCodes])
+                        #print year,code,"-C->",eqYear,eqCodes
+                        continue
+                    else:
+                        # we found a miss in the cache, no point in proceeding
+                        done = True
+                        break
+                # Try to find equivs for each item as far as possible into history
+                eqYear,eqCodes = self.yEq.getMinYear(year,code,dstYear)
+                if eqYear is not None:
+                    new_equivs.extend([(eqYear,eqCode) for eqCode in eqCodes])
+                    #print year,code,"-Y->",eqYear,eqCodes
+                    continue
+                # Didn't find an equivalent in a previous year, let's try to split to descendants
+                _,eqCodes = self.dEq.getMinYear(year,code,year)
+                if eqCodes is not None:
+                    new_equivs.extend([(year,eqCode) for eqCode in eqCodes])
+                    #print year,code,"-D->",year,eqCodes
+                    continue
+                # miss
+                #print "MISS :%d/%s: -/-> %d/????" % (srcYear,srcCode,dstYear)
+                done = True
+                break
+            equivs = new_equivs
+        self.cache.setEq(srcYear,srcCode,dstYear,[])
+        return None
+
+def main(budgets_input,curated_inputs,missing_output,equivs_output):
+    # Here we hold the errors during the process
+    errors = ErrorCollector()
+    # load all budget items
+    bi = BudgetItems(budgets_input,curated_inputs,errors)
+    # create equivalents between subsequent years
+    yearEqs = YearlyEquivs(bi,curated_inputs,errors)
+    # create equivalents between items and their descendants
+    descEqs = DescendantEquivs(bi)
+    minYear = bi.minYear
+    maxYear = bi.maxYear
+
+    # Here we hold the matches
+    results = MatcherResults()
+    # Here we check everything's valid
+    validator = MatchValidator(errors)
+    # And this does the actual matching
+    matcher = Matcher(results,yearEqs,descEqs,validator)
+    # We find matches for all budget years:
+    for srcYear in range(minYear+1,maxYear+1):
+        validator.clear()
+        # in all previous years
+        for tgtYear in range(srcYear-1,minYear-1,-1):
+            # iterate on all budget codes, from specific to generic:
+            print srcYear, tgtYear
+            for srcCode in bi.allCodes(srcYear):
+                equivs = matcher.match(srcYear,srcCode,tgtYear)
+                if equivs is None:
+                    errors.missing(srcYear,tgtYear,srcCode)
+                    pass
+
+    # Report
+    for year in range(minYear+1,maxYear+1):
+        matched = len(results.getForYear(year))
+        error_num = len(errors.getForYear(year))
+        print "%d: %s/%s = %d%%" % (year,matched, matched+error_num, (100*matched)/(matched+error_num))
+
+    # dump output
+    errors.dump(missing_output,bi)
+    results.dump(equivs_output)
 
 class item_connections(object):
+    def process(self,input_file,output_file,errors_file=None,curated=[]):
+        main(input_file,curated,errors_file,output_file)
 
-    def process(self,input_file,output_file,ref_years=DEFAULT_YEARS,curated=[]):
-        all_codes = []
-        h_eq = {}
-        y_eq = { ref_year: {} for ref_year in ref_years }
-        code_titles = {}
-        title_for_code = {}
-
-        with file(input_file) as input:
-            for line in input:
-                line = json.loads(line)
-                code = str(line['code'])
-                year = line['year']
-                value = line.get('net_revised',0) + line.get('gross_revised',0)
-                test_value = sum(line.get(x,0)**2 for x in ['net_allocated','gross_allocated','commitment_allocated','net_used'])
-                if test_value == 0 and year not in ref_years:
-                    continue
-                title = line.get('title')
-                if title is None:
-                    continue
-                if len(code) > 2:
-                    parent_code = code[:-2]
-                    h_eq.setdefault(KEY % (year,parent_code),[]).append(KEY % (year,code))
-                code_titles.setdefault((code,title),[]).append(year)
-                title_for_code[(code,year)] = (title,value)
-                if year in ref_years:
-                    all_codes.append(KEY % (year,code))
-
-        for key,years in code_titles.iteritems():
-            code,title = key
-            years.sort()
-            for i in range(len(years)-1):
-                y1=years[i]
-                y2=years[i+1]
-                y_eq.setdefault(y1,{}).setdefault(KEY % (y2,code),[]).append(KEY % (y1,code))
-
-        for preset_fn in curated:
-            with file(preset_fn) as preset_file:
-                presets = json.load(preset_file)
-                for preset in presets:
-                    key,keys = preset
-                    #print key, keys
-                    tgt_year = list(set(k[0] for k in keys))
-                    assert(len(tgt_year)) == 1
-                    tgt_year = tgt_year[0]
-                    y_eq[tgt_year][KEY % tuple(key)] = [KEY % tuple(k) for k in keys]
-
-        all_codes.sort(reverse=True)
-        missing_links = {}
-        target_years = range(1992,max(ref_years)+1)
-        target_years.sort(reverse=True)
-        for target_year in target_years:
-            for key in all_codes:
-                go_on = True
-                equivs = [ key ]
-                #print "KK %s,%d" % (key,target_year)
-                bad_keys = []
-                while go_on and equivs is not None:
-                    #print "EEE %r" % equivs
-                    go_on = False
-                    new_equivs = []
-                    failed = False
-                    for k in equivs:
-                        year = int(k.split("/")[0])
-                        if year == target_year:
-                            #print k,"F"
-                            new_equivs.append(k)
-                            continue
-                        got_year = False
-                        for test_year in range(target_year,max(ref_years)):
-                            if y_eq[test_year].has_key(k):
-                                #print k,"Y"
-                                new_equivs.extend(y_eq[test_year][k])
-                                go_on = True
-                                got_year = True
-                                break
-                        if got_year:
-                            continue
-                        bad_keys.append(k)
-                        if h_eq.has_key(k):
-                            #print k,"H"
-                            new_equivs.extend(h_eq.get(k))
-                            go_on = True
-                            continue
-                        failed = True
-                        #print k,"?"
-
-                    if failed:
-                        new_equivs = None
-                    equivs = new_equivs
-                if equivs is not None:
-                    for x in equivs:
-                        assert(x.startswith(str(target_year)))
-                    if not y_eq[target_year].has_key(key):
-                        y_eq[target_year][key] = equivs
-                    if len(equivs)>1:
-                        print "%s --> %r" % (key, equivs)
-                else:
-                    for bad_key in bad_keys:
-                        year,code = bad_key.split('/')
-                        code = code[:-1]
-                        year = int(year)
-                        #print "MISSING: %s -> %s (%r)" % (key, bad_key, equivs)
-                        assert(code!='')
-                        if missing_links.has_key(code):
-                            if missing_links[code] < year:
-                                missing_links[code] = year
-                        else:
-                            missing_links[code] = year
-
-        out = {}
-        for y,eqs in y_eq.iteritems():
-            validation = {}
-            for key,keys in eqs.iteritems():
-                #print "XXXXXXX %r %r" % (key,keys)
-                #if key.startswith(str(ref_year)):
-                for tgtkey in keys:
-                    validation.setdefault(tgtkey,[]).append(key)
-                    out.setdefault((y,tgtkey.split('/')[1][:-1]),set()).add('E'+key[:-1])
-                for y2 in range(1992,2020):
-                    yearly_keys = [ k for k in keys if k.startswith(str(y2))]
-                    if len(yearly_keys)==1:
-                        out.setdefault((y,key.split('/')[1][:-1]),set()).add('E'+yearly_keys[0][:-1])
-            for k,v in validation.iteritems():
-                if len(v)>1:
-                    for i in range(len(v)):
-                        for j in range(len(v)):
-                            if i != j and len(v[i]) > len(v[j]):
-                                if not v[i][:-1].startswith(v[j][:-1]):
-                                    print "VALIDATION:",k,v
-
-        with file(output_file,"w") as output:
-            for k,v in out.iteritems():
-                year, code = k
-                rec = { 'year': year,
-                        'code': code,
-                        'equiv_code': list(v) }
-                output.write(json.dumps(rec,sort_keys=True)+"\n")
-            # for tgt_year, eqs in y_eq.iteritems():
-            #     for key, keys in eqs.iteritems():
-            #         if not key.startswith(str(ref_year)):
-            #             continue
-            #         for tgt_key in keys:
-            #             rec = { 'year': tgt_year,
-            #                     'code': tgt_key.split('/')[1][:-1],
-            #                     'equiv_code': 'E'+key[:-1] }
-            #             output.write(json.dumps(rec,sort_keys=True)+"\n")
-
-        output = file('missing-%s.csv' % year,'wb')
-        missing_links = list(missing_links.iteritems())
-        missing_links.sort(key=lambda x:int(str(x[1])+x[0]))
-        #print "RRR %r" % missing_links[:10]
-        for code,year in missing_links:
-            title,value = title_for_code.get((code,year),(None,None))
-            if title is None:
-                print "BAD CODE FOUND: %s/%s" % (code,year)
-                continue
-            if value <= 0:
-                print "DISREGARDING null value: %s/%s" % (code,year)
-                continue
-            title = title.encode('utf8')
-            #print "T: %r,%r,%r" % (year,code,title)
-            output.write('%s,"C%s","%s",%s\n' % (year,str(code),title.replace('"','""'),value))
-
-if __name__ == "__main__":
-    inputs = sys.argv[1]
-    output = sys.argv[2]
-    curated = sys.argv[3:]
-    processor = item_connections().process(inputs,output,ref_years=[2014,2015],curated=curated)
+if __name__=="__main__":
+    main("test/budgets.jsons",
+         ["test/2013-2012-conversion.json","test/curated.json","test/curated2.json","test/curated5.json"],
+         "test/missing.jsons","test/equivs.jsons")

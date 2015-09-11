@@ -1,30 +1,16 @@
 rules:
-    # - processor: item_connections
-    #   input: ../budgets-noequiv.aggregated-jsons
-    #   output: budget_equivalents-2015.jsons
-    #   params:
-    #       ref_years:
-    #           - 2015
-    #       curated:
-    #           - budget/connections/2013-2012-conversion.json
-    #           - budget/connections/curated.json
-    #           - budget/connections/curated2.json
-    #           - budget/connections/curated3.json
-    #           - budget/connections/curated4.json
     - processor: item_connections
-      input: ../budgets-noequiv.aggregated-jsons
-      output: budget_equivalents-2014.jsons
+      input: ../budgets.jsons
+      output: budget_equivalents.matches.jsons
       params:
-          ref_years:
-              - 2014
+          errors_file: budget/connections/budget_equivalents.errors.jsons
           curated:
               - budget/connections/2013-2012-conversion.json
               - budget/connections/curated.json
               - budget/connections/curated2.json
-              - budget/connections/curated3.json
-              - budget/connections/curated4.json
+              - budget/connections/curated5.json
     - processor: aggregate_jsons_by_key
-      input: budget_equivalents-*.jsons
+      input: budget_equivalents.*.jsons
       output: budget_equivalents.jsons
       params:
           key_fields:
