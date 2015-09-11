@@ -141,7 +141,7 @@ class MatcherResults(object):
     def _add(self,srcYear,srcCode,dstYear,dstCode):
         dstKey = "%d/%s" % (dstYear,dstCode)
         srcKey = "%d/%s" % (srcYear,srcCode)
-        self.cache.setdefault(dstKey,{'code':dstCode,'year':dstYear,'equiv_codes':set([dstKey])})['equiv_codes'].add(srcKey)
+        self.cache.setdefault(dstKey,{'code':dstCode,'year':dstYear,'equiv_code':set([dstKey])})['equiv_code'].add(srcKey)
 
     def set(self,srcYear,srcCode,dstYear,codes):
         for code in codes:
@@ -154,7 +154,7 @@ class MatcherResults(object):
     def dump(self,out_fn):
         out = file(out_fn,"w")
         for row in self.cache.values():
-            row['equiv_codes'] = sorted(list(row['equiv_codes']))
+            row['equiv_code'] = sorted(list(row['equiv_code']))
             out.write(json.dumps(row,sort_keys=True)+"\n")
 
     def getForYear(self,year):
