@@ -49,6 +49,9 @@ def get_from(row,index,to_add=0):
 def add_to_sums(key,sums,amount,field):
     if amount is not None: sums[key][field] = sums[key].setdefault(field,0)+amount
 
+def aggregate_boolean(key,sums,value,field):
+    if value is not None: sums[key][field] = sums[key].setdefault(field,False) or value
+
 def add_to_list(key,sums,item,field):
     if item is not None:
         if item not in sums[key][field]:
@@ -194,8 +197,7 @@ class new_budget_csv(object):
                      'class_top':[],
                      'class_full':[],
                      'kind':[],
-                     'subkind':[],
-                     'active':active})
+                     'subkind':[]})
 
                 if phase == u'מקורי':
                     add_to_sums(key,sums,net, 'net_allocated')
@@ -222,6 +224,8 @@ class new_budget_csv(object):
 
                     add_to_list(key,sums,tak_kind,'kind')
                     add_to_list(key,sums,tak_subkind,'subkind')
+
+                    aggregate_boolean(key,sums,active,'active')
 
                 elif phase == u'מאושר':
                     assert(not new_year)
