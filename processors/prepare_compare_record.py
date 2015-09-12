@@ -24,7 +24,7 @@ class prepare_compare_record(object):
                 recs_by_code[rec['code']] = rec
             elif rec['year'] == year-1:
                 for equiv in set(rec.get('equiv_code',[])):
-                    if len(equiv) == 12:
+                    if len(equiv) == 11:
                         prev_recs_by_code.setdefault(equiv,[]).append(rec)
         # print current_recs[:10]
         # print list(recs_by_code.iteritems())[:10]
