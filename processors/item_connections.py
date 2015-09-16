@@ -36,9 +36,9 @@ class BudgetItems(object):
             year = data['year']
             title = data['title']
             code = data['code']
-            test_value = sum(data.get(x,0)**2 for x in ['net_allocated','gross_allocated','commitment_allocated','net_used'])
+            test_value = sum(data.get(x,0)**2 for x in ['net_allocated','gross_allocated','net_revised','commitment_allocated','net_used'])
             active = data.get('active',True)
-            if (test_value == 0 and year>=2015) or not active:
+            if test_value == 0 or not active:
                 print "SKIPPING non-active %d/%s" % (year,code)
                 errors.skipped(year,code)
                 continue
