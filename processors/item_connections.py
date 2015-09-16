@@ -29,7 +29,7 @@ class BudgetItems(object):
         self.titleCodeYears = {}
         self.num_budgets = 0
         self.codes = {}
-        self.skippedCodes = {}
+        self.skipped = {}
         for line in file(in_fn):
             data = json.loads(line)
             self.num_budgets += 1
@@ -42,7 +42,7 @@ class BudgetItems(object):
             if test_value == 0 or not active:
                 print "SKIPPING non-active %d/%s" % (year,code)
                 errors.skipped(year,code)
-                self.skippedCodes.setdefault(year, []).append(code)
+                self.skipped.setdefault(year, []).append(code)
                 continue
 
             self.codes.setdefault(year, []).append(code)
@@ -67,7 +67,7 @@ class BudgetItems(object):
         return sorted(self.codes[year],key=lambda x:-len(x))
 
     def skippedCodes(self,year):
-        return self.skippedCodes.get(year,[])
+        return self.skipped.get(year,[])
 
 class EquivsBase(object):
     def __init__(self,size_limit=None):
