@@ -67,7 +67,7 @@ class BudgetItems(object):
         return sorted(self.codes[year],key=lambda x:-len(x))
 
     def skippedCodes(self,year):
-        return self.skippedCodes[year]
+        return self.skippedCodes.get(year,[])
 
 class EquivsBase(object):
     def __init__(self,size_limit=None):
