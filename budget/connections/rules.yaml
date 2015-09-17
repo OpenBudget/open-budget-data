@@ -1,4 +1,9 @@
 rules:
+    - processor: download_if_changed
+      delay: 600
+      output: curated_server.json
+      params:
+          url: http://www.obudget.org/api/budget-matches
     - processor: item_connections
       input: ../budgets.jsons
       output: budget_equivalents.matches.jsons
@@ -9,6 +14,7 @@ rules:
               - budget/connections/curated.json
               - budget/connections/curated2.json
               - budget/connections/curated5.json
+              - budget/connections/curated_server.json
     - processor: aggregate_jsons_by_key
       input: budget_equivalents.*.jsons
       output: budget_equivalents.jsons
