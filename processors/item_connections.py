@@ -190,14 +190,12 @@ class ErrorCollector(object):
     def dump(self,out_fn,bi):
         out = file(out_fn,'w')
         for year in range(bi.minYear+1,bi.maxYear+1):
-            for code in bi.allCodes(year):
-                error = self.errors[year].get(code,{})
-                rec = {'code':code,'year':year,'match_status':error}
-                out.write(json.dumps(rec,sort_keys=True)+"\n")
-            for code in bi.skippedCodes(year):
-                error = self.errors[year].get(code,{})
-                rec = {'code':code,'year':year,'match_status':error}
-                out.write(json.dumps(rec,sort_keys=True)+"\n")
+            for l in [bi.allCodes(year),bi.skippedCodes(year)]:
+                for code in l:
+                    error = self.errors[year].get(code,{})
+                    error['pending'] = None
+                    rec = {'code':code,'year':year,'match_status':error}
+                    out.write(json.dumps(rec,sort_keys=True)+"\n")
 
 class MatchValidator(object):
     def __init__(self,errors):
