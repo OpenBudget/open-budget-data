@@ -193,7 +193,7 @@ class ErrorCollector(object):
             for l in [bi.allCodes(year),bi.skippedCodes(year)]:
                 for code in l:
                     error = self.errors[year].get(code,{})
-                    error['pending'] = None
+                    error['pending'] = ""
                     rec = {'code':code,'year':year,'match_status':error}
                     out.write(json.dumps(rec,sort_keys=True)+"\n")
 
