@@ -133,7 +133,7 @@ class DescendantEquivs(EquivsBase):
             kids = {}
             for code in bi.allCodes(year):
                 if len(code)>4:
-                    parent = code[:4]
+                    parent = code[:len(code)-2]
                     kids.setdefault(parent,[]).append(code)
             for parent,descendants in kids.iteritems():
                 self.setEq(year,parent,year,descendants)
@@ -254,7 +254,7 @@ class Matcher(object):
 
     def match(self,srcYear,srcCode,dstYear):
         equivs = [(srcYear,srcCode)]
-        #print ">>>>>> ",srcYear,srcCode,"->",dstYear
+        # print ">>>>>> ",srcYear,srcCode,"->",dstYear
         done = False
         while not done:
             # We stop when all years are dstYear or we can't proceed no more
@@ -264,7 +264,7 @@ class Matcher(object):
                 # Great! we're done, save to cache
                 codes = list(set(eq[1] for eq in equivs))
                 if self.validator.check(srcYear,srcCode,dstYear,codes):
-                    #print "MATCH :%d/%s: --> %s" % (srcYear,srcCode,",".join(":%d/%s:" % (dstYear,c) for c in codes))
+                    # print "MATCH :%d/%s: --> %s" % (srcYear,srcCode,",".join(":%d/%s:" % (dstYear,c) for c in codes))
                     self.cache.setEq(srcYear,srcCode,dstYear,codes)
                     self.results.set(srcYear,srcCode,dstYear,codes)
                     return equivs
@@ -278,7 +278,7 @@ class Matcher(object):
                     if len(eqCodes) > 0:
                         # We found a hit in the cache, use it
                         new_equivs.extend([(eqYear,eqCode) for eqCode in eqCodes])
-                        #print year,code,"-C->",eqYear,eqCodes
+                        # print year,code,"-C->",eqYear,eqCodes
                         continue
                     else:
                         # we found a miss in the cache, no point in proceeding
@@ -288,16 +288,16 @@ class Matcher(object):
                 eqYear,eqCodes = self.yEq.getMinYear(year,code,dstYear)
                 if eqYear is not None:
                     new_equivs.extend([(eqYear,eqCode) for eqCode in eqCodes])
-                    #print year,code,"-Y->",eqYear,eqCodes
+                    # print year,code,"-Y->",eqYear,eqCodes
                     continue
                 # Didn't find an equivalent in a previous year, let's try to split to descendants
                 _,eqCodes = self.dEq.getMinYear(year,code,year)
                 if eqCodes is not None:
                     new_equivs.extend([(year,eqCode) for eqCode in eqCodes])
-                    #print year,code,"-D->",year,eqCodes
+                    # print year,code,"-D->",year,eqCodes
                     continue
                 # miss
-                #print "MISS :%d/%s: -/-> %d/????" % (srcYear,srcCode,dstYear)
+                # print "MISS :%d/%s: -/-> %d/????" % (srcYear,srcCode,dstYear)
                 done = True
                 break
             equivs = new_equivs
