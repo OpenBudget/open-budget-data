@@ -346,6 +346,7 @@ def main(budgets_input,curated_inputs,missing_output,equivs_output,stats_file):
             l = str(i)
             matches = match_stats.get(year,{}).get('levels',{}).get(l,{}).get('matches',0)
             stat.setdefault('levels',{}).setdefault(l,{})['matches'] = matches
+        stats[year] = stat
     print json.dumps(stats,indent=2)
     stats = {'key':'match-stats','value':stats}
     file(stats_file,'w').write(json.dumps(stats))
