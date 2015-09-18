@@ -16,6 +16,7 @@ rules:
               - budget/connections/curated2.json
               - budget/connections/curated5.json
               - budget/connections/curated_server.json
+          match_stats: budget/connections/match_stats.json
     - processor: aggregate_jsons_by_key
       input: budget_equivalents.*.jsons
       output: budget_equivalents.jsons
@@ -23,3 +24,16 @@ rules:
           key_fields:
               - year
               - code
+    - processor: dump_to_db
+      input: match_stats.json
+      output: match_stats.sqlite
+      params:
+          key_fields:
+              - key
+      model: SystemProperty
+      process_history: no
+    - processor: upload
+      input: match_stats.sqlite
+      output: match_stats.upload
+      params:
+          kind: sp

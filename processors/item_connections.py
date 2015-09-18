@@ -162,6 +162,14 @@ class MatcherResults(object):
             row['equiv_code'] = sorted(list(row['equiv_code']))
             out.write(json.dumps(row,sort_keys=True)+"\n")
 
+    def stats(self):
+        ret = {}
+        for year,matches in self.matches.iteritems():
+            ret[year] = {'matches':len(matches),'levels':{}}
+            for i in range(2,10,2):
+                ret[year]['levels'][str(i)] = {'matches':len(filter(lambda x:len(x)==i+2,matches))}
+        return ret
+
     def getForYear(self,year):
         return self.matches[year]
 
@@ -186,6 +194,24 @@ class ErrorCollector(object):
 
     def getForYear(self,year):
         return self.errors.get(year)
+
+    def stats(self):
+        ret = {}
+        for year,codes in self.errors.iteritems():
+            ret[year] = {'missing':0,'invalid':0,'levels':{}}
+            for i in range(2,10,2):
+                ret[year]['levels'][str(i)] = {'missing':0,'invalid':0}
+            for code,status in codes.iteritems():
+                level = len(code)-2
+                if level > 0:
+                    level = str(level)
+                    if status.get('missing',False):
+                        ret[year]['missing'] += 1
+                        ret[year]['levels'][level]['missing'] += 1
+                    if len(status.get('invalid',[]))>0:
+                        ret[year]['invalid'] += 1
+                        ret[year]['levels'][level]['invalid'] += 1
+        return ret
 
     def dump(self,out_fn,bi):
         out = file(out_fn,'w')
@@ -278,7 +304,7 @@ class Matcher(object):
         self.cache.setEq(srcYear,srcCode,dstYear,[])
         return None
 
-def main(budgets_input,curated_inputs,missing_output,equivs_output):
+def main(budgets_input,curated_inputs,missing_output,equivs_output,stats_file):
     # Here we hold the errors during the process
     errors = ErrorCollector()
     # load all budget items
@@ -310,20 +336,29 @@ def main(budgets_input,curated_inputs,missing_output,equivs_output):
                     pass
 
     # Report
+    error_stats = errors.stats()
+    match_stats = results.stats()
+    stats = {}
     for year in range(minYear+1,maxYear+1):
-        matched = len(results.getForYear(year))
-        error_num = len(errors.getForYear(year))
-        print "%d: %s/%s = %d%%" % (year,matched, matched+error_num, (100*matched)/(matched+error_num))
+        stat = error_stats.get(year,{})
+        stat['matches'] = match_stats.get(year,{}).get('matches',0)
+        for i in range(2,10,2):
+            l = str(i)
+            matches = match_stats.get(year,{}).get('levels',{}).get(l,{}).get('matches',0)
+            stat.setdefault('levels',{}).setdefault(l,{})['matches'] = matches
+    print json.dumps(stats,indent=2)
+    stats = {'key':'match-stats','value':stats}
+    file(stats_file,'w').write(json.dumps(stats))
 
     # dump output
     errors.dump(missing_output,bi)
     results.dump(equivs_output)
 
 class item_connections(object):
-    def process(self,input_file,output_file,errors_file=None,curated=[]):
-        main(input_file,curated,errors_file,output_file)
+    def process(self,input_file,output_file,errors_file=None,curated=[],match_stats=None):
+        main(input_file,curated,errors_file,output_file,match_stats)
 
 if __name__=="__main__":
     main("test/budgets.jsons",
          ["test/2013-2012-conversion.json","test/curated.json","test/curated2.json","test/curated5.json"],
-         "test/missing.jsons","test/equivs.jsons")
+         "test/missing.jsons","test/equivs.jsons","test/stats.json")
