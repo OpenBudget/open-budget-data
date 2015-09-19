@@ -17,6 +17,7 @@ rules:
               - budget/connections/curated5.json
               - budget/connections/curated_server.json
           match_stats: budget/connections/match_stats.json
+          full_budget_file: budget/budgets.aggregated-jsons
     - processor: aggregate_jsons_by_key
       input: budget_equivalents.*.jsons
       output: budget_equivalents.jsons
