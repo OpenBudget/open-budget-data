@@ -393,7 +393,7 @@ def main(budgets_input,curated_inputs,missing_output,equivs_output,stats_file):
                 if equivs is None:
                     errors.missing(srcYear,tgtYear,srcCode)
                 elif heuristic:
-                    errors.heuristic(srcYear,tgtYear,srcCode,equivs)
+                    errors.heuristic(srcYear,srcCode,tgtYear,equivs)
 
     # Report
     error_stats = errors.stats()
