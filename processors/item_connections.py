@@ -43,7 +43,7 @@ class BudgetItems(object):
                 code = data['code']
             except:
                 continue
-                
+
             equivs = data.get('equiv_code',[])
             test_value = sum(data.get(x,0)**2 for x in ['net_allocated','gross_allocated','net_revised','commitment_allocated','net_used'])
             active = data.get('active',True)
@@ -392,8 +392,8 @@ def main(budgets_input,curated_inputs,missing_output,equivs_output,stats_file):
                 equivs,heuristic = matcher.match(srcYear,srcCode,tgtYear)
                 if equivs is None:
                     errors.missing(srcYear,tgtYear,srcCode)
-                if heuristic:
-                    errors.heuristic(srcYear,tgtYear,srcCode)
+                elif heuristic:
+                    errors.heuristic(srcYear,tgtYear,srcCode,equivs)
 
     # Report
     error_stats = errors.stats()
