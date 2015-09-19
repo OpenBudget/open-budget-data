@@ -1,3 +1,4 @@
+#encoding: utf8
 import json
 import sys
 from collections import OrderedDict
@@ -29,6 +30,8 @@ class BudgetItems(object):
         self.titleCodeYears = {}
         self.num_budgets = 0
         self.codes = {}
+        self.titles = {}
+        self.equivs = {}
         self.skipped = {}
         for line in file(in_fn):
             data = json.loads(line)
@@ -37,6 +40,7 @@ class BudgetItems(object):
             year = data['year']
             title = data['title']
             code = data['code']
+            equivs = data.get('equiv_code',[])
             test_value = sum(data.get(x,0)**2 for x in ['net_allocated','gross_allocated','net_revised','commitment_allocated','net_used'])
             active = data.get('active',True)
             if test_value == 0 or not active:
@@ -51,6 +55,13 @@ class BudgetItems(object):
             self.maxYear = max(self.maxYear,year)
 
             self.titleCodeYears.setdefault((title,code),[]).append(year)
+            self.titles.setdefault(title,{}).setdefault(year,[]).append(code)
+
+            equivs = [ e.split('/') for e in equivs ]
+            for y,c in equivs:
+                y = int(y)
+                if y != year:
+                    self.equivs.setdefault((y,c),{}).setdefault(year,[]).append(code)
 
         for curatedInput in curatedInputs:
             curated = json.load(file(curatedInput))
@@ -70,6 +81,9 @@ class BudgetItems(object):
         return self.skipped.get(year,[])
 
 class EquivsBase(object):
+
+    HEURISTIC = False
+
     def __init__(self,size_limit=None):
         self.equivs = LimitedSizeDict()
 
@@ -98,6 +112,9 @@ class EquivsBase(object):
                 return first[0],first[1].split(";") # return first batch of codes
         else:
             return None,None
+
+    def getEquivs(self,srcYear,srcCode,dstYear):
+        return self.getMinYear(srcYear,srcCode,dstYear)
 
     def setEq(self,srcYear,srcCode,dstYear,dstCodes):
         dstCodes = ";".join(sorted(dstCodes))
@@ -137,6 +154,48 @@ class DescendantEquivs(EquivsBase):
                     kids.setdefault(parent,[]).append(code)
             for parent,descendants in kids.iteritems():
                 self.setEq(year,parent,year,descendants)
+
+    def getEquivs(self,srcYear,srcCode,dstYear):
+        return self.getMinYear(srcYear,srcCode,srcYear)
+
+class SameNameCommonParentEquivs(EquivsBase):
+
+    HEURISTIC = True
+
+    def __init__(self,bi):
+        super(SameNameCommonParentEquivs,self).__init__()
+        for title, years in bi.titles.iteritems():
+            options = []
+            for year,codes in years.iteritems():
+                # codes here are all the budget code in <year> which are named <title>
+                for code in codes:
+                    # make sure this title is unique among its siblings
+                    parentlen = None
+                    for i in range(2,len(code),2):
+                        candidate = code[:i]
+                        if len(filter(lambda x:x.startswith(candidate),codes))==1:
+                            parentlen = len(candidate)
+                            break
+                    if parentlen is not None:
+                        options.append((year,code,parentlen))
+            for y1,c1,pl1 in options:
+                for y2,c2,pl2 in options:
+                    if y1<=y2 or c1==c2:
+                        continue
+                    # find the equivalents for (y1,p1) in y2
+                    pl = max(pl1,pl2)
+                    p1 = c1[:pl]
+                    p2 = c2[:pl]
+                    eqs = bi.equivs.get((y1,p1),{}).get(y2,[])
+                    if len(eqs)==1:
+                        eq = eqs[0]
+                        if p2==eq:
+                            # Yay, we got a match!
+                            # print "OOO",y1,c1,pl1,p1,"->",y2,c2,pl2,p2,"/",eq
+                            self.setEq(y1,c1,y2,[c2])
+
+    def getEquivs(self,srcYear,srcCode,dstYear):
+        return self.getMinYear(srcYear,srcCode,dstYear)
 
 class MatcherResults(object):
     def __init__(self):
@@ -192,6 +251,10 @@ class ErrorCollector(object):
         if srcYear == tgtYear + 1:
             self.errors.setdefault(srcYear,{}).setdefault(srcCode,{})['curated']=tgtCodes
 
+    def heuristic(self,srcYear,srcCode,tgtYear,codes):
+        if srcYear == tgtYear + 1:
+            self.errors.setdefault(srcYear,{}).setdefault(srcCode,{})['heuristic']=codes
+
     def getForYear(self,year):
         return self.errors.get(year)
 
@@ -245,20 +308,22 @@ class MatchValidator(object):
         return True
 
 class Matcher(object):
-    def __init__(self,results,yearEqs,descEqs,validator):
+    def __init__(self,results,algos,validator):
         self.results = results
-        self.yEq = yearEqs
-        self.dEq = descEqs
+        self.algos = algos
         self.validator = validator
         self.cache = EquivsBase(size_limit=50000)
+        self.algos.insert(0,self.cache)
 
     def match(self,srcYear,srcCode,dstYear):
         equivs = [(srcYear,srcCode)]
         # print ">>>>>> ",srcYear,srcCode,"->",dstYear
         done = False
+        heuristic = False
         while not done:
             # We stop when all years are dstYear or we can't proceed no more
-            assert(len(equivs)>0)
+            if any(x[1] == "MISS" for x in equivs):
+                break
             years = list(set(eq[0] for eq in equivs))
             if len(years)==1 and years[0] == dstYear:
                 # Great! we're done, save to cache
@@ -267,42 +332,29 @@ class Matcher(object):
                     # print "MATCH :%d/%s: --> %s" % (srcYear,srcCode,",".join(":%d/%s:" % (dstYear,c) for c in codes))
                     self.cache.setEq(srcYear,srcCode,dstYear,codes)
                     self.results.set(srcYear,srcCode,dstYear,codes)
-                    return equivs
+                    return equivs,heuristic
                 else:
                     break
             new_equivs = []
             for year,code in equivs:
-                # Try to find equivs for each item in the cache
-                eqYear,eqCodes = self.cache.getMinYear(year,code,dstYear)
-                if eqYear is not None:
-                    if len(eqCodes) > 0:
-                        # We found a hit in the cache, use it
+                success = False
+                for algo in self.algos:
+                    eqYear,eqCodes = algo.getEquivs(year,code,dstYear)
+                    if eqYear is not None:
                         new_equivs.extend([(eqYear,eqCode) for eqCode in eqCodes])
-                        # print year,code,"-C->",eqYear,eqCodes
-                        continue
-                    else:
-                        # we found a miss in the cache, no point in proceeding
-                        done = True
+                        # print year,code,"-"+algo.__class__.__name__+"->",eqYear,eqCodes
+                        heuristic = heuristic or algo.HEURISTIC
+                        success = True
                         break
-                # Try to find equivs for each item as far as possible into history
-                eqYear,eqCodes = self.yEq.getMinYear(year,code,dstYear)
-                if eqYear is not None:
-                    new_equivs.extend([(eqYear,eqCode) for eqCode in eqCodes])
-                    # print year,code,"-Y->",eqYear,eqCodes
-                    continue
-                # Didn't find an equivalent in a previous year, let's try to split to descendants
-                _,eqCodes = self.dEq.getMinYear(year,code,year)
-                if eqCodes is not None:
-                    new_equivs.extend([(year,eqCode) for eqCode in eqCodes])
-                    # print year,code,"-D->",year,eqCodes
+                if success:
                     continue
                 # miss
                 # print "MISS :%d/%s: -/-> %d/????" % (srcYear,srcCode,dstYear)
                 done = True
                 break
             equivs = new_equivs
-        self.cache.setEq(srcYear,srcCode,dstYear,[])
-        return None
+        self.cache.setEq(srcYear,srcCode,dstYear,["MISS"])
+        return None,None
 
 def main(budgets_input,curated_inputs,missing_output,equivs_output,stats_file):
     # Here we hold the errors during the process
@@ -313,6 +365,9 @@ def main(budgets_input,curated_inputs,missing_output,equivs_output,stats_file):
     yearEqs = YearlyEquivs(bi,curated_inputs,errors)
     # create equivalents between items and their descendants
     descEqs = DescendantEquivs(bi)
+    # try to match similar names budget items with common parents
+    sncpEqs = SameNameCommonParentEquivs(bi)
+
     minYear = bi.minYear
     maxYear = bi.maxYear
 
@@ -321,7 +376,7 @@ def main(budgets_input,curated_inputs,missing_output,equivs_output,stats_file):
     # Here we check everything's valid
     validator = MatchValidator(errors)
     # And this does the actual matching
-    matcher = Matcher(results,yearEqs,descEqs,validator)
+    matcher = Matcher(results,[yearEqs,descEqs,sncpEqs],validator)
     # We find matches for all budget years:
     for srcYear in range(minYear+1,maxYear+1):
         validator.clear()
@@ -330,10 +385,11 @@ def main(budgets_input,curated_inputs,missing_output,equivs_output,stats_file):
             # iterate on all budget codes, from specific to generic:
             print srcYear, tgtYear
             for srcCode in bi.allCodes(srcYear):
-                equivs = matcher.match(srcYear,srcCode,tgtYear)
+                equivs,heuristic = matcher.match(srcYear,srcCode,tgtYear)
                 if equivs is None:
                     errors.missing(srcYear,tgtYear,srcCode)
-                    pass
+                if heuristic:
+                    errors.heuristic(srcYear,tgtYear,srcCode)
 
     # Report
     error_stats = errors.stats()
