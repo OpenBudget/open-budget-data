@@ -61,11 +61,14 @@ class BudgetItems(object):
             self.titleCodeYears.setdefault((title,code),[]).append(year)
             self.titles.setdefault(title,{}).setdefault(year,[]).append(code)
 
-            equivs = [ e.split('/') for e in equivs ]
-            for y,c in equivs:
-                y = int(y)
-                if y != year:
-                    self.equivs.setdefault((y,c),{}).setdefault(year,[]).append(code)
+            try:
+                equivs = [ e.split('/') for e in equivs ]
+                for y,c in equivs:
+                    y = int(y)
+                    if y != year:
+                        self.equivs.setdefault((y,c),{}).setdefault(year,[]).append(code)
+            except:
+                pass
 
         for curatedInput in curatedInputs:
             curated = json.load(file(curatedInput))
