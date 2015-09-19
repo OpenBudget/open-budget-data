@@ -31,8 +31,8 @@ rules:
       params:
           key_fields:
               - key
-      model: SystemProperty
-      process_history: no
+          model: SystemProperty
+          process_history: no
     - processor: upload
       input: match_stats.sqlite
       output: match_stats.upload
