@@ -5,8 +5,11 @@ rules:
       params:
           url: http://www.obudget.org/api/budget-matches
           filename: budget/connections/curated_server.json
+    - processor: db_to_jsons
+      input: ../budget.sqlite
+      output: budgets.jsons
     - processor: item_connections
-      input: ../budgets.jsons
+      input: budgets.jsons
       output: budget_equivalents.matches.jsons
       params:
           errors_file: budget/connections/budget_equivalents.errors.jsons
@@ -17,7 +20,6 @@ rules:
               - budget/connections/curated5.json
               - budget/connections/curated_server.json
           match_stats: budget/connections/match_stats.json
-          full_budget_file: budget/budgets.aggregated-jsons
     - processor: aggregate_jsons_by_key
       input: budget_equivalents.*.jsons
       output: budget_equivalents.jsons

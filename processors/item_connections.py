@@ -168,6 +168,7 @@ class SameNameCommonParentEquivs(EquivsBase):
 
     def __init__(self,bi):
         super(SameNameCommonParentEquivs,self).__init__()
+        matches = 0
         for title, years in bi.titles.iteritems():
             options = []
             for year,codes in years.iteritems():
@@ -196,7 +197,9 @@ class SameNameCommonParentEquivs(EquivsBase):
                         if p2==eq:
                             # Yay, we got a match!
                             # print "OOO",y1,c1,pl1,p1,"->",y2,c2,pl2,p2,"/",eq
+                            matches += 1
                             self.setEq(y1,c1,y2,[c2])
+        assert(matches>0)
 
     def getEquivs(self,srcYear,srcCode,dstYear):
         return self.getMinYear(srcYear,srcCode,dstYear)
@@ -416,8 +419,8 @@ def main(budgets_input,curated_inputs,missing_output,equivs_output,stats_file):
     results.dump(equivs_output)
 
 class item_connections(object):
-    def process(self,input_file,output_file,errors_file=None,curated=[],match_stats=None,full_budget_file=None):
-        main(full_budget_file,curated,errors_file,output_file,match_stats)
+    def process(self,input_file,output_file,errors_file=None,curated=[],match_stats=None):
+        main(input_file,curated,errors_file,output_file,match_stats)
 
 if __name__=="__main__":
     main("test/budgets.jsons",
