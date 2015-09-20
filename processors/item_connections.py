@@ -264,6 +264,7 @@ class ErrorCollector(object):
     def heuristic(self,srcYear,srcCode,tgtYear,codes):
         if srcYear == tgtYear + 1:
             self.errors.setdefault(srcYear,{}).setdefault(srcCode,{})['heuristic']=codes
+            self.errors.setdefault(srcYear,{}).setdefault(srcCode,{})['curated']=codes
 
     def getForYear(self,year):
         return self.errors.get(year)
@@ -386,7 +387,7 @@ def main(budgets_input,curated_inputs,missing_output,equivs_output,stats_file):
     # Here we check everything's valid
     validator = MatchValidator(errors)
     # And this does the actual matching
-    matcher = Matcher(results,[yearEqs,descEqs,sncpEqs],validator)
+    matcher = Matcher(results,[yearEqs,sncpEqs,descEqs],validator)
     # We find matches for all budget years:
     for srcYear in range(minYear+1,maxYear+1):
         validator.clear()
