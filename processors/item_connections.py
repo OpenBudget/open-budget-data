@@ -159,7 +159,7 @@ class DescendantEquivs(EquivsBase):
         super(DescendantEquivs,self).__init__()
         for year in range(bi.minYear,bi.maxYear+1):
             kids = {}
-            for code in bi.allCodes(year):
+            for code in bi.allActiveCodes(year):
                 if len(code)>4:
                     parent = code[:len(code)-2]
                     kids.setdefault(parent,[]).append(code)
