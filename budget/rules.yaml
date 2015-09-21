@@ -25,6 +25,7 @@ rules:
       input:
           - budget-analysis.jsons
           - budgets.aggregated-jsons
+          - data/edu20152016.jsons
       output: budgets.analyzed.aggregated-jsons
     # - processor: aggregate_jsons_by_key
     #   input:
