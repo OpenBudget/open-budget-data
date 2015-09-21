@@ -48,21 +48,22 @@ class BudgetItems(object):
             test_value = sum(data.get(x,0)**2 for x in ['net_allocated','gross_allocated','net_revised','commitment_allocated','net_used'])
             active = data.get('active',True)
 
+            self.codes.setdefault(year, []).append(code)
+
             skipped = False
             if (test_value == 0 and not code.endswith('99')) or not active:
                 print "SKIPPING non-active %d/%s" % (year,code)
                 errors.skipped(year,code)
                 skipped = True
+                continue
 
-            self.codes.setdefault(year, []).append(code)
-            if not skipped:
-                self.activeCodes.setdefault(year, []).append(code)
+            self.activeCodes.setdefault(year, []).append(code)
+            self.titles.setdefault(title,{}).setdefault(year,[]).append(code)
 
             self.minYear = min(self.minYear,year)
             self.maxYear = max(self.maxYear,year)
 
             self.titleCodeYears.setdefault((title,code),[]).append(year)
-            self.titles.setdefault(title,{}).setdefault(year,[]).append(code)
 
             try:
                 equivs = [ e.split('/') for e in equivs ]
