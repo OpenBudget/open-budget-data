@@ -344,7 +344,7 @@ class Matcher(object):
             if any(x[1] == "MISS" for x in equivs):
                 break
             years = list(set(eq[0] for eq in equivs))
-            if len(years)==1 and years[0] == dstYear:
+            if len(years)==0 or (len(years)==1 and years[0] == dstYear):
                 # Great! we're done, save to cache
                 codes = list(set(eq[1] for eq in equivs))
                 if self.validator.check(srcYear,srcCode,dstYear,codes):
