@@ -119,6 +119,7 @@ class YearlyEquivs(EquivsBase):
             for single in curated:
                 src,dest = single
                 srcYear,srcCode = src
+                dest = [ k for k in dest if len(k)==2 ]
                 dstYear = list(set(k[0] for k in dest))
                 dstCodes = list(set(k[1] for k in dest))
                 if len(dstYear) != 1:
