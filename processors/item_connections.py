@@ -122,9 +122,12 @@ class YearlyEquivs(EquivsBase):
                 dest = [ k for k in dest if len(k)==2 ]
                 dstYear = list(set(k[0] for k in dest))
                 dstCodes = list(set(k[1] for k in dest))
-                if len(dstYear) != 1:
+                if len(dstYear) > 1:
                     raise AssertionError("bad curated from %s: %r" % (curatedInput, single))
-                dstYear = dstYear[0]
+                elif len(dstYear)==0:
+                    dstYear = srcYear-1
+                else:
+                    dstYear = dstYear[0]
                 self.setEq(srcYear,srcCode,dstYear,dstCodes)
                 errors.curated(srcYear, srcCode, dstYear, dstCodes)
 
