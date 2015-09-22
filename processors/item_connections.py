@@ -51,7 +51,7 @@ class BudgetItems(object):
             self.codes.setdefault(year, []).append(code)
 
             skipped = False
-            if (test_value == 0 and not code.endswith('99')) or not active:
+            if (test_value == 0 and not code.endswith('99') and year <= 2014) or not active:
                 print "SKIPPING non-active %d/%s" % (year,code)
                 errors.skipped(year,code)
                 skipped = True
