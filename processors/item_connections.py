@@ -49,9 +49,10 @@ class BudgetItems(object):
             active = data.get('active',True)
 
             self.codes.setdefault(year, []).append(code)
+            self.titleCodeYears.setdefault((title,code),[]).append(year)
 
             skipped = False
-            if (test_value == 0 and not code.endswith('99') and year <= 2014) or not active:
+            if (test_value == 0 and not code.endswith('99') and (year <= 2014 or len(code)<10)) or not active:
                 print "SKIPPING non-active %d/%s" % (year,code)
                 errors.skipped(year,code)
                 skipped = True
@@ -63,7 +64,6 @@ class BudgetItems(object):
             self.minYear = min(self.minYear,year)
             self.maxYear = max(self.maxYear,year)
 
-            self.titleCodeYears.setdefault((title,code),[]).append(year)
 
             try:
                 equivs = [ e.split('/') for e in equivs ]
