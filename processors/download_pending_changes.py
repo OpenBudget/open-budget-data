@@ -9,7 +9,7 @@ import hashlib
 import sqlite3
 import json
 
-YEAR = 2014
+YEAR = 2015
 
 def mofgov(relative):
     return "http://www.mof.gov.il"+relative

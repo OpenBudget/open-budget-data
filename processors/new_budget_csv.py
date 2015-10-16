@@ -12,21 +12,24 @@ def indexof(*args):
     for name in names:
         for i,_h in enumerate(row):
             h = _h.decode('utf8')
-            if all(word in h for word in name.split()):
+            if name in h:
                 return i
     logging.error('cant find %s in row!' % "/".join(names))
     logging.error('row=%s' % ", ".join(row))
     return None
 
 def to_code(row,col):
-    t = row[col]
+    t = row[col].strip()
+    if len(t)==0:
+        print "GOT EMPTY CODE! %s" % " ; ".join(x.decode('utf8') for x in row)
+        return None
     if '-' in t:
         t = t.split('-')
-        assert(len(t)==((col-ROOT_COL+2)/2))
+        assert(len(t)==((col-ROOT_COL+3)/3))
         t= [ "%02d" % int(x) for x in t ]
         t = "00" + ''.join(t)
     else:
-        add = "0" * (col-ROOT_COL+4-len(t))
+        add = "0" * (((col-ROOT_COL)/3)*2+4-len(t))
         t=add+t
     return t
 
@@ -46,12 +49,18 @@ def get_from(row,index,to_add=0):
 def add_to_sums(key,sums,amount,field):
     if amount is not None: sums[key][field] = sums[key].setdefault(field,0)+amount
 
+def aggregate_boolean(key,sums,value,field):
+    if value is not None: sums[key][field] = sums[key].setdefault(field,False) or value
+
 def add_to_list(key,sums,item,field):
     if item is not None:
         if item not in sums[key][field]:
             sums[key][field].append(item)
-    if len(sums[key][field])>1 and len(key)>=11 and field != 'kind':
-        logging.error("TOO MANY GROUPS FOR %r" % sums[key])
+    # if len(sums[key][field])>1 and len(key)>=11 and field.startswith('group'):
+    #     logging.error("TOO MANY GROUPS FOR %s %s: %r" % (field,key,sums[key]))
+
+def get_text(row,col):
+    return row[col].decode('utf8').strip()
 
 class new_budget_csv(object):
 
@@ -72,114 +81,165 @@ class new_budget_csv(object):
                 SAIF_NAME_COL = indexof(row,u'שם סעיף')
                 THUM_COL = indexof(row,u'קוד תחום')
                 THUM_NAME_COL = indexof(row,u'שם תחום')
-                PROG_COL = indexof(row,u'קוד תוכנית')
-                PROG_NAME_COL = indexof(row,u'שם תוכנית')
+                PROG_COL = indexof(row,u'קוד תוכנית',u'קוד תכנית')
+                PROG_NAME_COL = indexof(row,u'שם תוכנית',u'שם תכנית')
                 TAKA_COL = indexof(row,u'קוד תקנה')
                 TAKA_NAME_COL = indexof(row,u'שם תקנה מלא',u'שם תקנה')
 
-                NET_ALLOC_COL = indexof(row,u'מקורי נטו')
-                GROSS_ALLOC_COL = indexof(row,u'מקורי הוצאה מותנית')
+                # NET_ALLOC_COL = indexof(row,u'מקורי נטו')
+                # GROSS_ALLOC_COL = indexof(row,u'מקורי הוצאה מותנית')
+                #
+                # DEDICATED_ALLOC_COL = indexof(row,u'מקורי הכנסה מיועדת')
+                # COMMITMENT_ALLOC_COL = indexof(row,u'מקורי הרשאה')
+                # PERSONNEL_ALLOC_COL = indexof(row,u'מקורי שיא כא')
+                # CONTRACTORS_ALLOC_COL = indexof(row,u'מקורי עבצ')
+                # AMOUNTS_ALLOC_COL = indexof(row,u'מקורי כמויות')
 
-                DEDICATED_ALLOC_COL = indexof(row,u'מקורי הכנסה מיועדת')
-                COMMITMENT_ALLOC_COL = indexof(row,u'מקורי הרשאה')
-                PERSONNEL_ALLOC_COL = indexof(row,u'מקורי שיא כא')
-                CONTRACTORS_ALLOC_COL = indexof(row,u'מקורי עבצ')
-                AMOUNTS_ALLOC_COL = indexof(row,u'מקורי כמויות')
+                NET_COL = indexof(row,u'הוצאה נטו')
+                GROSS_COL = indexof(row,u'הוצאה מותנית בהכנסה')
 
-                NET_REVISED_COL = indexof(row,u'מאושר נטו')
-                GROSS_REVISED_COL = indexof(row,u'תקציב מאושר הוצאה מותנית בהכנסה')
+                DEDICATED_COL = indexof(row,u'הכנסה מיועדת')
+                COMMITMENT_COL = indexof(row,u'הרשאה')
+                PERSONNEL_COL = indexof(row,u'שיא כא',u'שיא כח אדם')
+                CONTRACTORS_COL = indexof(row,u'עבצ')
+                AMOUNTS_COL = indexof(row,u'כמויות',u'כמות')
 
-                DEDICATED_REVISED_COL = indexof(row,u'מאושר הכנסה מיועדת')
-                COMMITMENT_REVISED_COL = indexof(row,u'מאושר הרשאה')
-                PERSONNEL_REVISED_COL = indexof(row,u'מאושר שיא כא')
-                CONTRACTORS_REVISED_COL = indexof(row,u'מאושר עבצ')
-                AMOUNTS_REVISED_COL = indexof(row,u'מאושר כמויות')
-
-                USED_COL = indexof(row,u'ביצוע מזומן')
+                #USED_COL = indexof(row,u'ביצוע מזומן')
 
                 ACTIVE_COL = indexof(row,u'תקנה פעילה')
+                ONETIME_COL = indexof(row,u'פשח')
 
-                INOUT_COL = indexof(row,u'סוג הוצאה')
+                INOUT_COL = indexof(row,u'סוג הוצאה',u'הוצאה/הכנסה')
 
                 GROUP1_COL = indexof(row,u'שם רמה 1')
                 GROUP2_COL = indexof(row,u'שם רמה 2')
 
+                CLASS1_COL = indexof(row,u'שם מיון רמה 1')
+                CLASS2_COL = indexof(row,u'שם מיון רמה 2')
+
+                SUBKIND_COL = indexof(row,u'שם סוג סעיף')
+
+                PHASE_COL = indexof(row,u'סוג תקציב')
 
                 continue
             for col,title_col in [(SAIF_COL,SAIF_NAME_COL),(THUM_COL,THUM_NAME_COL),(PROG_COL,PROG_NAME_COL),(TAKA_COL,TAKA_NAME_COL)]:
                 if col is None or title_col is None:
                     continue
                 code = to_code(row,col)
+                if code is None:
+                    break
                 # if len(code) != col+3:
                 #     logging.error("%s, %s" % (code, row))
                 #     assert(False)
                 new_year = year in new_years and len(code) < 10
-                title = row[title_col].decode('utf8')
-                net_allocated = get_from(row,NET_ALLOC_COL)
-                gross_allocated = get_from(row,GROSS_ALLOC_COL,net_allocated)
-                net_revised = get_from(row,NET_REVISED_COL) if not new_year else net_allocated
-                gross_revised = get_from(row,GROSS_REVISED_COL,net_revised) if not new_year else gross_allocated
-                net_used = get_from(row,USED_COL)
+                title = get_text(row,title_col)
 
-                dedicated_allocated = get_from(row,DEDICATED_ALLOC_COL)
-                commitment_allocated = get_from(row,COMMITMENT_ALLOC_COL)
-                personnel_allocated = get_from(row,PERSONNEL_ALLOC_COL)
-                contractors_allocated = get_from(row,CONTRACTORS_ALLOC_COL)
-                amounts_allocated = get_from(row,AMOUNTS_ALLOC_COL)
+                net = get_from(row,NET_COL)
+                gross = get_from(row,GROSS_COL,net)
+                dedicated = get_from(row,DEDICATED_COL)
+                commitment = get_from(row,COMMITMENT_COL)
+                personnel = get_from(row,PERSONNEL_COL)
+                contractors = get_from(row,CONTRACTORS_COL)
+                amounts = get_from(row,AMOUNTS_COL)
 
-                dedicated_revised = get_from(row,DEDICATED_REVISED_COL)
-                commitment_revised = get_from(row,COMMITMENT_REVISED_COL)
-                personnel_revised = get_from(row,PERSONNEL_REVISED_COL)
-                contractors_revised = get_from(row,CONTRACTORS_REVISED_COL)
-                amounts_revised = get_from(row,AMOUNTS_REVISED_COL)
+                if PHASE_COL is None:
+                    continue
+                phase = get_text(row,PHASE_COL)
+                if phase not in [u'מקורי',u'ביצוע',u'מאושר']:
+                    continue
 
                 if ACTIVE_COL is not None:
-                    active = row[ACTIVE_COL].decode('utf8') != u'פש"ח'
+                    active = get_text(row,ACTIVE_COL) != u'פש"ח'
+                else:
+                    active = True
+                if ONETIME_COL is not None:
+                    active = get_text(row,ONETIME_COL) != u'1'
                 else:
                     active = True
 
                 tak_kind = 'unknown'
                 if INOUT_COL is not None:
-                    if row[INOUT_COL].decode('utf8') == u'הכנסה':
+                    if get_text(row,INOUT_COL) == u'הכנסה':
                         tak_kind = 'income'
-                    elif row[INOUT_COL].decode('utf8') == u'הוצאה':
+                    elif get_text(row,INOUT_COL) == u'הוצאה':
                         tak_kind = 'expense'
 
-                all_values = [net_allocated,gross_allocated,gross_allocated,gross_revised,net_used,dedicated_allocated,commitment_allocated,personnel_allocated,contractors_allocated,amounts_allocated,dedicated_revised,commitment_revised,personnel_revised,contractors_revised,amounts_revised]
-                all_zeros = sum(abs(x) for x in all_values if x is not None) == 0
-                if all_zeros and not active and year not in new_years:
-                    continue
+                tak_subkind = 'unknown'
+                if SUBKIND_COL is not None:
+                    tak_subkind = get_text(row,SUBKIND_COL)
+
+                # all_values = [net_allocated,gross_allocated,gross_allocated,gross_revised,net_used,dedicated_allocated,commitment_allocated,personnel_allocated,contractors_allocated,amounts_allocated,dedicated_revised,commitment_revised,personnel_revised,contractors_revised,amounts_revised]
+                # all_zeros = sum(abs(x) for x in all_values if x is not None) == 0
+                # if all_zeros and not active and year not in new_years:
+                #     continue
 
                 group1 = group2 = None
                 if GROUP1_COL is not None and GROUP2_COL is not None:
-                    group1 = row[GROUP1_COL].decode('utf8')
-                    group2 = row[GROUP2_COL].decode('utf8')
+                    group1 = get_text(row,GROUP1_COL)
+                    group2 = get_text(row,GROUP2_COL)
                 group_top = group1
                 group_full = group2
 
+                class1 = class2 = None
+                if CLASS1_COL is not None and CLASS2_COL is not None:
+                    class1 = get_text(row,CLASS1_COL)
+                    class2 = get_text(row,CLASS2_COL)
+                class_top = class1
+                class_full = class2
+
                 key = "%s/%s" % (year,code)
-                sums.setdefault(key,{'code':code,'year':year,'title':title,'group_top':[], 'group_full':[],'kind':[]})
-                add_to_sums(key,sums,net_allocated,'net_allocated')
-                add_to_sums(key,sums,net_revised,'net_revised')
-                add_to_sums(key,sums,net_used,'net_used')
-                add_to_sums(key,sums,gross_allocated,'gross_allocated')
-                add_to_sums(key,sums,gross_revised,'gross_revised')
+                sums.setdefault(key,
+                    {'code':code,
+                     'year':year,
+                     'title':title,
+                     'group_top':[],
+                     'group_full':[],
+                     'class_top':[],
+                     'class_full':[],
+                     'kind':[],
+                     'subkind':[]})
 
-                add_to_sums(key,sums,dedicated_allocated,'dedicated_allocated')
-                add_to_sums(key,sums,commitment_allocated,'commitment_allocated')
-                add_to_sums(key,sums,personnel_allocated,'personnel_allocated')
-                add_to_sums(key,sums,contractors_allocated,'contractors_allocated')
-                add_to_sums(key,sums,amounts_allocated,'amounts_allocated')
+                if phase == u'מקורי':
+                    add_to_sums(key,sums,net, 'net_allocated')
+                    add_to_sums(key,sums,gross, 'gross_allocated')
+                    add_to_sums(key,sums,dedicated, 'dedicated_allocated')
+                    add_to_sums(key,sums,commitment, 'commitment_allocated')
+                    add_to_sums(key,sums,personnel, 'personnel_allocated')
+                    add_to_sums(key,sums,contractors, 'contractors_allocated')
+                    add_to_sums(key,sums,amounts, 'amounts_allocated')
 
-                add_to_sums(key,sums,dedicated_revised,'dedicated_revised')
-                add_to_sums(key,sums,commitment_revised,'commitment_revised')
-                add_to_sums(key,sums,personnel_revised,'personnel_revised')
-                add_to_sums(key,sums,contractors_revised,'contractors_revised')
-                add_to_sums(key,sums,amounts_revised,'amounts_revised')
+                    if new_year:
+                        add_to_sums(key,sums,net, 'net_revised')
+                        add_to_sums(key,sums,gross, 'gross_revised')
+                        add_to_sums(key,sums,dedicated, 'dedicated_revised')
+                        add_to_sums(key,sums,commitment, 'commitment_revised')
+                        add_to_sums(key,sums,personnel, 'personnel_revised')
+                        add_to_sums(key,sums,contractors, 'contractors_revised')
+                        add_to_sums(key,sums,amounts, 'amounts_revised')
 
-                add_to_list(key,sums,group_top,'group_top')
-                add_to_list(key,sums,group_full,'group_full')
-                add_to_list(key,sums,tak_kind,'kind')
+                    add_to_list(key,sums,group_top,'group_top')
+                    add_to_list(key,sums,group_full,'group_full')
+                    add_to_list(key,sums,class_top,'class_top')
+                    add_to_list(key,sums,class_full,'class_full')
+
+                    add_to_list(key,sums,tak_kind,'kind')
+                    add_to_list(key,sums,tak_subkind,'subkind')
+
+                    aggregate_boolean(key,sums,active,'active')
+
+                elif phase == u'מאושר':
+                    assert(not new_year)
+                    add_to_sums(key,sums,net, 'net_revised')
+                    add_to_sums(key,sums,gross, 'gross_revised')
+                    add_to_sums(key,sums,dedicated, 'dedicated_revised')
+                    add_to_sums(key,sums,commitment, 'commitment_revised')
+                    add_to_sums(key,sums,personnel, 'personnel_revised')
+                    add_to_sums(key,sums,contractors, 'contractors_revised')
+                    add_to_sums(key,sums,amounts, 'amounts_revised')
+
+                elif phase == u'ביצוע':
+                    add_to_sums(key,sums,net,'net_used')
+
 
         keys = sums.keys()
         keys.sort()
@@ -191,4 +251,4 @@ class new_budget_csv(object):
 if __name__ == "__main__":
     input = sys.argv[1]
     output = sys.argv[-1]
-    processor = new_budget_csv().process(input,output,[2014,2015])
+    processor = new_budget_csv().process(input,output,[2015,2016])

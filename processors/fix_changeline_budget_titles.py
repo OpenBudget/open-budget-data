@@ -87,7 +87,7 @@ class fix_changeline_budget_titles(object):
 
                     group['title_template'] = template
                     group['title_value'] = value
-                    group['titles'] = [ch['budget_title'] for ch in group['changes'] if len(ch['budget_code'])==4 and ch['budget_code']!="0047"]
+                    group['titles'] = [ch.get('budget_title','') for ch in group['changes'] if len(ch['budget_code'])==4 and ch['budget_code']!="0047"]
                 else:
                     changes = [ch for ch in group['changes'] if len(ch['budget_code'])==4 and ch['budget_code']!="0047"]
                     def is_allocation(change):
@@ -118,7 +118,7 @@ class fix_changeline_budget_titles(object):
                         template = 'transfer-expenses'
                     group['title_template'] = template
                     group['title_value'] = value
-                    title = lambda x:x['budget_title']
+                    title = lambda x:x.get('budget_title','')
                     group['titles'] = [map(title,minus_transfers),map(title,plus_transfers)]
 
                 group['changes'].sort(key=lambda x: int("1"+x['budget_code']))

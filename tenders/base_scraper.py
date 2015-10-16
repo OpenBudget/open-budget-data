@@ -18,13 +18,13 @@ def rec_mkdir( d ):
             continue
 
         os.mkdir( curr_dir )
-            
+
 class scraping_state:
     def __init__( self, curr_base_path, default ):
         self.filename = os.path.join( curr_base_path, 'scraper.json' )
         self.default = default
         self.load()
-    
+
     def load( self ):
         if not os.path.exists( self.filename ):
             self.data = copy.deepcopy( self.default )
@@ -111,9 +111,9 @@ class base_scraper:
         self.init_state()
 
         orig_work_time = self.state['work_time']
-        
+
         self.curr_page = self.state['pages_scraped'] + 1
-        
+
         self.scraped_records = 0
 
         while self.need_scraping() and (self.curr_page <= self.state['total_pages']):
@@ -124,7 +124,7 @@ class base_scraper:
                 self.state['exceptions'] += 1
                 self.state.save()
                 raise
-                
+
 
             try:
                 data = ""
@@ -159,7 +159,7 @@ class base_scraper:
         prev_scraped_records = []
         self.scraped_records = 0
 
-        while self.need_scraping:
+        while self.need_scraping():
             try:
                 self._scrape()
                 break
@@ -202,6 +202,5 @@ class rate_limiter:
             sleep_time = self.rate_limit_time - time_since_last
             print "rate limit: sleeping %d secs" % sleep_time
             time.sleep( sleep_time )
-            
+
         self.last_access_time = time.time()
-    

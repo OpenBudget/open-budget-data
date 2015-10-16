@@ -3,6 +3,7 @@ tmp.doc
 tmp.txt
 *.upload
 *.sqlite
+tmp/
 budget/budget_equivalents.jsons
 budget/budgets-noequiv.jsons
 budget/connections/budget_equivalents.jsons
@@ -10,3 +11,4 @@ changes/changegroups-fixed-titles.jsons
 changes/changegroups.jsons
 changes/mof-data/changegroups*jsons
 changes/obsolete
+obsolete/

@@ -1,32 +1,42 @@
 rules:
-    - processor: item_connections
-      input: ../budgets-noequiv.aggregated-jsons
-      output: budget_equivalents-2015.jsons
+    - processor: download_if_changed
+      delay: 600
+      output: curated_server.download
       params:
-          ref_years:
-              - 2015
+          url: http://www.obudget.org/api/budget-matches
+          filename: budget/connections/curated_server.json
+    - processor: db_to_jsons
+      input: ../budget.sqlite
+      output: budgets.jsons
+    - processor: item_connections
+      input: budgets.jsons
+      output: budget_equivalents.matches.jsons
+      params:
+          errors_file: budget/connections/budget_equivalents.errors.jsons
           curated:
               - budget/connections/2013-2012-conversion.json
               - budget/connections/curated.json
               - budget/connections/curated2.json
-              - budget/connections/curated3.json
-              - budget/connections/curated4.json
-    - processor: item_connections
-      input: ../budgets-noequiv.aggregated-jsons
-      output: budget_equivalents-2014.jsons
-      params:
-          ref_years:
-              - 2014
-          curated:
-              - budget/connections/2013-2012-conversion.json
-              - budget/connections/curated.json
-              - budget/connections/curated2.json
-              - budget/connections/curated3.json
-              - budget/connections/curated4.json
+              - budget/connections/curated5.json
+              - budget/connections/curated_server.json
+          match_stats: budget/connections/match_stats.json
     - processor: aggregate_jsons_by_key
-      input: budget_equivalents-*.jsons
+      input: budget_equivalents.*.jsons
       output: budget_equivalents.jsons
       params:
           key_fields:
               - year
               - code
+    - processor: dump_to_db
+      input: match_stats.json
+      output: match_stats.sqlite
+      params:
+          key_fields:
+              - key
+          model: SystemProperty
+          process_history: no
+    - processor: upload
+      input: match_stats.sqlite
+      output: match_stats.upload
+      params:
+          kind: sp

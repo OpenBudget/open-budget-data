@@ -90,8 +90,12 @@ def run_processor(processor,apikey):
             if os.path.exists(output):
                 os.unlink(output)
 
-            rollbar.report_exc_info(sys.exc_info())
+            # try:
+            #     rollbar.report_exc_info(sys.exc_info())
+            # except:
+            #     logging.error('FAILED to report to ROLLBAR')
 
+            raise
             return False
         finally:
             if use_proxy:
@@ -162,4 +166,8 @@ if __name__ == "__main__":
     try:
         main()
     except Exception, e:
-        rollbar.report_exc_info()
+        # try:
+        #     rollbar.report_exc_info()
+        # except:
+        #     logging.error('FAILED to report to ROLLBAR')
+        raise

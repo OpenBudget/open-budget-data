@@ -1,4 +1,4 @@
-from gevent import monkey; monkey.patch_all()
+from gevent import monkey; monkey.patch_all(subprocess=False)
 import gevent
 from gevent.pool import Pool
 from gevent.queue import Queue
