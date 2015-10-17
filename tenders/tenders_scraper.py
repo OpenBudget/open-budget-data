@@ -570,7 +570,7 @@ if __name__ == "__main__":
     from optparse import OptionParser
 
     parser = OptionParser( usage='usage: %prog [options] <output filename>' )
-    parser.add_option("--rescrape", dest="rescrape", action='store_true', help='rescrape the urls of a previous scrape', metavar='old_json', default=None)
+    parser.add_option("--rescrape", dest="rescrape", action='store', help='rescrape the urls of a previous scrape', metavar='old_json', default=None)
     parser.add_option("--since", dest="since", action='store', help='since a date or one of: yesterday, last_week, last_year, all_time', default=None)
 
     (options, args) = parser.parse_args()
