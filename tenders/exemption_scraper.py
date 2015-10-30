@@ -214,6 +214,11 @@ class search_web_page:
 
     def go_to_page_num( self, page_num ):
 
+        try:
+            self.curr_page_num()
+        except expected_exceptions, e:
+            self.initialize_web_page()
+
         while self.curr_page_num() != page_num:
 
             next_pages = self.get_next_pages()
@@ -223,7 +228,8 @@ class search_web_page:
             closest = distances.index( min(distances) )
             expected_page = next_pages[closest]['page_num']
 
-            print 'on the way to page %d going to page %d' % ( page_num, expected_page )
+            if page_num != expected_page:
+                print 'on the way to page %d going to page %d' % ( page_num, expected_page )
 
             if next_pages[closest]['page_num'] < self.curr_page_num():
                 raise AssertionError()
@@ -326,7 +332,7 @@ class extended_data_web_page:
                 time.sleep( min( [5*i, 60] ) )
 
 
-        print 'loaded extended data %s in %f secs' % (url, time.time() - start_time)
+        #print 'loaded extended data %s in %f secs' % (url, time.time() - start_time)
 
 
     def extract_page_data( self ):
@@ -440,7 +446,7 @@ def iter_publisher_urls( publisher ):
                 time.sleep( min( [5*i, 60] ) )
 
         for url in urls:
-            yield url
+            yield page_num, total_pages, url
 
 def empty_str_is_none( record, field_name ):
     if field_name in record:
@@ -504,8 +510,10 @@ def scrape( output_filename, since=None ):
 
     publishers = get_publishers()
 
-    for publisher in publishers:
-        for url in iter_publisher_urls( publisher ):
+    for publisher_index, publisher in enumerate(publishers):
+        for page_num, total_pages, url in iter_publisher_urls( publisher ):
+
+            start_time = time.time()
 
             i = 0
             while True:
@@ -526,6 +534,8 @@ def scrape( output_filename, since=None ):
                     break
 
             f.write( json.dumps(record) + '\n' )
+
+            print "loaded %s publisher %d %d/%d page %d/%d took %.2f secs" % (url, publisher, publisher_index, len(publishers), page_num, total_pages, time.time() - start_time)
 
     f.close()
 

@@ -223,6 +223,11 @@ class search_web_page:
 
     def go_to_page_num( self, page_num ):
 
+        try:
+            self.curr_page_num()
+        except expected_exceptions, e:
+            self.initialize_web_page()
+
         while self.curr_page_num() != page_num:
 
             next_pages = self.get_next_pages()
@@ -442,8 +447,11 @@ def iter_publisher_urls( publisher ):
                 break
             except expected_exceptions, e:
                 i += 1
-                print "iter_publisher_urls: Got %s, retrying (%d)" % (e,i)
+                print "iter_publisher_urls(%d, %d): Got %s, retrying (%d)" % (publisher, page_num, repr(e),i)
                 time.sleep( min( [5*i, 60] ) )
+
+                if i >= 20:
+                    import pdb; pdb.set_trace()
 
         for url in urls:
             yield url
