@@ -56,10 +56,10 @@ class exemption_extended_data_web_page(mr_gov_il.extended_data_web_page_base):
 
 
         if found_fields == 0:
-            raise NoSuchElementException()
+            raise mr_gov_il.NoSuchElementException()
 
         if None in [ret["last_update_date"]]:
-            raise NoSuchElementException()
+            raise mr_gov_il.NoSuchElementException()
 
         ret['url'] = self.url
         ret['documents'] = []
@@ -67,7 +67,7 @@ class exemption_extended_data_web_page(mr_gov_il.extended_data_web_page_base):
         update_times = sel.xpath('//*[@id="ctl00_PlaceHolderMain_pnl_Files"]/div/div/div[1]')
 
         if len(links) != len(update_times):
-            raise NoSuchElementException()
+            raise mr_gov_il.NoSuchElementException()
 
         for i in xrange( len(links) ):
             ret['documents'].append( {'description':links[i].xpath('text()')[0].extract(),
