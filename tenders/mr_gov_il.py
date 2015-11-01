@@ -66,7 +66,7 @@ class extended_data_web_page_base:
                 break
             except Exception,e:
                 i += 1
-                print "extended_data_web_page.go_to_url: Got %s, retrying (%d)" % (e,i)
+                print "extended_data_web_page.go_to_url: Got %s, retrying (%d)" % (repr(e),i)
                 time.sleep( min( [5*i, 60] ) )
 
 
@@ -82,7 +82,7 @@ class search_web_page_base:
                 return cls().get_options('publisher')
             except expected_exceptions, e:
                 i += 1
-                print "get_publishers: Got %s, retrying (%d)" % (e,i)
+                print "get_publishers: Got %s, retrying (%d)" % (repr(e),i)
                 time.sleep( min( [5*i, 60] ) )
 
 
@@ -111,7 +111,7 @@ class search_web_page_base:
                 break
             except Exception,e:
                 i += 1
-                print "search_web_page.request: Got %s, retrying (%d)" % (e,i)
+                print "search_web_page.request: Got %s, retrying (%d)" % (repr(e),i)
                 time.sleep( min( [5*i, 60] ) )
 
 
@@ -215,17 +215,17 @@ class search_web_page_base:
         # one row for the heading, one for the page nums
         return len(self.sel.xpath( self.results_table_base_xpath + '/tr' )) - d
 
-    def go_to_page_num( self, page_num ):
+    def go_to_page_num( self, *p, **d ):
 
         try:
-            self.curr_page_num()
-            page_valid = True
-        except expected_exceptions, e:
-            page_valid = False
-        
-        if not page_valid:
+            self._go_to_page_num( *p, **d )
+        except expected_exceptions:
             print "go_to_page_num: need to reconnect..."
             self.initialize_web_page()
+
+            raise
+
+    def _go_to_page_num( self, page_num ):
 
         while self.curr_page_num() != page_num:
 
@@ -283,7 +283,7 @@ class search_web_page_base:
                 break
             except expected_exceptions, e:
                 i += 1
-                print "iter_publisher_urls(init): Got %s, retrying (%d)" % (e,i)
+                print "iter_publisher_urls(init): Got %s, retrying (%d)" % (repr(e),i)
                 time.sleep( min( [5*i, 60] ) )
             
 
@@ -389,7 +389,7 @@ class search_web_page_base:
                         break
                     except expected_exceptions, e:
                         i += 1
-                        print "scrape: Got %s, retrying (%d)" % (e,i)
+                        print "scrape: Got %s, on %s retrying (%d)" % (repr(e), url, i)
                         time.sleep( min( [5*i, 60] ) )
                     
                 record = cls.process_record(record)
@@ -427,7 +427,7 @@ class search_web_page_base:
                     break
                 except expected_exceptions, e:
                     i += 1
-                    print "rescrape: Got %s, retrying (%d)" % (e,i)
+                    print "rescrape: Got %s, retrying (%d)" % (repr(e),i)
                     time.sleep( min( [5*i, 60] ) )
         
             record = cls.process_record(record)
