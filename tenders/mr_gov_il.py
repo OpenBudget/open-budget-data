@@ -35,6 +35,20 @@ class NoSuchElementException(Exception):
 
 expected_exceptions = (urllib3.exceptions.ReadTimeoutError, requests.exceptions.ConnectionError, requests.exceptions.HTTPError, requests.exceptions.SSLError, requests.exceptions.Timeout, NoSuchElementException)
 
+def sleep_retry(i):
+    time.sleep( min( [2*i, 10] ) )
+
+def handle_expected_exceptions( i, msg, max_retrys=None ):
+    print msg
+
+    if max_retrys is not None:
+        if i >= max_retrys:
+            print "not retrying again"
+            raise
+
+    sleep_retry( i )
+    
+
 class extended_data_web_page_base:
     def __init__( self, rate_limit=None ):
         self.session = requests.Session()
@@ -66,8 +80,7 @@ class extended_data_web_page_base:
                 break
             except Exception,e:
                 i += 1
-                print "extended_data_web_page.go_to_url: Got %s, retrying (%d)" % (repr(e),i)
-                time.sleep( min( [5*i, 60] ) )
+                handle_expected_exceptions( i, "extended_data_web_page.go_to_url: Got %s, retrying (%d)" % (repr(e),i) )
 
 
         #print 'loaded extended data %s in %f secs' % (url, time.time() - start_time)
@@ -82,8 +95,7 @@ class search_web_page_base:
                 return cls().get_options('publisher')
             except expected_exceptions, e:
                 i += 1
-                print "get_publishers: Got %s, retrying (%d)" % (repr(e),i)
-                time.sleep( min( [5*i, 60] ) )
+                handle_expected_exceptions( i, "get_publishers: Got %s, retrying (%d)" % (repr(e),i) )
 
 
     def __init__( self, **search_params ):
@@ -111,8 +123,8 @@ class search_web_page_base:
                 break
             except Exception,e:
                 i += 1
-                print "search_web_page.request: Got %s, retrying (%d)" % (repr(e),i)
-                time.sleep( min( [5*i, 60] ) )
+                handle_expected_exceptions( i, "search_web_page.request: Got %s, retrying (%d)" % (repr(e),i), max_retrys=3 )
+                
 
 
         self.sel = Selector(text=self.response.text)
@@ -251,8 +263,6 @@ class search_web_page_base:
 
     def extract_page_urls( self ):
 
-        start_time = time.time()
-
         ret = []
 
         for row_i in xrange(self.num_of_rows()):
@@ -265,8 +275,6 @@ class search_web_page_base:
                 url = 'http://www.mr.gov.il' + url
 
             ret.append( url )
-
-        print 'parsed table page in %f secs' % (time.time() - start_time)
 
         return ret
 
@@ -283,8 +291,7 @@ class search_web_page_base:
                 break
             except expected_exceptions, e:
                 i += 1
-                print "iter_publisher_urls(init): Got %s, retrying (%d)" % (repr(e),i)
-                time.sleep( min( [5*i, 60] ) )
+                handle_expected_exceptions( i, "iter_publisher_urls(init): Got %s, retrying (%d)" % (repr(e),i) )
             
 
         total_pages = (result_indexes['total'] + (records_per_page-1)) / records_per_page
@@ -298,13 +305,8 @@ class search_web_page_base:
                     urls = web_page.extract_page_urls()
                     break
                 except expected_exceptions, e:
-
-                    import traceback
-                    traceback.print_exc()
-
                     i += 1
-                    print "iter_publisher_urls(%d, %d): Got %s, retrying (%d)" % (publisher, page_num, repr(e),i)
-                    time.sleep( min( [5*i, 60] ) )
+                    handle_expected_exceptions( i, "iter_publisher_urls(%d, %d): Got %s, retrying (%d)" % (publisher, page_num, repr(e),i) )
 
                     #if i >= 20:
                     #    import pdb; pdb.set_trace()
@@ -389,8 +391,7 @@ class search_web_page_base:
                         break
                     except expected_exceptions, e:
                         i += 1
-                        print "scrape: Got %s, on %s retrying (%d)" % (repr(e), url, i)
-                        time.sleep( min( [5*i, 60] ) )
+                        handle_expected_exceptions( i, "scrape: Got %s, on %s retrying (%d)" % (repr(e), url, i) )
                     
                 record = cls.process_record(record)
 
@@ -427,8 +428,7 @@ class search_web_page_base:
                     break
                 except expected_exceptions, e:
                     i += 1
-                    print "rescrape: Got %s, retrying (%d)" % (repr(e),i)
-                    time.sleep( min( [5*i, 60] ) )
+                    handle_expected_exceptions( i, "rescrape: Got %s, retrying (%d)" % (repr(e),i) )
         
             record = cls.process_record(record)
 
