@@ -12,6 +12,9 @@ class db_to_jsons(object):
 
     def process(self,input,output):
 
+        if input.endswith('.updated'):
+            input = input.replace('.updated','')
+            
         conn = sqlite3.connect(input)
         c = conn.cursor()
         values = c.execute("""SELECT value from data""").fetchall()

@@ -101,6 +101,9 @@ class dump_to_db(object):
 
         os.utime(output, None)
 
+        if len(to_insert)>0 or len(to_update)>0:
+            os.utime(output+'.updated', None)
+
         logging.debug("Added %s records" % len(to_insert))
         logging.debug("Modified %s records" % len(to_update))
 
