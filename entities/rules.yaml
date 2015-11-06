@@ -74,12 +74,19 @@ rules:
       params:
           url: http://apps.moital.gov.il/WebServicesHandlers/ServiceContractors.aspx
           field: service_contractor
-    ### Canonical Entity List
+    - processor: spreadsheet_to_jsons
+      output: gov_companies.jsons
+      delay: 86400
+      params:
+          key: 1Hp9F11YmLgYtyU_ZyETy3hsLfsvF4ycue8Jp9n7cOhQ
+          sheet: data
+          num_cols: 3    ### Canonical Entity List
     - processor: aggregate_jsons_by_key
       input:
           - from_exemptions.jsons
           - associations.jsons
           - companies.jsons
+          - gov_companies.jsons
           - special.jsons
           - moital_service_contractors.jsons
           - moital_manpower_contractors.jsons
@@ -183,6 +190,9 @@ rules:
               -
                   - service_contractor
                   - jsonb
+              -
+                  - gov_company
+                  - boolean
     - processor: upload
       input: used_entities.sqlite
       output: used_entities.upload

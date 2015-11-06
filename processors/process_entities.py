@@ -52,6 +52,8 @@ class process_entities(object):
                 self.CLEAN_PREFIXES.add(" "+w[:i])
 
     def clean(self,word):
+        if word is None:
+           return ""
         done = False
         while not done:
             done = True

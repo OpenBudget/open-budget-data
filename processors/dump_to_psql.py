@@ -21,6 +21,8 @@ def convert(val,typ):
             val = None
     elif typ=="jsonb":
         val = json.dumps(val)
+    elif typ=="boolean":
+        val = val in ('yes','true','TRUE','1')
     return val
 
 class dump_to_psql(object):

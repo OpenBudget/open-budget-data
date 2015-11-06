@@ -43,8 +43,8 @@ class combine_budget_jsons(object):
 
         for year in range(1992,2017):
             totalkey = '%s|%8s' % (year,"00")
-            if '%s|%10s' % (year,"00") in keys:
-                continue
+            # if '%s|%10s' % (year,"00") in keys:
+            #     continue
             totalrec = { 'title'     : u'המדינה',
                          'year'      : year,
                          'code' : '00',

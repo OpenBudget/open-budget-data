@@ -18,7 +18,7 @@ def do_write(kind,APIKEY,lines,i,good_queue):
     values = "\n".join([ x[0] for x in lines ])
     keys = [ x[1] for x in lines ]
     try:
-        req = urllib2.Request('http://the.open-budget.org.il/api/update/%s?apikey=%s' % (kind,APIKEY),
+        req = urllib2.Request('http://www.obudget.org/api/update/%s?apikey=%s' % (kind,APIKEY),
                               values,
                               headers={'Content-type': 'application/x-binary'})
         u = urllib2.urlopen(req).read()
