@@ -37,8 +37,12 @@ class prepare_compare_record(object):
                 test_value = sum(rec.get(x,0)**2 for x in ['net_allocated','gross_allocated','commitment_allocated','net_used'])
                 logging.warning("no equiv for %s, value=%d" % (rec['code'],test_value))
                 continue
+            prev_code = None
+            if len(equivs)==1:
+                prev_code = equivs[0]['code']
             erec = {'code': rec['code'],
-                    'title': rec['title']}
+                    'title': rec['title'],
+                    'prev_code': prev_code}
             try:
                 erec['group_top'] = rec['group_top']
                 erec['group_full'] = rec['group_full']
