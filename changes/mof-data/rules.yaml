@@ -38,7 +38,7 @@ rules:
               field_title: שם סוג בקשה
             - field_name: committee_id
               field_title: מספר וועדה
-              convertor: integer
+              convertor: canonize_integer
             - field_name: budget_code
               field_title: קוד תוכנית
               convertor: canonize_budget_code
