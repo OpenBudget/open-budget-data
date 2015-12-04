@@ -18,6 +18,9 @@ rules:
             - field_name: leading_item
               field_title: סעיף מוביל
               convertor: integer
+            - field_name: leading_item
+              field_title: מספר הסעיף
+              convertor: integer
             - field_name: req_code
               field_title: מספר בקשה
               convertor: integer
@@ -39,22 +42,40 @@ rules:
             - field_name: budget_code
               field_title: קוד תוכנית
               convertor: canonize_budget_code
+            - field_name: budget_code
+              field_title: מספר תוכנית
+              convertor: canonize_budget_code
             - field_name: budget_title
               field_title: שם תוכנית
             - field_name: net_expense_diff
               field_title: הוצאות נטו
               convertor: canonize_integer
+            - field_name: net_expense_diff
+              field_title: "סכום השינוי: הוצאות נטו"
+              convertor: canonize_integer
             - field_name: gross_expense_diff
               field_title: הוצאה מותנית בהכנסה
+              convertor: canonize_integer
+            - field_name: gross_expense_diff
+              field_title: "סכום השינוי: הוצאה מותנית"
               convertor: canonize_integer
             - field_name: allocated_income_diff
               field_title: הכנסה מיועדת
               convertor: canonize_integer
+            - field_name: allocated_income_diff
+              field_title: "סכום השינוי: הכנסה מיועדת"
+              convertor: canonize_integer
             - field_name: commitment_limit_diff
               field_title: הרשאה להתחייב
               convertor: canonize_integer
+            - field_name: commitment_limit_diff
+              field_title: "סכום השינוי: הרשאה להתחייב"
+              convertor: canonize_integer
             - field_name: personnel_max_diff
               field_title: שיא כא
+              convertor: canonize_float
+            - field_name: personnel_max_diff
+              field_title: "סכום השינוי: שיא כח אדם"
               convertor: canonize_float
             - field_name: date/approval
               field_title: תאריך אישור

@@ -70,17 +70,22 @@ class download_pending_changes(object):
                 if href.endswith('csv'):
                     logging.debug('downloading %s' % href)
                     try:
-                        csvdata = download(mofgov(href),last_modified)
+                        csvraw = download(mofgov(href),last_modified)
                         for coding in ['utf8','iso8859-8','windows-1255']:
                             try:
-                                decoded = csvdata.decode(coding)
+                                decoded = csvraw.decode(coding)
                                 if u'שנה' in decoded:
-                                    csvdata = decoded.encode('utf8')
+                                    csvdata = decoded
                                     break
                                 else:
                                     decoded = None
                             except:
                                 continue
+                        csvdata = csvdata.split('\n')
+                        while u'שנה' not in csvdata[0]:
+                            csvdata.pop(0)
+                        csvdata = '\n'.join(csvdata)
+                        csvdata = csvdata.encode('utf8')
                     except urllib2.HTTPError, e:
                         if e.code != 304:
                             logging.error('Failed to download %s' % href)
