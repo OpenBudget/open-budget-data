@@ -25,8 +25,8 @@ class csv_to_jsons(object):
             record = dict(zip(field_names,row))
             outrec = {}
             for k,v in record.iteritems():
-                k = field_translations[k]
-                if k == '_':
+                k = field_translations.get(k)
+                if k is None or k == '_':
                     continue
                 convertor = convertors[k]
                 try:
