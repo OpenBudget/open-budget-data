@@ -78,8 +78,13 @@ def get_groups(changes):
         change['_value'] = sum(change.get(x,0) for x in fields)
         for k,v in change.iteritems():
             if k.startswith('date'):
-                change['date'] = v
-                kind = k[5:]
+                if v is None:
+                    v = '01/01/1970'
+                    kind = 'pending'
+                    change['date/pending'] = v
+                else:
+                    change['date'] = v
+                    kind = k[5:]
                 change['pending'] = kind == 'pending'
                 change['date_kind'] = kind+"/"+v
                 break
