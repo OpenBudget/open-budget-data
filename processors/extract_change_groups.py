@@ -83,8 +83,8 @@ def get_groups(changes):
                     kind = 'pending'
                     change['date/pending'] = v
                 else:
-                    change['date'] = v
                     kind = k[5:]
+                change['date'] = v
                 change['pending'] = kind == 'pending'
                 change['date_kind'] = kind+"/"+v
                 break
