@@ -92,11 +92,11 @@ class download_pending_changes(object):
                         else:
                             logging.debug('Not modified!')
                             continue
-                    if 'תאריך משלוח לוועדה' in csvdata:
+                    if '/Committee/' in href or 'תאריך משלוח לוועדה' in csvdata:
                         filename = os.path.join(changes_basepath,'changes-pending.csv')
                         logging.info("Setting pending to true")
                         pending = True
-                    if 'תאריך אישור' in csvdata:
+                    elif '/Approved/' in href or 'תאריך אישור' in csvdata:
                         filename = os.path.join(changes_basepath,'changes-%s.csv' % YEAR)
                         logging.info("Setting pending to false")
                         pending = False
