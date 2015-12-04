@@ -154,7 +154,7 @@ def get_groups(changes):
         group['transfer_ids'] = list(set(x.split('/')[1] for x in trcodes))
         sample_changes = [ filter(lambda x:x['trcode']==trcode,changes)[0] for trcode in trcodes ]
         transfer_changes = list(filter(lambda x:x['trcode'] in trcodes,changes))
-        group['committee_ids'] = list(set(x['committee_id'] for x in transfer_changes))
+        group['committee_ids'] = list(set(x['committee_id'] for x in transfer_changes if x['committee_id'] is not None))
         #group['changes'] = transfer_changes
         group['req_titles'] = [ x['req_title'] for x in sample_changes ]
         group['budget_codes'] = list(set(x['budget_code'] for x in transfer_changes))
