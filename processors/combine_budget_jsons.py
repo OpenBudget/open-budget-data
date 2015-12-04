@@ -42,21 +42,25 @@ class combine_budget_jsons(object):
                     logging.error("combine_budget_jsons: error %s in line %r" % (e,line))
 
         for year in range(1992,2017):
-            totalkey = '%s|%8s' % (year,"00")
-            # if '%s|%10s' % (year,"00") in keys:
-            #     continue
-            totalrec = { 'title'     : u'המדינה',
-                         'year'      : year,
-                         'code' : '00',
-                         }
+            totalkeyprefix = '%s|%8s' % (year,"00")
+            totalkey = '%s|%10s' % (year,"00")
+            totalrec = alldata.get(totalkey,{})
+            totalrec.update( { 'title'     : u'המדינה',
+                               'year'      : year,
+                               'code' : '00',
+                             } )
+            fields = set()
             for key in keys:
                 if '%s|%10s' % (year,"0000") in key:
                     continue
-                if key.startswith(totalkey):
+                if key.startswith(totalkeyprefix):
                     rec = alldata[key]
                     for k,v in rec.iteritems():
                         if type(v) == int:
-                            totalrec[k] = totalrec.setdefault(k,0) + v
+                            if k not in fields:
+                                totalrec[k] = 0
+                                fields.add(k)
+                            totalrec[k] += v
             totalrec['year'] = year
 
             logging.debug('combine_budget_jsons: total for %s = %s' % (year,totalrec))

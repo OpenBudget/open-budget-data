@@ -6,6 +6,7 @@ rules:
           url: http://www.obudget.org/api/budget-matches
           filename: budget/connections/curated_server.json
     - processor: db_to_jsons
+      delay: 86400
       input: ../budget.sqlite.updated
       output: budgets.jsons
     - processor: item_connections

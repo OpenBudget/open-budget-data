@@ -20,7 +20,7 @@ class publisher_updated_scraper(exemption_tables_scraper.publisher_scraper):
             updated_since = yesterday.strftime('%d/%m/%y')
 
         elif updated_since == 'last_week':
-            yesterday = datetime.now() - timedelta(days=8)
+            yesterday = datetime.now() - timedelta(days=15)
             updated_since = yesterday.strftime('%d/%m/%y')
 
         elif updated_since == 'last_year':
@@ -28,7 +28,7 @@ class publisher_updated_scraper(exemption_tables_scraper.publisher_scraper):
             updated_since = yesterday.strftime('%d/%m/%y')
 
         elif updated_since == 'alltime':
-            updated_since = '1/1/2010'
+            updated_since = '1/1/2008'
 
         self.scrape_updated_since = numerate_date( updated_since )
 

@@ -18,7 +18,7 @@ class fix_changeline_budget_titles(object):
 
         for line in file(budget_jsons):
             line = json.loads(line.strip())
-            budgets["%(year)s/%(code)s" % line] = (line['title'],line.get('equiv_code'))
+            budgets["%(year)s/%(code)s" % line] = (line.get('title',''),line.get('equiv_code'))
 
         outfile = file(output,"w")
         changed_num = 0

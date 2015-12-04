@@ -52,7 +52,7 @@ class BudgetItems(object):
             self.titleCodeYears.setdefault((title,code),[]).append(year)
 
             skipped = False
-            if (test_value == 0 and not code.endswith('99') and (year <= 2014 or len(code)<10)) or not active:
+            if (test_value == 0 and not code.endswith('99') and (year <= 2016 or len(code)<10)) or not active:
                 print "SKIPPING non-active %d/%s" % (year,code)
                 errors.skipped(year,code)
                 skipped = True

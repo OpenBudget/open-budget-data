@@ -15,8 +15,7 @@ rules:
       output: budget_changes.jsons
       params:
           new_years:
-              - 2015
-              - 2015
+              - 2017
     - processor: consolidate_change_dates
       input: changes.jsons
       output: changes-with-dates.jsons

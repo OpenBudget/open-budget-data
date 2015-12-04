@@ -19,7 +19,7 @@ rules:
           summarize: no
     - processor: spreadsheet_to_jsons
       output: extra_queries.jsons
-      delay: 86400
+      delay: 1800
       params:
           key: 1E2bQcDguJbeBp3wFMGNpo0XynV0f93NFzfk3J4GfVFo
           sheet: queries

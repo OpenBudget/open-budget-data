@@ -8,7 +8,7 @@ import json
 import os
 import copy
 import shutil
-import requesocks as requests
+import requests
 from post_processing import field_to_int, zero_is_none, iter_records, empty_str_is_none
 from exemption_record import exemption_json_to_csv, update_data, exemption_record
 
@@ -34,6 +34,7 @@ class extended_data_scraper(base_scraper.base_scraper):
 class extended_data_web_page:
     def __init__( self, rate_limit=None ):
         self.session = requests.Session()
+        self.session.mount("http://", requests.adapters.HTTPAdapter(max_retries=3))
         proxy = os.environ.get('PROXY')
         if proxy is not None:
             self.session.proxies = {'http': 'socks5://'+proxy}
@@ -52,14 +53,24 @@ class extended_data_web_page:
         if self.rate_limit is not None:
             self.rate_limit.rate_limit()
         start_time = time.time()
-        self.response = self.session.request( 'get', url=url, timeout=10 )
+        retries = 3
+        self.text = ""
+        while retries > 0:
+            retries -= 1
+            try:
+                self.response = self.session.request( 'get', url=url, timeout=180 )
+                self.text = self.response.text
+                retries = 0
+            except Exception, e:
+                print "go_to_url: retries=%d" % retries
+
         print 'loaded exended data in %f secs' % (time.time() - start_time)
 
 
     def extract_page_data( self ):
         #start_time = time.time()
 
-        sel = Selector(text=self.response.text)
+        sel = Selector(text=self.text)
 
         ret = {}
 
@@ -76,7 +87,7 @@ class extended_data_web_page:
                                   ('contact_email', '//*[@id="ctl00_PlaceHolderMain_lbl_ContactPersonEmail"]'),
                                   ('claim_date', '//*[@id="ctl00_PlaceHolderMain_lbl_ClaimDate"]'),
                                   ('last_update_date', '//*[@id="ctl00_PlaceHolderMain_lbl_UpdateDate"]'),
-                                  ('reason', '//*[@id="ctl00_PlaceHolderMain_lbl_PtorReason"]'), 
+                                  ('reason', '//*[@id="ctl00_PlaceHolderMain_lbl_PtorReason"]'),
                                   ('source_currency', '//*[@id="ctl00_PlaceHolderMain_lbl_Currency"]'),
                                   ('page_title', '//*[@id="ctl00_PlaceHolderMain_lbl_PublicationType"]') ]:
 

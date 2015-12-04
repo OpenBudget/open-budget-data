@@ -25,7 +25,6 @@ rules:
       input:
           - budget-analysis.jsons
           - budgets.aggregated-jsons
-          - data/edu20152016.jsons
       output: budgets.analyzed.aggregated-jsons
     # - processor: aggregate_jsons_by_key
     #   input:
@@ -154,7 +153,7 @@ rules:
       input: budgets.analyzed.aggregated-jsons
       output: budget_partition_layout.jsons
       params:
-          year: 2014
+          year: 2015
     - processor: dump_to_db
       input: budget_partition_layout.jsons
       output: budget_partition_layout.sqlite

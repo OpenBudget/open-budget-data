@@ -126,7 +126,10 @@ class search_web_page:
         return self.result_indexes() == {'range':[1,10], 'total':100}
 
     def result_indexes( self ):
-        records_range_str = self.must_exist_xpath( '//*[@class="resultsSummaryDiv"]/text()' )[0].extract()
+        try:
+            records_range_str = self.must_exist_xpath( '//*[@class="resultsSummaryDiv"]/text()' )[0].extract()
+        except Exception:
+            return {'range':[0,0], 'total':0}
         # "tozaot 1-10 mitoch 100 reshumot
 
         if len(records_range_str.split(' ')) == 3: # lo nimtzeu reshoomot
