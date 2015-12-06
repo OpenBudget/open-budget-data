@@ -41,7 +41,7 @@ class consolidate_change_dates(object):
             if date is not None:
                 leading_items.setdefault(leading_item,{})[req_code] = (date,kind)
             else:
-                leading_items.setdefault(leading_item,{})[req_code] = (datetime.datetime.now(),10)
+                leading_items.setdefault(leading_item,{})[req_code] = (datetime.now(),10)
 
         # Fill in dates for missing rows
         for row in rows:
