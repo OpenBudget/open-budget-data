@@ -47,7 +47,7 @@ def get_url(url):
     if not cache.has_key(url):
         try:
             logging.debug( "getting url %s" % url )
-            data = json.loads(urllib2.urlopen("http://the.open-budget.org.il/api/"+url+"?limit=5000").read())
+            data = json.loads(urllib2.urlopen("http://www.obudget.org/api/"+url+"?limit=5555").read())
         except:
             logging.error( "Failed to get data for %s" % url )
             raise
