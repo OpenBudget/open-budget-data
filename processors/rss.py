@@ -188,6 +188,7 @@ def prepare_rss(output_filename):
                             'group_id': group_id,
                             'group': list(group),
                             'items': list(chain.from_iterable(tr['items'] for tr in transfers)) }
+        group_transfers['year'] = group_transfers['items'][0]['year']
         group_transfers['date'] = group_transfers['items'][0]['date']
         tr_date = datetime.datetime.strptime(group_transfers['date'],"%d/%m/%Y")
         group_transfers['age'] = (datetime.datetime.now() - tr_date).days
@@ -326,7 +327,7 @@ def prepare_rss(output_filename):
     to_write = {'rss_title':feed_title,
                 'rss_items':[x['group_id'] for x in final_transfers]}
     for i,e in enumerate(final_transfers):
-        to_write['rss_items[%s]' % e['group_id']] = e
+        to_write['rss_items[%s-%s]' % (e['year'],e['group_id'])] = e
     for k,v in to_write.iteritems():
         output.write(json.dumps({'key':k,'value':v})+'\n')
 
