@@ -325,7 +325,7 @@ def prepare_rss(output_filename):
         feed_title = "%d/%d - %d/%d" % (start.day,start.month,end.day,end.month)
 
     to_write = {'rss_title':feed_title,
-                'rss_items':[x['group_id'] for x in final_transfers]}
+                'rss_items':['%s-%s' % (x['year'],x['group_id']) for x in final_transfers]}
     for i,e in enumerate(final_transfers):
         to_write['rss_items[%s-%s]' % (e['year'],e['group_id'])] = e
     for k,v in to_write.iteritems():
