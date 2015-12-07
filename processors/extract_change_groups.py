@@ -79,7 +79,7 @@ def get_groups(changes):
         for k,v in change.iteritems():
             if k.startswith('date'):
                 if v is None:
-                    v = '01/01/1970'
+                    v = datetime.datetime.now().strftime("%d/%m/%Y")
                     kind = 'pending'
                     change['date/pending'] = v
                     change['pending'] = True
