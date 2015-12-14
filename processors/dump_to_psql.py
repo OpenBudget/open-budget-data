@@ -27,7 +27,7 @@ def convert(val,typ):
 
 class dump_to_psql(object):
 
-    def process(self,input,output,table,field_definitions):
+    def process(self,input,output,table,field_definitions,after_load=[]):
 
         good_field_definitions = [(x[0].replace('/','_'),x[1]) for x in field_definitions]
 
@@ -60,6 +60,9 @@ class dump_to_psql(object):
                 continue
             c.execute("""create index {0}_{1}_idx_asc on {0}({1} asc);""".format(table,fieldname))
             c.execute("""create index {0}_{1}_idx_desc on {0}({1} desc);""".format(table,fieldname))
+
+        for stmt in after_load:
+            c.execute(stmt)
 
         conn.commit()
         conn.close()
