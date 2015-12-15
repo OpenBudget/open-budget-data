@@ -5,8 +5,8 @@ rules:
       params:
           key_fields:
               - key
-      model: SystemProperty
-      process_history: no
+          model: SystemProperty
+          process_history: no
     - processor: upload
       input: properties.sqlite
       output: properties.upload
