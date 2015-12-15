@@ -65,6 +65,8 @@ rules:
       output: change_history.psql
       params:
           table: change_history
+          after_load:
+              - "create table change_exemption as select replace(replace(concat(selector, ''), '{\"publication_id\": ', ''), '}', '') as publication_id, time, field, from_value, to_value, created from change_history c where model = 'MRExemptionRecord' and created = false"
           field_definitions:
               -
                   - model
