@@ -1,25 +1,26 @@
-Configuring the default db path
--------------------------------
-in exemption_record.py:
-    db_filename = 'db/exemption.json'
-
-in entity_record.py:
-    db_filename = 'db/entity.json'
-
-
 Scraping the entire DB
 ----------------------
-exemption_updated_records_scraper.py --scrape=- dir_to_scrape_to --update --date=-
+exemption_scraper.py 1.json
+tenders_scaper.py 2.json
 
-dir_to_scrape_to will hold the raw data, post processed data and meta data which can be used to resume the scraping if stopped
-
-the directory can be deleted after the update
+will scrape the entire exemption db to 1.json and the entire tenders db to 2.json
 
 
 Scraping the changes since a date
 ---------------------------------
-exemption_updated_records_scraper.py --scrape=20/1/2014 dir_to_scrape_to --update
+exemption_scraper.py 1.json --since=20/1/2014
+tenders_scaper.py 2.json --since=last_week
 
-will scrape all the changes since 20/1/2014, including 20/1/2014
+will scrape all the exemption changes since 20/1/2014, including 20/1/2014 to 1.json
+will scrape all the tender changes in the past week to 2.json
+
+
+Scrape records again
+--------------------
+exemption_scraper.py 3.json --rescrape=1.json
+tenders_scaper.py 4.json --rescrape=2.json
+
+will scrape all the exemption records in 1.json again into 3.json
+will scrape all the tender records in 2.json again into 4.json
 
 
