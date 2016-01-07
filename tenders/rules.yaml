@@ -10,4 +10,4 @@ rules:
       output: db/exemption-alltime.success.jsons
       use_proxy: no
       params:
-          since: alltime
+          since: all_time

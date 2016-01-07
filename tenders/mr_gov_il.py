@@ -361,7 +361,7 @@ class search_web_page_base:
                 since = yesterday.strftime('%d/%m/%y')
         
             elif since == 'last_week':
-                yesterday = datetime.now() - timedelta(days=8)
+                yesterday = datetime.now() - timedelta(days=15)
                 since = yesterday.strftime('%d/%m/%y')
         
             elif since == 'last_year':
@@ -369,7 +369,7 @@ class search_web_page_base:
                 since = yesterday.strftime('%d/%m/%y')
                 
             elif since == 'all_time':
-                since = '1/1/2010'
+                since = '1/1/2008'
                 
             since = numerate_date( since )
 
