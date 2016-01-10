@@ -125,11 +125,26 @@ class exemption_search_web_page(mr_gov_il.search_web_page_base):
         self.request( 'post', data=form_data )
 
     @classmethod
+    def split_subjects( cls, record ):
+        if type(record['subjects']) is list:
+            return
+
+        if record['subjects'] is None:
+            record['subjects'] = []
+            return
+
+        record['subjects'] = record['subjects'].split( '; ' )
+
+    @classmethod
     def process_record( cls, record ):
+        import pdb; pdb.set_trace()
         cls.empty_str_is_none( record, 'supplier_id' )
         cls.field_to_int( record, 'supplier_id' )
         cls.zero_is_none( record, 'supplier_id' )
         cls.format_documents_time( record )
+        cls.split_subjects( record )
+        cls.field_to_int( record, 'volume' )
+        cls.zero_is_none( record, 'volume' )
         return record
 
 
