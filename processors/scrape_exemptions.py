@@ -11,7 +11,7 @@ class scrape_exemptions(object):
         if PROXY is not None:
             env['PROXY'] = PROXY
         cwd = 'tenders'
-        int_output = 'tenders/processed.json'
+        int_output = 'processed.json'
         args = ['/usr/bin/env', 'python', 'exemption_scraper.py',
                 int_output, '--since=%s' % since]
         logging.info("RUNNING %s" % " ".join(args))
@@ -27,4 +27,4 @@ class scrape_exemptions(object):
             logging.error(x)
         if len(stderr.strip())>0:
             raise RuntimeError(stderr.strip())
-        shutil.copyfile(int_output,output)
+        shutil.copyfile(os.path.join('tenders',int_output),output)

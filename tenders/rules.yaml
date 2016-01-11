@@ -6,7 +6,13 @@ rules:
       params:
           since: last_week
     - processor: scrape_exemptions
-      delay: 561600
+      delay: 597600
+      output: db/exemption-yearly.success.jsons
+      use_proxy: no
+      params:
+          since: last_year
+    - processor: scrape_exemptions
+      delay: 31104000
       output: db/exemption-alltime.success.jsons
       use_proxy: no
       params:

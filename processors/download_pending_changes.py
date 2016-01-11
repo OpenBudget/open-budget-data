@@ -41,7 +41,7 @@ def download(url,last_modified):
     datastream = opener.open(request, timeout=60)
     # last_modified[url] = datastream.headers.get('Last-Modified')
     ret = datastream.read()
-    if len(ret) < 1024:
+    if len(ret) == 0:
         return None
     return ret
 

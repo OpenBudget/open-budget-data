@@ -109,6 +109,12 @@ rules:
                   - subjects
                   - text[]
               -
+                  - source_currency
+                  - text
+              -
+                  - page_title
+                  - text
+              -
                   - entity_id
                   - text
               -
