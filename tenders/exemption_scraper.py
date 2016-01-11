@@ -136,8 +136,26 @@ class exemption_search_web_page(mr_gov_il.search_web_page_base):
         record['subjects'] = record['subjects'].split( '; ' )
 
     @classmethod
+    def add_publication_id( cls, record ):
+        if 'publication_id' in record:
+            return
+
+        url = record['url']
+        publication_id = None
+
+        for k,v in [x.split('=',1) for x in url.split('?',1)[1].split('&')]:
+            if k == 'pID':
+                publication_id = int(v)
+                break
+
+        if publication_id is None:
+            raise AssertionError( 'pID not in url %s' % url )
+
+        record['publication_id'] = publication_id
+
+    @classmethod
     def process_record( cls, record ):
-        import pdb; pdb.set_trace()
+        cls.add_publication_id( record )
         cls.empty_str_is_none( record, 'supplier_id' )
         cls.field_to_int( record, 'supplier_id' )
         cls.zero_is_none( record, 'supplier_id' )
