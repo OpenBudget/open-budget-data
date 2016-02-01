@@ -17,3 +17,21 @@ rules:
       use_proxy: no
       params:
           since: all_time
+    - processor: scrape_tenders
+      delay: 43200
+      output: db/tender.success.jsons
+      use_proxy: no
+      params:
+          since: last_week
+    - processor: scrape_tenders
+      delay: 597600
+      output: db/tender-yearly.success.jsons
+      use_proxy: no
+      params:
+          since: last_year
+    - processor: scrape_tenders
+      delay: 31104000
+      output: db/tender-alltime.success.jsons
+      use_proxy: no
+      params:
+          since: all_time

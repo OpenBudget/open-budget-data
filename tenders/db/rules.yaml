@@ -1,4 +1,5 @@
 rules:
+    # Exemptions
     - processor: aggregate_jsons_by_key
       input:
           - exemption.success.jsons
@@ -125,3 +126,66 @@ rules:
       output: exemption.upload
       params:
           kind: mr
+    # Tenders
+    - processor: aggregate_jsons_by_key
+      input:
+          - tender.success.jsons
+          - tender-alltime.success.jsons
+      output: tender-all.jsons
+      params:
+          key_fields:
+              - publication_id
+          summarize: no
+    - processor: aggregate_jsons_by_key
+      input:
+          - tender-all.jsons
+          - tender.processed.jsons
+      output: tender-all.processed.jsons
+      params:
+          key_fields:
+              - publication_id
+          summarize: no
+    - processor: aggregate_jsons_by_key
+      input:
+          - tender-all.processed.jsons
+      output: tender.aggregated-jsons
+      params:
+          key_fields:
+              - publication_id
+          summarize: no
+    - processor: dump_to_psql
+      input: tender.aggregated-jsons
+      output: tender.psql
+      params:
+          table: tender
+          field_definitions:
+              -
+                  - publication_id
+                  - bigint
+              -
+                  - publisher
+                  - text
+              -
+                  - publish_date
+                  - date
+              -
+                  - claim_date
+                  - date
+              -
+                  - claim_time
+                  - text
+              -
+                  - last_update_date
+                  - date
+              -
+                  - description
+                  - text
+              -
+                  - url
+                  - text
+              -
+                  - subjects
+                  - text[]
+              -
+                  - status
+                  - text
