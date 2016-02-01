@@ -3,13 +3,11 @@ rules:
     - processor: download_shitty_csv
       output: companies.csv
       delay: 86400
-      use_proxy: yes
       params:
           url: "http://index.justice.gov.il/DataGov/Corporations/Companies.csv"
     - processor: download_shitty_csv
       output: associations.csv
       delay: 86400
-      use_proxy: yes
       params:
           url: "http://index.justice.gov.il/DataGov/Corporations/Associations.csv"
     - processor: csv_to_jsons
@@ -83,6 +81,7 @@ rules:
           num_cols: 3    ### Canonical Entity List
     - processor: aggregate_jsons_by_key
       input:
+          - curated.jsons
           - from_exemptions.jsons
           - associations.jsons
           - companies.jsons

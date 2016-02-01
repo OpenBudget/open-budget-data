@@ -4,7 +4,6 @@ rules:
     output: /.csv/.jsons/
     params:
         new_years:
-            - 2015
             - 2016
   - processor: concat
     input: new*.jsons

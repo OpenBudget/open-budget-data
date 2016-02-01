@@ -134,7 +134,7 @@ rules:
       input: budgets.analyzed.aggregated-jsons
       output: compare_record.jsons
       params:
-         year: 2015
+         year: 2016
     - processor: dump_to_db
       input: compare_record.jsons
       output: compare_record.sqlite

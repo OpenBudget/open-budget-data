@@ -6,6 +6,7 @@ import logging
 import time
 import subprocess
 import rollbar
+import random
 
 def collect_processors(start_here):
     current_path = start_here
@@ -127,6 +128,7 @@ def main():
     processors = list( collect_processors(start_here) )
     while True:
         relevant = [ p for p in processors if is_relevant_processor(p) ]
+        random.shuffle(relevant)
         if len(relevant) == 0:
             break
         else:

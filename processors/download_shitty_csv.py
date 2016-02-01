@@ -10,7 +10,8 @@ class download_shitty_csv(object):
     def process(self,input,output,url="",PROXY=None):
 
         session = requests.session()
-        session.proxies = {'http': 'socks5://'+PROXY}
+        if PROXY is not None:
+            session.proxies = {'http': 'socks5://'+PROXY}
 
         repl1 = re.compile(",[\r\n\t ]+(?=[^5])")
         repl2 = re.compile("[\r\n\t ]+,")

@@ -2,19 +2,16 @@ rules:
     - processor: scrape_supports
       delay: 86400
       output: tmichot2014.csv
-      use_proxy: yes
       params:
           year: 2014
     - processor: scrape_supports
       delay: 86400
       output: tmichot2015.csv
-      use_proxy: yes
       params:
           year: 2015
     - processor: scrape_supports
       delay: 86400
       output: tmichot2016.csv
-      use_proxy: yes
       params:
           year: 2016
     - processor: csv_to_jsons

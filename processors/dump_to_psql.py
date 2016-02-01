@@ -22,7 +22,7 @@ def convert(val,typ):
     elif typ=="jsonb":
         val = json.dumps(val)
     elif typ=="boolean":
-        val = val in ('yes','true','TRUE','1')
+        val = val in ('yes','true','TRUE','1',True)
     return val
 
 class dump_to_psql(object):
