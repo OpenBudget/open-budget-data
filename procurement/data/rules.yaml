@@ -1,37 +1,15 @@
 rules:
-    - processor: csv_to_jsons
-      input: procurement_*.csv
-      output: /.csv/.jsons/
-      params:
-          has_header: true
-          field_definition:
-            - field_name: publisher
-            - field_name: supplier
-            - field_name: supplier_internal_id
-            - field_name: supplier_id
-            - field_name: volume
-              convertor: canonize_float
-            - field_name: actual_volume
-              convertor: canonize_float
-            - field_name: title
-            - field_name: procurement_id
-            - field_name: exemption_reason
-            - field_name: regulation
-            - field_name: claim_date
-              convertor: canonize_us_date
-            - field_name: start_date
-              convertor: canonize_us_date
-            - field_name: end_date
-              convertor: canonize_us_date
-    - processor: concat
-      input: procurement_*.jsons
+    - processor: procurement_scraper
+      delay: 86400
       output: procurement.jsons
     - processor: dump_to_db
       input: procurement.jsons
       output: procurement.sqlite
       params:
           key_fields:
-              - procurement_id
+              - order_id
+              - budget_code
+              - report_date
           model: ProcurementLine
     # - processor: upload
     #   input: procurement.sqlite
@@ -48,38 +26,53 @@ rules:
                   - publisher
                   - text
               -
-                  - supplier
+                  - purchasing_unit
                   - text
               -
-                  - supplier_internal_id
+                  - buyer_description
                   - text
               -
-                  - supplier_id
+                  - budget_code
+                  - text
+              -
+                  - budget_title
+                  - text
+              -
+                  - supplier_code
+                  - text
+              -
+                  - supplier_name
                   - text
               -
                   - volume
                   - numeric
               -
-                  - actual_volume
+                  - executed
                   - numeric
               -
-                  - title
+                  - currency
                   - text
               -
-                  - procurement_id
+                  - purchase_method
+                  - text
+              -
+                  - manof_ref
                   - text
               -
                   - exemption_reason
                   - text
               -
-                  - regulation
+                  - puropose
                   - text
               -
-                  - claim_date
+                  - order_id
+                  - text
+              -
+                  - sensitive_order
+                  - boolean
+              -
+                  - report_date
                   - date
               -
-                  - start_date
-                  - date
-              -
-                  - end_date
+                  - order_date
                   - date
