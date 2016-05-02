@@ -78,7 +78,8 @@ rules:
       params:
           key: 1Hp9F11YmLgYtyU_ZyETy3hsLfsvF4ycue8Jp9n7cOhQ
           sheet: data
-          num_cols: 3    ### Canonical Entity List
+          num_cols: 3
+    ### Canonical Entity List
     - processor: aggregate_jsons_by_key
       input:
           - curated.jsons
@@ -169,6 +170,20 @@ rules:
               - id
               - kind
           summarize: no
+    ### Post processing entity Enrichment
+    - processor: company_scraper
+      delay: 864000
+      input: used_entities.jsons
+      output: company_details.jsons
+    - processor: aggregate_jsons_by_key
+      input:
+          - company_details.jsons
+          - used_entities.jsons
+      output: enriched_used_entities.jsons
+      params:
+          key_fields:
+              - id
+          summarize: no
     ### Save & upload
     - processor: dump_to_db
       input: used_entities.jsons
@@ -180,7 +195,7 @@ rules:
           - kind
         model: Entity
     - processor: dump_to_psql
-      input: used_entities.jsons
+      input: enriched_used_entities.jsons.jsons
       output: entities.psql
       params:
           table: entities
@@ -206,8 +221,42 @@ rules:
               -
                   - gov_company
                   - boolean
+              -
+                  - company_name
+                  - text
+              -
+                  - company_status
+                  - text
+              -
+                  - company_type
+                  - text
+              -
+                  - company_government
+                  - text
+              -
+                  - company_limit
+                  - text
+              -
+                  - company_postal_code
+                  - text
+              -
+                  - company_mafera
+                  - text
+              -
+                  - company_address
+                  - text
+              -
+                  - company_city
+                  - text
+              -
+                  - lat
+                  - numeric
+              -
+                  - lng
+                  - numeric
     - processor: upload
       input: used_entities.sqlite
       output: used_entities.upload
       params:
           kind: en
+    # Scrape companies
