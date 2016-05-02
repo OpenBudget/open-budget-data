@@ -3,6 +3,7 @@ rules:
     - processor: aggregate_jsons_by_key
       input:
           - exemption.success.jsons
+          - exemption-yearly.success.jsons
           - exemption-alltime.success.jsons
       output: exemption-all.jsons
       params:
@@ -130,31 +131,15 @@ rules:
     - processor: aggregate_jsons_by_key
       input:
           - tender.success.jsons
+          - tender-yearly.success.jsons
           - tender-alltime.success.jsons
       output: tender-all.jsons
       params:
           key_fields:
               - publication_id
           summarize: no
-    - processor: aggregate_jsons_by_key
-      input:
-          - tender-all.jsons
-          - tender.processed.jsons
-      output: tender-all.processed.jsons
-      params:
-          key_fields:
-              - publication_id
-          summarize: no
-    - processor: aggregate_jsons_by_key
-      input:
-          - tender-all.processed.jsons
-      output: tender.aggregated-jsons
-      params:
-          key_fields:
-              - publication_id
-          summarize: no
     - processor: dump_to_psql
-      input: tender.aggregated-jsons
+      input: tender-all.jsons
       output: tender.psql
       params:
           table: tender
@@ -185,7 +170,7 @@ rules:
                   - text
               -
                   - subjects
-                  - text[]
+                  - text
               -
                   - status
                   - text

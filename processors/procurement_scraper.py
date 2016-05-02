@@ -16,10 +16,14 @@ def floater(x):
         return x
     if len(x.strip())==0:
         return None
-    return float(x.replace(',',''))
+    try:
+       return float(x.encode('utf8').replace(',',''))
+    except Exception,e:
+       print e
+       return None
 
 def utf8(x):
-    if type(x) in (int,long,float):
+    if type(x) in (int,long,float,datetime.datetime):
         return str(x)
     return x.strip()
 
@@ -30,7 +34,8 @@ DATE_RE = re.compile('[0-9]+')
 def date(x):
     if type(x) is datetime.datetime:
         return x.strftime('%d/%m/%Y')
-    x=x.strip()
+    elif type(x) in (int,long):
+        return (datetime.date(1900,1,1)+datetime.timedelta(days=x)).strftime('%d/%m/%Y')    x=x.strip()
     if len(x)==0:
         return None
     else:
@@ -90,75 +95,76 @@ def get_all_pages():
     page=0
     done = False
     while not done:
-        results = requests.get(URL.format(page)).text
+        results = requests.get(URL.format(page),verify=False).text
         results = pq(results)
         results = results.find('.search-result')
         for result in results:
             result = pq(result).find('li')
             url = pq(result[0].find('a')).attr('href')
             title = pq(result[0].find('a')).text()
+            publisher = pq(result[1]).text()
             date = pq(result[2]).text().replace('.','/')
-            yield date, title, url
+            yield date, title, publisher, url
         if len(results)==0:
             done = True
         page += 1
 
 def query_foi_gov():
-    for date, title, url in get_all_pages():
+    for date, title, publisher, url in get_all_pages():
         try:
-            single = requests.get(url).text
+            single = requests.get(url,verify=False).text
             files = pq(single).find('span.file a')
             for a in files:
                 href = pq(a).attr('href')
                 if not 'xls' in href.lower():
                     continue
-                content = requests.get(href).content
-                yield date, title, BytesIO(content)
+                content = requests.get(href,verify=False).content
+                yield href, date, title, publisher, BytesIO(content)
         except Exception, e:
-            print 'Failed to read file of %s: %s' % (title, e)
+            print 'Failed to read file of %r: %r' % (title, e)
             continue
 
 def get_records():
-    for date, title, f in query_foi_gov():
+    for href, date, title, publisher, f in query_foi_gov():
         try:
             wb = openpyxl.reader.excel.load_workbook(f, read_only=True, data_only=True)
             ws = wb.worksheets[0]
             data = [[cell.value for cell in row] for row in ws.rows]
-            yield date, title, data
+            yield href, date, title, publisher, data
         except Exception, e:
-            print 'Bad Excel format for %s: %s' % (title, e)
+            print 'Bad Excel format for %r: %r' % (title, e)
             continue
 
 def process_procurement(out):
-    for date, title, data in get_records():
+    for href, date, title, publisher, data in get_records():
         headers = data[0]
         headers = [h.strip() if h is not None else '' for h in headers]
         try:
             headers = [KNOWN_HEADERS[h] for h in headers]
         except Exception, e:
             if u"הזמנה רגישה" not in headers:
-                print 'Bad report format for %s' % title
+                print 'Bad report format for %r' % title
             else:
-                print 'Bad Headers for %s: %s' % (title, e)
+                print 'Bad Headers for %r: %r' % (title, e)
             continue
 
         for row in data[1:]:
             if all(x is None for x in row):
                 break
             row = dict(zip(headers,row))
-            out_rec = {'report_date':date}
+            out_rec = {'report_date':date, 'report_title':title, 'report_publisher':publisher}
             for k,v in row.items():
                 out_k, filt = k
                 if filt is not None and v is not None:
                     try:
                         out_v = filt(v)
                     except Exception, e:
-                        print 'Failed to transform %r for %s in %s' % (v, out_k, title)
+                        print 'Failed to transform %r for %r in %s' % (v, out_k, href)
                         raise
                     out_rec[out_k] = out_v
             out.write("%s\n" % json.dumps(out_rec))
 
-        print u'Processed successfully %s' % title
+        print u'Processed successfully %r' % title
 
 class procurement_scraper(object):
 

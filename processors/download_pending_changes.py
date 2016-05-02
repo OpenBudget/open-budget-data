@@ -9,7 +9,7 @@ import hashlib
 import sqlite3
 import json
 
-YEAR = 2015
+YEAR = 2016
 
 def mofgov(relative):
     return "http://www.mof.gov.il"+relative
@@ -67,8 +67,11 @@ class download_pending_changes(object):
             hrefs = [ pq(_f).attr('href') for _f in files ]
             hrefs.sort(key=lambda x: 0 if x.endswith('csv') else 1)
             for href in hrefs:
+                if not '/BudgetChanges/' in href:
+                   print "skipping",href
+                   continue
                 if href.endswith('csv'):
-                    logging.debug('downloading %s' % href)
+                    logging.debug('Downloading %s' % href)
                     try:
                         csvraw = download(mofgov(href),last_modified)
                         for coding in ['utf8','iso8859-8','windows-1255']:
@@ -81,6 +84,18 @@ class download_pending_changes(object):
                                     decoded = None
                             except:
                                 continue
+                        if '/Committee/' in href or u'תאריך משלוח לוועדה' in csvdata or u'שינויים לדיון בוועדה' in csvdata:
+                            filename = os.path.join(changes_basepath,'changes-pending.csv')
+                            logging.info("Setting pending to true")
+                            csvdata = csvdata.replace(u'תאריך אישור', u'תאריך משלוח לוועדה')
+                            pending = True
+                        elif '/Approved/' in href or u'תאריך אישור' in csvdata or u'שינויים מאושרים' in csvdata:
+                            filename = os.path.join(changes_basepath,'changes-%s.csv' % YEAR)
+                            logging.info("Setting pending to false")
+                            pending = False
+                        else:
+                            logging.warn('Unknown file %s' % href)
+                            continue
                         csvdata = csvdata.split('\n')
                         while u'שנה' not in csvdata[0]:
                             csvdata.pop(0)
@@ -92,17 +107,9 @@ class download_pending_changes(object):
                         else:
                             logging.debug('Not modified!')
                             continue
-                    if '/Committee/' in href or 'תאריך משלוח לוועדה' in csvdata:
-                        filename = os.path.join(changes_basepath,'changes-pending.csv')
-                        logging.info("Setting pending to true")
-                        pending = True
-                    elif '/Approved/' in href or 'תאריך אישור' in csvdata:
-                        filename = os.path.join(changes_basepath,'changes-%s.csv' % YEAR)
-                        logging.info("Setting pending to false")
-                        pending = False
-                    downloaded = downloaded or write_if_changed(filename,csvdata)
+                    downloaded = write_if_changed(filename,csvdata) or downloaded
                 if href.endswith('rar'):
-                    logging.debug('downloading %s' % href)
+                    logging.debug('downloading RAR %s' % href)
                     try:
                         rardata = download(mofgov(href),last_modified)
                         assert(pending is not None)
@@ -111,7 +118,7 @@ class download_pending_changes(object):
                         else:
                             filename = os.path.join(change_expl_basepath,'explanations-%s.rar' % YEAR)
                         logging.debug('>> %s' % filename)
-                        downloaded = downloaded or write_if_changed(filename,rardata)
+                        downloaded = write_if_changed(filename,rardata) or downloaded
                     except urllib2.HTTPError, e:
                         if e.code != 304:
                             logging.error('Failed to download %s' % href)
@@ -120,7 +127,7 @@ class download_pending_changes(object):
                             logging.debug('Not modified!')
                             continue
                 if href.endswith('zip'):
-                    logging.debug('downloading %s' % href)
+                    logging.debug('downloading ZIP %s' % href)
                     try:
                         zipdata = download(mofgov(href),last_modified)
                         assert(pending is not None)
@@ -129,7 +136,7 @@ class download_pending_changes(object):
                         else:
                             filename = os.path.join(change_expl_basepath,'explanations-%s.zip' % YEAR)
                         logging.debug('>> %s' % filename)
-                        downloaded = downloaded or write_if_changed(filename,zipdata)
+                        downloaded = write_if_changed(filename,zipdata) or downloaded
                     except urllib2.HTTPError, e:
                         if e.code != 304:
                             logging.error('Failed to download %s' % href)

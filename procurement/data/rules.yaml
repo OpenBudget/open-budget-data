@@ -16,8 +16,19 @@ rules:
     #   output: procurement.upload
     #   params:
     #       kind: pl
+    - processor: aggregate_jsons_by_key
+      input:
+          - procurement.jsons
+          - procurement.processed.jsons
+      output: procurement.aggregated.jsons
+      params:
+          key_fields:
+              - order_id
+              - budget_code
+              - report_date
+          summarize: no
     - processor: dump_to_psql
-      input: procurement.jsons
+      input: procurement.aggregated.jsons
       output: procurement.psql
       params:
           table: procurement
@@ -62,7 +73,7 @@ rules:
                   - exemption_reason
                   - text
               -
-                  - puropose
+                  - purpose
                   - text
               -
                   - order_id
@@ -74,5 +85,17 @@ rules:
                   - report_date
                   - date
               -
+                  - report_title
+                  - text
+              -
+                  - report_publisher
+                  - text
+              -
                   - order_date
                   - date
+              -
+                  - entity_id
+                  - text
+              -
+                  - entity_kind
+                  - text

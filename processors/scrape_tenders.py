@@ -12,7 +12,7 @@ class scrape_tenders(object):
             env['PROXY'] = PROXY
         cwd = 'tenders'
         int_output = 'processed-tenders.json'
-        args = ['/usr/bin/env', 'python', 'tender_scraper.py',
+        args = ['/usr/bin/env', 'python', 'tenders_scraper.py',
                 int_output, '--since=%s' % since]
         logging.info("RUNNING %s" % " ".join(args))
         logging.info("cwd='%s'" % cwd)

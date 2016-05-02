@@ -98,6 +98,19 @@ rules:
     - processor: process_entities
       input:
           - entities.jsons
+          - ../procurement/data/procurement.jsons
+      output: used_entities.procurement.jsons
+      params:
+          name_key: supplier_name
+          processed_file: procurement/data/procurement.processed.jsons
+          non_processed_file: procurement/data/procurement.nonprocessed.txt
+          id_keys:
+              - report_date
+              - order_id
+              - budget_code
+    - processor: process_entities
+      input:
+          - entities.jsons
           - ../tmichot/data/tmichot.jsons
       output: used_entities.tmichot.jsons
       params:
@@ -147,6 +160,7 @@ rules:
       input:
           - used_entities.tmichot.jsons
           - used_entities.exemptions.jsons
+          - used_entities.procurement.jsons
           - entity_ranks.jsons
           - extra_entity_properties.jsons
       output: used_entities.jsons

@@ -7,7 +7,7 @@ import json
 import tempfile
 import logging
 
-tempfile.tempdir='/mnt/big/adam/tmp'
+tempfile.tempdir='/mnt/bigger/adam/tmp'
 
 if __name__ == "__main__":
     input = sys.argv[1:-1]

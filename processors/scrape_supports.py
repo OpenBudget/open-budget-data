@@ -93,16 +93,20 @@ class scrape_supports(object):
 
             if out is None:
                 out = csv.writer(file(output,"w"))
+                done = False
+                first = 0
+                while not done:
+                    url = "http://www.obudget.org/api/supports/00/{0}?limit=1000&first={1}".format(year,first)
+                    rows = real_requests.get(url).json()
+                    rows = [ [ unicode(y).encode('utf8') for y  in [x['year'], '', x['subject'], x['code'][2:],
+                                                                x['recipient'], x['kind'],
+                                                                x['title'], 0, 0, 0]] for x in rows ]
+                    out.writerows(rows)
+                    done = len(rows)==0
+                    first += 1000
 
             for item_code in item_codes:
                 fmt['code'] = item_code
-
-                url = "http://www.obudget.org/api/supports/00{0}/{1}?limit=5000".format(item_code,year)
-                rows = real_requests.get(url).json()
-                rows = [ [ unicode(y).encode('utf8') for y  in [x['year'], '', x['subject'], item_code,
-                                                            x['recipient'], x['kind'],
-                                                            x['title'], 0, 0, 0]] for x in rows ]
-                out.writerows(rows)
 
                 print year,hcode,title.encode('utf8'),item_code
 

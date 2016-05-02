@@ -56,6 +56,7 @@ class process_entities(object):
            return ""
         done = False
         while not done:
+            word = word.strip()
             done = True
             for p in self.CLEAN_PREFIXES:
                 if word.endswith(p):
@@ -119,6 +120,7 @@ class process_entities(object):
 
             # Try to find the match value in the list of entity names
             match_value = self.clean(line.get(name_key))
+            if len(match_value) < 3: continue
             if found is None and match_value is not None:
                 # We use bisect so we find prefixes of the name as well
                 i = bisect.bisect_left(entity_names, match_value)

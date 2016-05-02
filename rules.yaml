@@ -16,6 +16,7 @@ rules:
     # Change history
     - processor: filter_history
       input: change_history.jsons
+      delay: 86400
       output: change_history.filtered.jsons
       params:
           filter_spec:

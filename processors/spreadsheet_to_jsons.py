@@ -6,6 +6,8 @@ import field_convertors
 import os
 import subprocess
 import sys
+import urllib3
+urllib3.disable_warnings()
 
 def work(input,output,key="",sheet=None,num_cols=2,convertors={},
          spreadsheet_name_key=None,spreadsheet_index_key=None):

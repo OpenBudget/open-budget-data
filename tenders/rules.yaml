@@ -1,6 +1,6 @@
 rules:
     - processor: scrape_exemptions
-      delay: 43200
+      delay: 1800
       output: db/exemption.success.jsons
       use_proxy: no
       params:

@@ -103,9 +103,9 @@ rules:
       output: changes.upload
       params:
           kind: cl
-    # - processor: rss
-    #   input: changes.upload
-    #   output: rss-properties.jsons
+    - processor: rss
+      input: changes.upload
+      output: rss-properties.jsons
     - processor: concat
       input: mof-data/changegroups-*.jsons
       output: changegroups.jsons
