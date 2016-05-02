@@ -1,5 +1,35 @@
 rules:
     - processor: scrape_supports
+      delay: 8640000
+      output: tmichot2008.csv
+      params:
+          year: 2008
+    - processor: scrape_supports
+      delay: 8640000
+      output: tmichot2009.csv
+      params:
+          year: 2009
+    - processor: scrape_supports
+      delay: 8640000
+      output: tmichot2010.csv
+      params:
+          year: 2010
+    - processor: scrape_supports
+      delay: 8640000
+      output: tmichot2011.csv
+      params:
+          year: 2011
+    - processor: scrape_supports
+      delay: 8640000
+      output: tmichot2012.csv
+      params:
+          year: 2012
+    - processor: scrape_supports
+      delay: 8640000
+      output: tmichot2013.csv
+      params:
+          year: 2013
+    - processor: scrape_supports
       delay: 86400
       output: tmichot2014.csv
       params:
